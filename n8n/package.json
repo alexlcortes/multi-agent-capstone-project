@@ -1,0 +1,13 @@
+{
+  "name": "wire3-gtm-n8n",
+  "version": "1.0.0",
+  "description": "Local n8n instance for the Wire3 GTM capstone workflow",
+  "private": true,
+  "scripts": {
+    "start": "n8n start"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "n8n": "2.39.5"
+  }
+}
