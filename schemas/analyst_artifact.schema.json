@@ -1,0 +1,366 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wire3-capstone.local/schemas/analyst_artifact.schema.json",
+  "title": "AnalystArtifact",
+  "description": "Structured output of the Analyst Agent, built entirely from research_evidence.schema.json records. Consumed by the Strategy Agent and, eventually, the Docs Writer. Every factual field is either grounded in evidence_ids, explicitly marked as taken directly from PROJECT_BRIEF.md, or explicitly marked as analyst inference -- never left ambiguous.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "brief_id",
+    "competitor_comparison_table",
+    "pricing_matrix",
+    "product_feature_comparison",
+    "market_themes",
+    "swot",
+    "seven_p_analysis",
+    "assumptions_unknowns_conflicts"
+  ],
+  "$defs": {
+    "EvidenceIdRef": {
+      "type": "string",
+      "pattern": "^EV-[a-f0-9]{8}$",
+      "description": "Must reference an evidence_id that exists in the current run's evidence set (research_evidence.schema.json)."
+    },
+    "CompetitorName": {
+      "type": "string",
+      "enum": ["Wire3", "Spectrum", "AT&T", "T-Mobile Home Internet"],
+      "description": "Fixed, exact-string set matching PROJECT_BRIEF.md's candidate competitor list plus Wire3 itself. Locked as an enum so implementations can't diverge on naming/casing (e.g. 'AT&T' vs 'ATT' vs 'AT and T')."
+    },
+    "CitedField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "evidence_ids", "basis"],
+      "properties": {
+        "value": {
+          "description": "The typed value. Expected type is given in the description of the property that uses this $def (this schema keeps it untyped here because JSON Schema has no generics)."
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/EvidenceIdRef" },
+          "description": "Evidence backing this value. Required non-empty when basis = 'evidence'. May be empty when basis = 'brief_stated' or 'inference'."
+        },
+        "basis": {
+          "type": "string",
+          "enum": ["evidence", "brief_stated", "inference"],
+          "description": "'evidence' = grounded in >=1 research evidence records (evidence_ids must be non-empty). 'brief_stated' = taken directly from PROJECT_BRIEF.md as a given input (e.g. 'Wire3 has no mobile bundle'), not from external research. 'inference' = the Analyst Agent's own reasoning/judgment; evidence_ids may be empty but should still be populated if the inference was prompted by specific evidence."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "basis": { "const": "evidence" } } },
+          "then": { "properties": { "evidence_ids": { "minItems": 1 } } }
+        }
+      ]
+    },
+    "DerivedField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "derived_from_evidence_ids", "formula"],
+      "description": "For values the Analyst Agent computes rather than reads directly from a source (e.g. a blended effective price). Never use CitedField for a computed number -- the computation itself is not a citable fact.",
+      "properties": {
+        "value": { "type": "number" },
+        "derived_from_evidence_ids": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/EvidenceIdRef" },
+          "minItems": 1
+        },
+        "formula": {
+          "type": "string",
+          "description": "Must restate the fixed formula used, so n8n and CrewAI compute identical numbers from identical inputs rather than each inventing their own rounding/weighting logic."
+        }
+      }
+    },
+    "CompetitorComparisonRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "competitor_name",
+        "footprint_confirmed_in_region",
+        "service_type",
+        "has_mobile_bundle_available",
+        "top_advertised_speed_mbps_down",
+        "top_advertised_speed_mbps_up"
+      ],
+      "properties": {
+        "competitor_name": { "$ref": "#/$defs/CompetitorName" },
+        "footprint_confirmed_in_region": {
+          "allOf": [{ "$ref": "#/$defs/CitedField" }],
+          "description": "value: boolean -- confirmed serviceable in Ocala/Marion County specifically (RQ1), not statewide/national footprint."
+        },
+        "service_type": {
+          "allOf": [{ "$ref": "#/$defs/CitedField" }],
+          "description": "value: one of 'cable' | 'fiber' | 'dsl' | 'fixed_wireless' | 'unknown'."
+        },
+        "has_mobile_bundle_available": {
+          "allOf": [{ "$ref": "#/$defs/CitedField" }],
+          "description": "value: boolean. For the Wire3 row this must be basis='brief_stated' (false, per the brief), never 'evidence'."
+        },
+        "top_advertised_speed_mbps_down": {
+          "allOf": [{ "$ref": "#/$defs/CitedField" }],
+          "description": "value: number (Mbps)."
+        },
+        "top_advertised_speed_mbps_up": {
+          "allOf": [{ "$ref": "#/$defs/CitedField" }],
+          "description": "value: number (Mbps)."
+        },
+        "summary_note": {
+          "allOf": [{ "$ref": "#/$defs/CitedField" }],
+          "description": "Optional. value: short free-text string, basis may be 'inference'."
+        }
+      }
+    },
+    "PricingMatrixRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "competitor_name",
+        "plan_name",
+        "speed_mbps_down",
+        "promo_status",
+        "promo_price_usd_per_month",
+        "promo_duration_months",
+        "post_promo_price_usd_per_month",
+        "blended_12mo_effective_price_usd"
+      ],
+      "properties": {
+        "competitor_name": { "$ref": "#/$defs/CompetitorName" },
+        "plan_name": { "allOf": [{ "$ref": "#/$defs/CitedField" }], "description": "value: string." },
+        "speed_mbps_down": { "allOf": [{ "$ref": "#/$defs/CitedField" }], "description": "value: number." },
+        "promo_status": {
+          "allOf": [{ "$ref": "#/$defs/CitedField" }],
+          "description": "value: one of 'has_promo' | 'no_promo_found' | 'not_researched'. 'no_promo_found' is itself a claim (an absence) and must carry basis='evidence' with the evidence_id of the page checked, or basis='inference' only if genuinely unresearched is not the case -- 'not_researched' is the only status allowed to have empty evidence_ids."
+        },
+        "promo_price_usd_per_month": {
+          "allOf": [{ "$ref": "#/$defs/CitedField" }],
+          "description": "value: number, in USD, 2 decimals, or null when promo_status != 'has_promo'. Never a formatted string like '$49.99'."
+        },
+        "promo_duration_months": {
+          "allOf": [{ "$ref": "#/$defs/CitedField" }],
+          "description": "value: integer months, or null when promo_status != 'has_promo'."
+        },
+        "post_promo_price_usd_per_month": {
+          "allOf": [{ "$ref": "#/$defs/CitedField" }],
+          "description": "value: number, USD, 2 decimals."
+        },
+        "equipment_fee_usd_per_month": { "allOf": [{ "$ref": "#/$defs/CitedField" }], "description": "value: number or null." },
+        "early_termination_fee_usd": { "allOf": [{ "$ref": "#/$defs/CitedField" }], "description": "value: number or null." },
+        "blended_12mo_effective_price_usd": {
+          "allOf": [{ "$ref": "#/$defs/DerivedField" }],
+          "description": "Fixed formula: ((promo_price * promo_duration_months) + (post_promo_price * (12 - promo_duration_months))) / 12. When promo_status != 'has_promo', use promo_duration_months = 0 and promo_price = post_promo_price."
+        }
+      }
+    },
+    "ProductFeatureRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "competitor_name",
+        "technology_type",
+        "symmetric_speeds",
+        "data_cap_present",
+        "wifi_router_included",
+        "professional_install_included",
+        "self_install_available",
+        "contract_required",
+        "contract_length_months",
+        "customer_support_channels"
+      ],
+      "description": "Fixed core column set (controlled vocabulary) so row shape can't drift between implementations based on whatever the Research Agent happened to discover. Anything beyond this core set goes in additional_features, not new top-level keys.",
+      "properties": {
+        "competitor_name": { "$ref": "#/$defs/CompetitorName" },
+        "technology_type": { "allOf": [{ "$ref": "#/$defs/CitedField" }], "description": "value: 'cable' | 'fiber' | 'dsl' | 'fixed_wireless'." },
+        "symmetric_speeds": { "allOf": [{ "$ref": "#/$defs/CitedField" }], "description": "value: boolean." },
+        "data_cap_present": { "allOf": [{ "$ref": "#/$defs/CitedField" }], "description": "value: boolean." },
+        "wifi_router_included": { "allOf": [{ "$ref": "#/$defs/CitedField" }], "description": "value: boolean." },
+        "professional_install_included": { "allOf": [{ "$ref": "#/$defs/CitedField" }], "description": "value: boolean." },
+        "self_install_available": { "allOf": [{ "$ref": "#/$defs/CitedField" }], "description": "value: boolean." },
+        "contract_required": { "allOf": [{ "$ref": "#/$defs/CitedField" }], "description": "value: boolean." },
+        "contract_length_months": { "allOf": [{ "$ref": "#/$defs/CitedField" }], "description": "value: integer or null." },
+        "customer_support_channels": { "allOf": [{ "$ref": "#/$defs/CitedField" }], "description": "value: array of strings, e.g. ['phone','chat','in-store']." },
+        "additional_features": {
+          "type": "array",
+          "description": "Open-ended extension bucket for anything discovered beyond the fixed core columns above. Keeps optional findings from corrupting the comparable core schema.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "field"],
+            "properties": {
+              "name": { "type": "string" },
+              "field": { "$ref": "#/$defs/CitedField" }
+            }
+          }
+        }
+      }
+    },
+    "MarketTheme": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["theme_id", "title", "description", "related_research_question_ids", "supporting_evidence_ids"],
+      "properties": {
+        "theme_id": { "type": "string", "pattern": "^THEME-[0-9]+$" },
+        "title": { "type": "string", "maxLength": 80 },
+        "description": {
+          "type": "string",
+          "description": "Prose synthesis across multiple evidence records. Citation granularity here is deliberately theme-level (one evidence_ids list for the whole theme), not sentence-level like the tables above."
+        },
+        "related_research_question_ids": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^RQ[0-9]+$" },
+          "minItems": 1
+        },
+        "supporting_evidence_ids": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/EvidenceIdRef" },
+          "minItems": 1
+        },
+        "competitors_involved": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CompetitorName" }
+        }
+      }
+    },
+    "SwotItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["item_id", "statement", "basis", "evidence_ids"],
+      "properties": {
+        "item_id": { "type": "string", "pattern": "^SWOT-(S|W|O|T)[0-9]+$" },
+        "statement": { "type": "string" },
+        "basis": {
+          "type": "string",
+          "enum": ["evidence", "brief_stated", "inference"],
+          "description": "Same three-way split as CitedField.basis. Prevents fabricated citations for structural facts (e.g. 'no mobile bundle' is 'brief_stated') and prevents silently uncited items that should be inference-flagged."
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/EvidenceIdRef" },
+          "description": "Required non-empty when basis = 'evidence'."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "basis": { "const": "evidence" } } },
+          "then": { "properties": { "evidence_ids": { "minItems": 1 } } }
+        }
+      ]
+    },
+    "SevenPCategoryEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["market_description"],
+      "properties": {
+        "market_description": {
+          "allOf": [{ "$ref": "#/$defs/CitedField" }],
+          "description": "value: string. Describes how the CURRENT competitive market behaves on this P (e.g. for 'promotion': 'all three incumbents rely on 12-month promo-rate discounts'). This is descriptive/analytical, not prescriptive -- Wire3's own positioning/strategy recommendation belongs in the Strategy Agent's artifact, not here."
+        },
+        "wire3_relevant_fact": {
+          "allOf": [{ "$ref": "#/$defs/CitedField" }],
+          "description": "Optional. value: string. A Wire3-specific fact relevant to this P, sourced only from Wire3's public site (basis='evidence') or the brief (basis='brief_stated'). Never a strategic recommendation."
+        }
+      }
+    },
+    "Assumption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "statement", "rationale", "evidence_ids"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^ASM-[0-9]+$" },
+        "statement": { "type": "string" },
+        "rationale": { "type": "string" },
+        "evidence_ids": { "type": "array", "items": { "$ref": "#/$defs/EvidenceIdRef" } }
+      }
+    },
+    "Unknown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "research_question_id", "description", "reason_unresolved"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^UNK-[0-9]+$" },
+        "research_question_id": { "type": "string", "pattern": "^RQ[0-9]+$" },
+        "description": { "type": "string" },
+        "reason_unresolved": { "type": "string" }
+      }
+    },
+    "Conflict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "research_question_id", "evidence_id_a", "evidence_id_b", "description", "resolution_status"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^CONF-[0-9]+$" },
+        "research_question_id": { "type": "string", "pattern": "^RQ[0-9]+$" },
+        "evidence_id_a": { "$ref": "#/$defs/EvidenceIdRef" },
+        "evidence_id_b": { "$ref": "#/$defs/EvidenceIdRef" },
+        "description": { "type": "string" },
+        "resolution_status": {
+          "type": "string",
+          "enum": ["unresolved", "resolved_favor_a", "resolved_favor_b", "both_retained_as_uncertain"]
+        }
+      }
+    }
+  },
+  "properties": {
+    "brief_id": { "type": "string", "description": "Ties this artifact back to the PROJECT_BRIEF.md version it was built from." },
+    "competitor_comparison_table": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/CompetitorComparisonRow" },
+      "minItems": 4,
+      "maxItems": 4,
+      "description": "Exactly one row per entry in CompetitorName's enum (Wire3 + the 3 candidate competitors), no more, no fewer."
+    },
+    "pricing_matrix": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/PricingMatrixRow" },
+      "minItems": 4,
+      "description": "One or more rows per competitor (multiple speed tiers allowed); at least one row per CompetitorName."
+    },
+    "product_feature_comparison": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ProductFeatureRow" },
+      "minItems": 4,
+      "maxItems": 4,
+      "description": "Exactly one row per CompetitorName, same fixed set as competitor_comparison_table."
+    },
+    "market_themes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/MarketTheme" },
+      "minItems": 3,
+      "maxItems": 6
+    },
+    "swot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strengths", "weaknesses", "opportunities", "threats"],
+      "properties": {
+        "strengths": { "type": "array", "items": { "$ref": "#/$defs/SwotItem" }, "minItems": 1 },
+        "weaknesses": { "type": "array", "items": { "$ref": "#/$defs/SwotItem" }, "minItems": 1 },
+        "opportunities": { "type": "array", "items": { "$ref": "#/$defs/SwotItem" }, "minItems": 1 },
+        "threats": { "type": "array", "items": { "$ref": "#/$defs/SwotItem" }, "minItems": 1 }
+      }
+    },
+    "seven_p_analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["product", "price", "place", "promotion", "people", "process", "physical_evidence"],
+      "description": "Fixed as 7P (not 4P) and represented as an object keyed by category, not an array -- guarantees exactly one entry per category with no duplicates or missing categories, and removes the '4P or 7P' choice as a source of divergence between implementations.",
+      "properties": {
+        "product": { "$ref": "#/$defs/SevenPCategoryEntry" },
+        "price": { "$ref": "#/$defs/SevenPCategoryEntry" },
+        "place": { "$ref": "#/$defs/SevenPCategoryEntry" },
+        "promotion": { "$ref": "#/$defs/SevenPCategoryEntry" },
+        "people": { "$ref": "#/$defs/SevenPCategoryEntry" },
+        "process": { "$ref": "#/$defs/SevenPCategoryEntry" },
+        "physical_evidence": { "$ref": "#/$defs/SevenPCategoryEntry" }
+      }
+    },
+    "assumptions_unknowns_conflicts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assumptions", "unknowns", "conflicts"],
+      "properties": {
+        "assumptions": { "type": "array", "items": { "$ref": "#/$defs/Assumption" } },
+        "unknowns": { "type": "array", "items": { "$ref": "#/$defs/Unknown" } },
+        "conflicts": { "type": "array", "items": { "$ref": "#/$defs/Conflict" } }
+      }
+    }
+  }
+}

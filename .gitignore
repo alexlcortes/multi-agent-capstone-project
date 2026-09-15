@@ -1,0 +1,19 @@
+# Course materials (not our own work; keep out of the repo, especially if remote is public)
+project-guides/
+
+# macOS
+.DS_Store
+
+# Environment / secrets
+.env
+.env.*
+*.key
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.uv/
+
+# Node / n8n
+node_modules/

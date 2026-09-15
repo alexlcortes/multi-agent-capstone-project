@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wire3-capstone.local/schemas/research_evidence.schema.json",
+  "title": "EvidenceRecord",
+  "description": "One unit of research evidence produced by the Research Agent, consumed by the Analyst and Strategy Agents, and cited by the Docs Writer. Every factual claim in any downstream artifact must be traceable to at least one record matching this schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "evidence_id",
+    "research_question_id",
+    "claim",
+    "source_title",
+    "source_url",
+    "source_type",
+    "retrieval_timestamp",
+    "excerpt",
+    "validation_status"
+  ],
+  "properties": {
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^EV-[a-f0-9]{8}$",
+      "description": "Stable unique ID, recommended as EV- plus the first 8 hex chars of a hash of (source_url + claim). Hash-based (not sequential) so re-running the same brief against an unchanged source yields the same ID, supporting caching and reproducibility comparisons across runs."
+    },
+    "research_question_id": {
+      "type": "string",
+      "pattern": "^RQ[0-9]+$",
+      "description": "Must match one of the research_question_id values defined in the current PROJECT_BRIEF.md (e.g. RQ1..RQ8). Not free text restating the question -- this is the field the coverage KPI groups on."
+    },
+    "claim": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 400,
+      "description": "One atomic, self-contained factual statement, table-cell-ready. If a source supports two distinct facts, emit two evidence records, not one record with a compound claim."
+    },
+    "source_title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable title of the source page/document, for the citations appendix."
+    },
+    "source_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://",
+      "description": "Direct, fetchable URL to the source. This is what gets checked by the link-validation safeguard."
+    },
+    "source_type": {
+      "type": "string",
+      "enum": ["primary", "company", "analyst", "news", "community"],
+      "description": "primary = official filing/pricing/terms page (e.g. provider's own pricing page, FCC data); company = vendor marketing/blog content that isn't a primary filing; analyst = paid/independent research firms (J.D. Power, Parks Associates); news = trade press or local news; community = forums, review sites, social threads (Reddit, BBB, Trustpilot). Drives the >=80%-primary/top-tier source-quality KPI."
+    },
+    "publication_date": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "ISO 8601 date the source content was published or last updated, when the source exposes one. Null when unavailable (common on live pricing pages) -- absence must be explicit, not inferred as 'today'."
+    },
+    "retrieval_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 datetime the Research Agent fetched this source, in UTC. Always required, regardless of whether publication_date is known. Drives cache TTL and reproducibility/drift checks."
+    },
+    "excerpt": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 600,
+      "description": "Verbatim quote or tight paraphrase from the fetched page containing the specific sentence/row the claim was extracted from. Must be checkable against the actual page content -- not an LLM summary of the whole page."
+    },
+    "validation_status": {
+      "type": "string",
+      "enum": ["verified", "unverified", "broken_link", "low_confidence", "conflicting"],
+      "description": "verified = URL resolved and excerpt confirmed present in fetched content; unverified = not yet link/excerpt-checked; broken_link = URL failed at validation time; low_confidence = source_type is community/anecdotal or claim is inferred rather than stated outright; conflicting = a later validation step found another evidence record for the same research_question_id that contradicts this one. Analyst/Strategy must treat non-'verified' records as flagged assumptions, never silently as fact."
+    }
+  }
+}

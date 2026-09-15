@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wire3-capstone.local/schemas/strategy_artifact.schema.json",
+  "title": "StrategyArtifact",
+  "description": "Structured output of the Strategy Agent, built from AnalystArtifact (and, where more precise, directly from evidence records or the brief). Consumed by the Docs Writer to render the final GTM plan sections listed in PROJECT_BRIEF.md section 6.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "brief_id",
+    "icps",
+    "pains_and_outcomes",
+    "value_proposition",
+    "positioning",
+    "message_pillars",
+    "channels",
+    "launch_phases",
+    "success_metrics",
+    "risks",
+    "follow_up_research_questions"
+  ],
+  "$defs": {
+    "CompetitorName": {
+      "type": "string",
+      "enum": ["Wire3", "Spectrum", "AT&T", "T-Mobile Home Internet"]
+    },
+    "SupportingRef": {
+      "type": "string",
+      "pattern": "^(EV-[a-f0-9]{8}|THEME-[0-9]+|SWOT-(S|W|O|T)[0-9]+|ASM-[0-9]+|UNK-[0-9]+)$",
+      "description": "Strategy may cite either raw evidence (EV-...) or Analyst-synthesized findings (THEME-..., SWOT-..., ASM-..., UNK-...) from analyst_artifact.schema.json. It primarily consumes the Analyst artifact (per the guide's Brief -> Research -> Analyst -> Strategy flow) but nothing prevents citing raw evidence directly when that's the more precise reference."
+    },
+    "StrategyCitedField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "supporting_ids", "basis"],
+      "properties": {
+        "value": { "description": "Typed value; see the description of the property using this $def." },
+        "supporting_ids": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/SupportingRef" },
+          "description": "Required non-empty when basis = 'evidence'."
+        },
+        "basis": {
+          "type": "string",
+          "enum": ["evidence", "brief_stated", "inference"],
+          "description": "Same three-way split used throughout analyst_artifact.schema.json."
+        }
+      },
+      "allOf": [
+        { "if": { "properties": { "basis": { "const": "evidence" } } }, "then": { "properties": { "supporting_ids": { "minItems": 1 } } } }
+      ]
+    },
+    "Icp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["icp_id", "name", "description", "current_provider"],
+      "properties": {
+        "icp_id": { "type": "string", "pattern": "^ICP-[0-9]+$" },
+        "name": { "type": "string" },
+        "description": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }], "description": "value: string profile summary." },
+        "current_provider": {
+          "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }],
+          "description": "value: array of CompetitorName -- which competitor(s) this ICP is currently subscribed to."
+        },
+        "demographic_signals": {
+          "type": "array",
+          "items": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }] },
+          "description": "Each item's value: a short descriptive string (e.g. household income band, tenure with current provider)."
+        }
+      }
+    },
+    "PainOutcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pain_id", "pain_statement", "desired_outcome", "related_icp_ids", "severity"],
+      "properties": {
+        "pain_id": { "type": "string", "pattern": "^PAIN-[0-9]+$" },
+        "pain_statement": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }], "description": "value: string." },
+        "desired_outcome": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }], "description": "value: string." },
+        "related_icp_ids": { "type": "array", "items": { "type": "string", "pattern": "^ICP-[0-9]+$" }, "minItems": 1 },
+        "severity": {
+          "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }],
+          "description": "value: one of 'high' | 'medium' | 'low'."
+        }
+      }
+    },
+    "MessagePillar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pillar_id", "title", "supporting_message", "target_icp_ids"],
+      "properties": {
+        "pillar_id": { "type": "string", "pattern": "^PILLAR-[0-9]+$" },
+        "title": { "type": "string", "maxLength": 60 },
+        "supporting_message": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }], "description": "value: string." },
+        "target_icp_ids": { "type": "array", "items": { "type": "string", "pattern": "^ICP-[0-9]+$" }, "minItems": 1 }
+      }
+    },
+    "ChannelRecommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["channel_id", "channel_name", "channel_category", "budget_tier", "rationale", "target_icp_ids"],
+      "properties": {
+        "channel_id": { "type": "string", "pattern": "^CHANNEL-[0-9]+$" },
+        "channel_name": {
+          "type": "string",
+          "description": "Free text (e.g. 'local Facebook community groups', 'door-to-door canvassing'). Intentionally not an enum -- see ambiguity flags."
+        },
+        "channel_category": {
+          "type": "string",
+          "enum": ["digital_paid", "digital_organic", "local_offline", "partnership", "referral"],
+          "description": "Fixed enum kept alongside the free-text name so channels remain comparable across implementations even though channel_name itself is open-ended."
+        },
+        "budget_tier": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "Must skew low/medium given the brief's constraint that channels 'must fit a regional/local budget, not a national-brand budget' -- a 'high' entry should be justified explicitly in rationale."
+        },
+        "rationale": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }], "description": "value: string; must address why this fits a regional budget and this ICP." },
+        "target_icp_ids": { "type": "array", "items": { "type": "string", "pattern": "^ICP-[0-9]+$" }, "minItems": 1 }
+      }
+    },
+    "LaunchPhase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["phase_id", "phase_name", "sequence_order", "timeframe", "activities", "exit_criteria"],
+      "properties": {
+        "phase_id": { "type": "string", "pattern": "^PHASE-[0-9]+$" },
+        "phase_name": { "type": "string" },
+        "sequence_order": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Explicit ordering field. Do not rely on array position to encode sequence -- see ambiguity flags."
+        },
+        "timeframe": { "type": "string", "description": "e.g. 'Weeks 1-4'." },
+        "activities": {
+          "type": "array",
+          "items": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }] },
+          "minItems": 1,
+          "description": "Each item's value: a short activity description."
+        },
+        "exit_criteria": { "type": "string", "description": "What determines this phase is complete / ready to advance." }
+      }
+    },
+    "SuccessMetric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric_id", "name", "definition", "target_value", "measurement_cadence"],
+      "properties": {
+        "metric_id": { "type": "string", "pattern": "^METRIC-[0-9]+$" },
+        "name": { "type": "string" },
+        "definition": { "type": "string", "description": "How this metric is calculated/measured." },
+        "target_value": {
+          "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }],
+          "description": "value: string or number target. basis='evidence' if benchmarked against a sourced industry/competitor figure; 'inference' if it's a reasonable business target with no direct source."
+        },
+        "measurement_cadence": { "type": "string", "enum": ["weekly", "monthly", "quarterly"] }
+      }
+    },
+    "Risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["risk_id", "statement", "likelihood", "impact", "mitigation"],
+      "properties": {
+        "risk_id": { "type": "string", "pattern": "^RISK-[0-9]+$" },
+        "statement": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }], "description": "value: string." },
+        "likelihood": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }], "description": "value: 'high' | 'medium' | 'low'." },
+        "impact": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }], "description": "value: 'high' | 'medium' | 'low'." },
+        "mitigation": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }], "description": "value: string." }
+      }
+    },
+    "FollowUpResearchQuestion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["frq_id", "question", "rationale", "priority"],
+      "properties": {
+        "frq_id": { "type": "string", "pattern": "^FRQ-[0-9]+$" },
+        "question": { "type": "string" },
+        "rationale": { "type": "string" },
+        "related_unknown_ids": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^UNK-[0-9]+$" },
+          "description": "Optional link back to AnalystArtifact.assumptions_unknowns_conflicts.unknowns when this question exists specifically because that RQ went unresolved."
+        },
+        "priority": { "type": "string", "enum": ["high", "medium", "low"] }
+      }
+    }
+  },
+  "properties": {
+    "brief_id": { "type": "string", "description": "Same brief_id as the AnalystArtifact this Strategy artifact was built from." },
+    "icps": { "type": "array", "items": { "$ref": "#/$defs/Icp" }, "minItems": 1, "maxItems": 3 },
+    "pains_and_outcomes": { "type": "array", "items": { "$ref": "#/$defs/PainOutcome" }, "minItems": 1 },
+    "value_proposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["headline", "supporting_points", "no_bundle_gap_response", "low_brand_recognition_response"],
+      "description": "The two *_response fields are required, not optional, directly enforcing PROJECT_BRIEF.md section 7's requirement that positioning 'must explicitly address the no-mobile-bundle gap and the low-brand-recognition gap -- not ignore them.'",
+      "properties": {
+        "headline": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }], "description": "value: one-sentence value prop." },
+        "supporting_points": {
+          "type": "array",
+          "items": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }] },
+          "minItems": 1
+        },
+        "no_bundle_gap_response": {
+          "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }],
+          "description": "value: string explaining how the value prop addresses having no bundled mobile plan."
+        },
+        "low_brand_recognition_response": {
+          "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }],
+          "description": "value: string explaining how the value prop addresses low brand recognition vs. the three named competitors."
+        }
+      }
+    },
+    "positioning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["positioning_statement", "differentiators", "competitive_frame"],
+      "properties": {
+        "positioning_statement": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }], "description": "value: string, classic 'for [ICP], Wire3 is the [category] that [differentiator], unlike [competitors]' form." },
+        "differentiators": {
+          "type": "array",
+          "items": { "allOf": [{ "$ref": "#/$defs/StrategyCitedField" }] },
+          "minItems": 1
+        },
+        "competitive_frame": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/CompetitorName" },
+          "minItems": 1,
+          "description": "Which competitor(s) this positioning is explicitly differentiating against."
+        }
+      }
+    },
+    "message_pillars": { "type": "array", "items": { "$ref": "#/$defs/MessagePillar" }, "minItems": 3, "maxItems": 5 },
+    "channels": { "type": "array", "items": { "$ref": "#/$defs/ChannelRecommendation" }, "minItems": 1 },
+    "launch_phases": { "type": "array", "items": { "$ref": "#/$defs/LaunchPhase" }, "minItems": 1 },
+    "success_metrics": { "type": "array", "items": { "$ref": "#/$defs/SuccessMetric" }, "minItems": 1 },
+    "risks": { "type": "array", "items": { "$ref": "#/$defs/Risk" }, "minItems": 1 },
+    "follow_up_research_questions": { "type": "array", "items": { "$ref": "#/$defs/FollowUpResearchQuestion" } }
+  }
+}
