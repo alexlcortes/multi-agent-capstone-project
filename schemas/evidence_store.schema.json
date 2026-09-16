@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wire3-capstone.local/schemas/evidence_store.schema.json",
+  "title": "EvidenceStore",
+  "description": "PROPOSAL, not yet implemented. A cross-run, durable index of every EvidenceRecord ever produced, keyed by evidence_id. Additive persistence layer on top of research_evidence.schema.json -- a run's output must remain valid without this store existing. See evidence_store.md for the design rationale, merge algorithm, and the evidence_id-is-not-a-source-key caveat.",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/$defs/StoreEntry"
+  },
+  "propertyNames": {
+    "pattern": "^EV-[a-f0-9]{8}$"
+  },
+  "$defs": {
+    "StoreEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record", "store_meta"],
+      "properties": {
+        "record": {
+          "$ref": "research_evidence.schema.json",
+          "description": "Exactly one EvidenceRecord, unchanged from research_evidence.schema.json. Kept as a nested object (not flattened) so this store never has to fight that schema's additionalProperties: false."
+        },
+        "store_meta": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["first_seen_run_id", "last_seen_run_id", "seen_count"],
+          "properties": {
+            "first_seen_run_id": {
+              "type": "string",
+              "format": "date-time",
+              "description": "run_id (UTC ISO 8601 timestamp of pipeline start) of the run that first produced this evidence_id."
+            },
+            "last_seen_run_id": {
+              "type": "string",
+              "format": "date-time",
+              "description": "run_id of the most recent run that re-derived this same evidence_id."
+            },
+            "seen_count": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of runs that have independently produced this exact evidence_id."
+            }
+          }
+        }
+      }
+    }
+  }
+}
