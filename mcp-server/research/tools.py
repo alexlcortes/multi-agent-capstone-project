@@ -9,6 +9,16 @@ def _retrieval_timestamp() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def _require(value: str, field_name: str) -> str:
+    """Rejects blank required fields before they reach the provider -- an
+    empty company_name would otherwise silently become a degenerate query
+    instead of a clear error."""
+    cleaned = value.strip()
+    if not cleaned:
+        raise ValueError(f"{field_name} must not be empty")
+    return cleaned
+
+
 def _run(query: str, max_results: int) -> list[dict]:
     """Shared call path for all five tools. Only this function touches a
     SearchProvider -- swapping providers never changes any tool below."""
@@ -28,11 +38,14 @@ def _run(query: str, max_results: int) -> list[dict]:
 
 def company_overview(company_name: str, max_results: int = 10) -> list[dict]:
     """Business model, market position, and background for one company."""
+    company_name = _require(company_name, "company_name")
     return _run(f"{company_name} company overview business model", max_results)
 
 
 def competitor_discovery(company_name: str, region: str, max_results: int = 10) -> list[dict]:
     """Who competes with company_name in a given region/market."""
+    company_name = _require(company_name, "company_name")
+    region = _require(region, "region")
     return _run(f"{company_name} competitors in {region}", max_results)
 
 
