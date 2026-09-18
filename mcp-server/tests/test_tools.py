@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 import httpx
 import pytest
+from mcp.server.mcpserver.exceptions import ToolError
 
 from research.adapter import SearchResult
 from research.tools import (
@@ -75,13 +76,16 @@ def test_company_overview_optional_field_omitted():
 
 
 def test_company_overview_empty_company_name_is_rejected():
-    with pytest.raises(ValueError):
+    # ToolError, not ValueError: the message must reach the calling workflow
+    # (n8n/CrewAI), not just the server log -- a plain exception's text gets
+    # redacted by the MCP SDK to "Error executing tool <name>".
+    with pytest.raises(ToolError, match="company_name must not be empty"):
         company_overview("")
 
 
 def test_company_overview_provider_failure_propagates():
     with _patched(FakeProvider(error=RuntimeError("provider unavailable"))):
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ToolError, match="provider unavailable"):
             company_overview("Wire3")
 
 
@@ -104,13 +108,13 @@ def test_competitor_discovery_optional_field_omitted():
 
 
 def test_competitor_discovery_empty_region_is_rejected():
-    with pytest.raises(ValueError):
+    with pytest.raises(ToolError, match="region must not be empty"):
         competitor_discovery("Wire3", "")
 
 
 def test_competitor_discovery_provider_failure_propagates():
     with _patched(FakeProvider(error=RuntimeError("provider unavailable"))):
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ToolError, match="provider unavailable"):
             competitor_discovery("Wire3", "Ocala, FL")
 
 
@@ -134,13 +138,13 @@ def test_product_portfolio_mapping_optional_field_omitted():
 
 
 def test_product_portfolio_mapping_empty_company_name_is_rejected():
-    with pytest.raises(ValueError):
+    with pytest.raises(ToolError, match="company_name must not be empty"):
         product_portfolio_mapping("")
 
 
 def test_product_portfolio_mapping_provider_failure_propagates():
     with _patched(FakeProvider(error=RuntimeError("provider unavailable"))):
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ToolError, match="provider unavailable"):
             product_portfolio_mapping("Wire3")
 
 
@@ -163,13 +167,13 @@ def test_pricing_research_optional_field_omitted():
 
 
 def test_pricing_research_empty_region_is_rejected():
-    with pytest.raises(ValueError):
+    with pytest.raises(ToolError, match="region must not be empty"):
         pricing_research("Wire3", "")
 
 
 def test_pricing_research_provider_failure_propagates():
     with _patched(FakeProvider(error=RuntimeError("provider unavailable"))):
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ToolError, match="provider unavailable"):
             pricing_research("Wire3", "Ocala, FL")
 
 
@@ -192,13 +196,13 @@ def test_recent_news_optional_field_omitted():
 
 
 def test_recent_news_empty_company_name_is_rejected():
-    with pytest.raises(ValueError):
+    with pytest.raises(ToolError, match="company_name must not be empty"):
         recent_news("")
 
 
 def test_recent_news_provider_failure_propagates():
     with _patched(FakeProvider(error=RuntimeError("provider unavailable"))):
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ToolError, match="provider unavailable"):
             recent_news("Wire3")
 
 
@@ -241,7 +245,7 @@ def test_validate_source_optional_field_omitted():
 
 
 def test_validate_source_empty_url_is_rejected():
-    with pytest.raises(ValueError):
+    with pytest.raises(ToolError, match="url must not be empty"):
         validate_source("")
 
 

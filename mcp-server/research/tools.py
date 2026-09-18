@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 import httpx
+from mcp.server.mcpserver.exceptions import ToolError
 
 from .factory import get_provider
 
@@ -14,10 +15,16 @@ def _retrieval_timestamp() -> str:
 def _require(value: str, field_name: str) -> str:
     """Rejects blank required fields before they reach the provider -- an
     empty company_name would otherwise silently become a degenerate query
-    instead of a clear error."""
+    instead of a clear error.
+
+    Raises ToolError, not ValueError: this is a failure the caller can act
+    on (fix the input), so the message must reach the calling workflow, not
+    just the server log. The MCP SDK redacts a plain exception's message
+    down to "Error executing tool <name>" unless it's a ToolError.
+    """
     cleaned = value.strip()
     if not cleaned:
-        raise ValueError(f"{field_name} must not be empty")
+        raise ToolError(f"{field_name} must not be empty")
     return cleaned
 
 
@@ -26,6 +33,14 @@ def _run(query: str, max_results: int) -> list[dict]:
     SearchProvider -- swapping providers never changes any tool below."""
     provider = get_provider()
     retrieval_timestamp = _retrieval_timestamp()
+    try:
+        search_results = provider.search(query, max_results=max_results)
+    except Exception as exc:
+        # A search-provider failure is anticipated (it's one of the four
+        # required test cases) and the calling workflow needs the real
+        # reason to decide whether retrying makes sense -- same ToolError
+        # rationale as _require above.
+        raise ToolError(f"search provider failed: {exc}") from exc
     return [
         {
             "source_title": result.title,
@@ -34,7 +49,7 @@ def _run(query: str, max_results: int) -> list[dict]:
             "publication_date": result.published_date,
             "retrieval_timestamp": retrieval_timestamp,
         }
-        for result in provider.search(query, max_results=max_results)
+        for result in search_results
     ]
 
 
