@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+import httpx
+
 from .factory import get_provider
 
 
@@ -51,14 +53,49 @@ def competitor_discovery(company_name: str, region: str, max_results: int = 10) 
 
 def product_portfolio_mapping(company_name: str, max_results: int = 10) -> list[dict]:
     """Product lines, plans, and tiers a company currently offers."""
+    company_name = _require(company_name, "company_name")
     return _run(f"{company_name} products plans tiers", max_results)
 
 
 def pricing_research(company_name: str, region: str, max_results: int = 10) -> list[dict]:
     """Current pricing, promo rates, and post-promo rates for a company in a region."""
+    company_name = _require(company_name, "company_name")
+    region = _require(region, "region")
     return _run(f"{company_name} pricing plans promo rate {region}", max_results)
 
 
 def recent_news(company_name: str, max_results: int = 10) -> list[dict]:
     """Recent news and press coverage about a company."""
+    company_name = _require(company_name, "company_name")
     return _run(f"{company_name} news", max_results)
+
+
+def validate_source(url: str, timeout: float = 10.0) -> dict:
+    """Checks whether a cited source URL is still reachable.
+
+    A broken link is a normal, expected result (is_valid False) -- it's the
+    thing this tool exists to detect, not a tool failure. Only being unable
+    to attempt the check at all (a malformed/empty url) raises. A network
+    error while checking is caught and reported as is_valid False with an
+    error message, the same as a 404, so the Analyst/Docs Writer steps can
+    flag it without the whole pipeline run failing on one dead link.
+    """
+    url = _require(url, "url")
+    checked_at = _retrieval_timestamp()
+    try:
+        response = httpx.head(url, timeout=timeout, follow_redirects=True)
+        return {
+            "url": url,
+            "is_valid": response.status_code < 400,
+            "status_code": response.status_code,
+            "error": None,
+            "checked_at": checked_at,
+        }
+    except httpx.HTTPError as exc:
+        return {
+            "url": url,
+            "is_valid": False,
+            "status_code": None,
+            "error": str(exc),
+            "checked_at": checked_at,
+        }

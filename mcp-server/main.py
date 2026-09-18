@@ -26,6 +26,7 @@ mcp.tool()(tools.competitor_discovery)
 mcp.tool()(tools.product_portfolio_mapping)
 mcp.tool()(tools.pricing_research)
 mcp.tool()(tools.recent_news)
+mcp.tool()(tools.validate_source)
 
 
 if __name__ == "__main__":
