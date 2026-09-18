@@ -21,4 +21,12 @@ export CREDENTIALS_OVERWRITE_DATA
 CREDENTIALS_OVERWRITE_DATA=$(node -e 'console.log(JSON.stringify({openAiApi:{apiKey:process.env.OPENAI_API_KEY}}))')
 export N8N_USER_FOLDER="$(pwd)/.n8n"
 
+# Reliability layer (Step 8 of the capstone guide): Code nodes append structured
+# run-record events to ./logs/runs.jsonl (relative to this dir, which is n8n's cwd
+# since we cd here above). Code nodes can require('fs') but cannot read $env or
+# process.env (n8n blocks both by default), so the log path is a relative literal
+# in each node's code, not read from an env var.
+mkdir -p "$(pwd)/logs"
+export NODE_FUNCTION_ALLOW_BUILTIN="fs"
+
 exec npx n8n start

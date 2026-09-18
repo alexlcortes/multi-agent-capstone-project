@@ -21,3 +21,7 @@ node_modules/
 
 # n8n local instance data — DB, credential store, cache, owner account
 .n8n/
+
+# n8n server stdout — not a deliverable, just process output; the run-record
+# evidence lives in n8n/logs/runs.jsonl, which IS tracked.
+n8n/logs/*.log
