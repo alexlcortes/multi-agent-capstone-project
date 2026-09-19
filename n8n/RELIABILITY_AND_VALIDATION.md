@@ -14,7 +14,11 @@ Strategy Agent → Docs Writer), per capstone guide Step 5 items 8–11 and Step
 | `Log: Head Planner` | Head Planner → AI Agent | Validates the plan is usable (throws if not), logs `agent_end`/`agent_start`, resolves the real `run_id` from the plan |
 | `Log: Analyst Agent` | Analyst Agent → Validate Evidence Coverage | Sanity-checks the artifact shape, logs `agent_end` with duration |
 | `Log: Strategy Agent` | Strategy Agent → Validate Strategy Grounding | Same, for the Strategy Agent |
-| `Finalize Run` | Docs Writer (Placeholder) → *(end)* | Aggregates the whole run, checks budget compliance, decides `success`/`degraded`, writes the final `run_complete` log line, returns the HTTP response |
+| `Finalize Run` | Verify Document & Log → *(end)* | Aggregates the whole run, checks budget compliance, decides `success`/`degraded`, writes the final `run_complete` log line, returns the HTTP response (including the Google Doc URL) |
+
+(This table was written when `Finalize Run` followed a placeholder Docs Writer.
+The placeholder has since been replaced by the real Docs Writer chain — see
+[Docs Writer (real Google Docs output)](#docs-writer-real-google-docs-output).)
 
 **5 existing nodes edited** to add logging/validation without changing their
 core logic:
@@ -31,7 +35,24 @@ core logic:
 - `Validate For Docs Writer` — logs the gate result **before** throwing on
   rejection (so a rejected run is still visible in the record), logs
   `agent_start` for Docs Writer on acceptance.
-- `Docs Writer (Placeholder)` — logs a `document_write` event.
+- `Docs Writer (Placeholder)` — logged a `document_write` event. **Since
+  removed**: replaced by the real Docs Writer chain (see below).
+
+Two later edits, made after the original reliability pass:
+
+- `Strategy Agent` (prompt) — rule (1) extended: the IDs the agent creates in
+  its own output (`ICP-`, `PAIN-`, `PILLAR-`, `CHANNEL-`, `PHASE-`, `METRIC-`,
+  `RISK-`, `FRQ-`) are labels, never sources, and must not appear in
+  `supporting_ids`; the agent must re-scan every `supporting_ids` array before
+  finishing and drop anything not starting with `EV-`, `THEME-`, `SWOT-`,
+  `ASM-` or `UNK-`. Added because a full run was rejected by the grounding gate
+  for citing `CHANNEL-3` (second occurrence of this class of mistake; the
+  first was `PHASE-1`, below).
+- `Finalize Run` — now returns `document_url` at the top level of the HTTP
+  response and records it on the `run_complete` log line. **Not yet exercised
+  by a full run** (the change was made after the last full run; the code was
+  syntax-checked and its input field, `document_url` from `Verify Document &
+  Log`, was confirmed present in the previous run's output).
 
 **Retry configuration** (Settings → Retry On Fail; n8n only exposes this on
 main-graph nodes, not on `ai_languageModel`/`ai_tool` sub-nodes — see
@@ -43,6 +64,16 @@ main-graph nodes, not on `ai_languageModel`/`ai_tool` sub-nodes — see
 | AI Agent (Research Agent) | 3 | 8000 ms | Stop Workflow |
 | Analyst Agent | 3 | 8000 ms | Stop Workflow |
 | Strategy Agent | 3 | 8000 ms | Stop Workflow |
+| Docs: Create Document | 3 | 8000 ms | Stop Workflow |
+| Docs: Read Back | 3 | 8000 ms | Stop Workflow |
+| Docs: Write Content | **off** | — | Stop Workflow |
+
+`Docs: Write Content` deliberately has no retry: it posts a `batchUpdate` whose
+first request is `insertText`, which is not idempotent. If a response were lost
+after Google had applied the write, a retry would insert the whole document a
+second time and the read-back check could still pass. A visible failure is
+safer than a silent duplicate. Create and Read Back are safe to retry (Create
+at worst leaves one empty stray document; Read Back is read-only).
 
 The AI Agent's **Max Iterations** was also raised from the n8n default of 10
 to 50 — the default silently capped the Research Agent at 10 loop iterations,
@@ -66,6 +97,82 @@ Every event is one line in `n8n/logs/runs.jsonl`:
 `client_run_id` is generated at the webhook before the business `run_id`
 exists (Head Planner invents `run_id`); every later event carries both, so a
 run is traceable end-to-end even if Head Planner's own plan is malformed.
+
+## Docs Writer (real Google Docs output)
+
+Replaces `Docs Writer (Placeholder)`. Five nodes, wired
+`Validate For Docs Writer → Build Docs Content → Docs: Create Document →
+Docs: Write Content → Docs: Read Back → Verify Document & Log → Finalize Run`.
+Node source lives in `n8n/docs_writer/` (the two Code nodes as `.js`, plus
+`new_nodes.json`, the bundle used to paste all five into the canvas).
+
+| Node | Type | Job |
+|---|---|---|
+| `Build Docs Content` | Code | Refuses anything not `status: 'accepted'`. Renders the accepted Strategy artifact into Google Docs `batchUpdate` requests: all 10 required sections, each field followed by its citation tag, then two appendices. Runs the **pre-write** citation checks (below). |
+| `Docs: Create Document` | HTTP Request | `POST /v1/documents` with the run's title, via the `Google Docs account` OAuth credential |
+| `Docs: Write Content` | HTTP Request | `POST /v1/documents/{id}:batchUpdate` with the built requests |
+| `Docs: Read Back` | HTTP Request | `GET /v1/documents/{id}` |
+| `Verify Document & Log` | Code | **Post-write** checks against the read-back document, logs the `document_write` result, throws on any failure, returns `document_url` |
+
+**Document layout.** Title, a one-line run header, a "how to read citations"
+note, sections 1–10 (ICPs, pains/outcomes, value proposition, positioning,
+message pillars, channels, launch phases, success metrics, risks, follow-up
+research questions), **Appendix A** (every analyst finding cited, with the
+`EV-` ids behind it) and **Appendix B** (every source: `[EV-id]` plus the
+`source_title` as a hyperlink to `source_url`). Each field ends with a tag:
+the resolving ids (`[THEME-3, SWOT-O1]`), or `[inference]` / `[brief]` when it
+has no source. Fields are rendered generically from the artifact, so a field
+added to the schema shows up in the document instead of being silently dropped.
+
+**Citation resolution.** The Strategy artifact cites analyst-level ids far more
+often than raw evidence ids, so `Build Docs Content` resolves the chain
+`supporting_ids → THEME-/SWOT-/ASM-/UNK-/CONF- finding → EV- ids →
+source_title/source_url` using the Analyst artifact and the evidence set from
+earlier in the same run.
+
+**Pre-write checks (`Build Docs Content`)** — fail the run *before* any Google
+API call, so a bad artifact never creates a document:
+- input not marked `accepted` by the gate;
+- a cited id that resolves to nothing (`Unresolvable citation id(s)`);
+- a cited evidence id that is not in the run's evidence set (`Orphaned
+  citation(s)`).
+
+**Post-write checks (`Verify Document & Log`)** — run on the document as Google
+stored it, not on what we intended to send:
+- title matches;
+- all 10 numbered section headings are present;
+- every planned source id appears in Appendix B;
+- every source URL is present as a hyperlink;
+- every `EV-xxxxxxxx` string anywhere in the document exists in the evidence
+  set (the orphaned-citation check the evidence contract asks the Docs Writer
+  to make).
+
+Every outcome is a `document_write` log line (`content_built`, then `ok` or
+`error`), including `document_id`, `document_url`, section/source/link counts
+and any errors.
+
+**Local tests without n8n or an LLM:** `node n8n/docs_writer/test_local.js
+<dir>` runs both Code nodes against a real captured run (artifact, Analyst
+artifact, evidence set) with a mock Docs API. 10 checks: 6 on the happy path
+plus 4 negative cases — tampered document (missing heading and injected orphan
+id), orphaned upstream citation, unresolvable id, and gate bypass. All pass.
+
+**Google auth.** OAuth client and consent screen are described in
+`SETUP_DECISIONS.md`. Operational note: the consent screen is in *Testing*
+status, so Google expires the refresh token after **7 days**. If the Docs nodes
+start failing with an auth error, open the `Google Docs account` credential in
+n8n and click *Sign in with Google* again.
+
+**Known limitations.**
+- Documents are created private in the authorizing Google account's Drive. A
+  reviewer needs the document shared with them (or the account's link
+  settings changed) to open the URL in `document_url`.
+- Nested bullets (the items under a label such as "Demographic signals") are
+  rendered at the same indent as their parent; only the bold label
+  distinguishes them.
+- Two sources can share one URL (both `https://www.spectrum.com` in the test
+  runs), so the number of distinct hyperlinks can be one less than the source
+  count. The verifier checks URL membership, not a one-to-one count.
 
 ## Retry semantics — what I verified
 
@@ -135,12 +242,20 @@ sub-node's Output/Logs panel — but that isn't currently piped into the code
 nodes' `$json`). This is the one guide-requested field left as a known gap.
 
 **Does the Docs Writer reject incomplete or invalid content?**
-Yes, demonstrated live: `Validate For Docs Writer` rejected the failed run
-below with a specific, itemized reason (unresolved `PHASE-1` citation) before
-`Docs Writer (Placeholder)` ever ran, and the placeholder itself independently
-refuses anything not marked `status: 'accepted'` by the gate.
+Yes, demonstrated live, twice: `Validate For Docs Writer` rejected the first
+failed run below with a specific, itemized reason (unresolved `PHASE-1`
+citation) before the Docs Writer ever ran, and rejected the first Docs Writer
+full run for an unresolved `CHANNEL-3` citation (see
+[Docs Writer test runs](#docs-writer-test-runs)). Behind the gate, `Build Docs
+Content` independently refuses anything not marked `status: 'accepted'`,
+rejects unresolvable and orphaned citations before calling Google, and
+`Verify Document & Log` re-checks the stored document after writing.
 
-## Test run (success)
+## Test run (success, placeholder Docs Writer)
+
+Historical: the run that validated the reliability layer, before the real Docs
+Writer existed. The current end-to-end result is in
+[Docs Writer test runs](#docs-writer-test-runs).
 
 - `run_id`: `r-ocala-001` / `client_run_id`: `client-mu7kxqi3-kboxtt`
 - Brief: 3 research questions (footprint/speed, pricing, switch triggers), 3 competitors
@@ -187,6 +302,61 @@ before it reached Docs Writer).
 Raw log lines: `n8n/logs/runs.jsonl`, all lines with
 `"client_run_id":"client-mu7k77m2-6ufjtc"`.
 
+## Docs Writer test runs
+
+Run in this order, deliberately: cheap isolated tests first, then full runs.
+
+**1. Local harness (no n8n, no network, no LLM cost).** 10/10 checks pass — see
+above.
+
+**2. Isolated n8n run.** A throwaway workflow (since deleted) fed the five real
+Docs Writer nodes from the stored data of an earlier successful execution, via
+three stub nodes named like the real upstream nodes. Real credential, real
+Google Docs API, no LLM calls. `client_run_id: isolated-docs-writer-test`.
+Result: document created, 10 sections, 13 sources, 12 distinct hyperlink URLs
+(two sources share one URL), 0 orphaned evidence ids, post-write check 3.8 s.
+The resulting document was opened in Google Docs and inspected: real
+headings, bold labels, bullets, inline citation tags, and working hyperlinks in
+Appendix B. Its log lines remain in `runs.jsonl`.
+
+**3. Full run — rejected by the grounding gate.**
+`client_run_id: client-mu8q669f-oqaesp` / `run_id: run_oq7f3`. All four agents
+completed (Head Planner 29.5 s, Research Agent 107.7 s, Analyst 189.3 s,
+Strategy 77.7 s). `Validate Strategy Grounding` and `Validate For Docs Writer`
+rejected the output:
+`unresolved_supporting_ids: [{"path":"launch_phases[1].activities[0]","id":"CHANNEL-3","basis":"evidence"}]`.
+The Strategy Agent cited one of its own channel ids as evidence — the same
+class of mistake as the `PHASE-1` failure above, despite the prompt already
+forbidding invented ids. The Docs Writer never ran; HTTP 500 after 404 s. No
+document was created.
+
+**Fix:** the Strategy Agent prompt was extended (see "Two later edits" above).
+The gate itself was not loosened, and no auto-repair of bad ids was added: a
+gate that silently strips citations would defeat the point of the check.
+
+**4. Full run — success.**
+`client_run_id: client-mu8qz6yb-1y7fn0` / `run_id: run_oz9f3`.
+
+- HTTP 200, `status: "success"`, `issues: []`
+- Total 423.9 s (7 min 4 s) against the 12-minute budget
+- Head Planner 35.1 s; Research Agent 82.2 s; Analyst 229.8 s; Strategy 73.4 s
+- 3/3 research questions answered; 206 evidence records; 0 invalid URLs
+- 12 of 13 planned tool calls executed (the budget check only flags overruns;
+  why one planned call did not execute was not investigated)
+- Evidence coverage 100%; strategy grounding clean
+- Docs Writer: content built in 20 ms; document created and verified in 3.4 s;
+  13 sources, 12 distinct links, 0 orphaned evidence ids, 0 errors
+- Document title carries the run id (`Wire3 GTM Plan - run_oz9f3 - …`) and was
+  opened to confirm it is this run's content
+
+Caveats on this result: it is one successful run after one failure, so it shows
+the pipeline can pass, not that the Strategy Agent will never repeat the
+citation mistake — the gate is what guarantees a bad artifact cannot become a
+document. Dollar cost was **not** measured (the known gap above still stands);
+`budget.max_cost_usd` is recorded but not checked against real spend.
+
+Raw log lines: `n8n/logs/runs.jsonl`, filtered by each `client_run_id` above.
+
 ## Other issues found and fixed during this pass
 
 1. **AI Agent Max Iterations default (10) too low** — see above. Raised to 50.
@@ -205,10 +375,15 @@ Raw log lines: `n8n/logs/runs.jsonl`, all lines with
 
 ## Exporting the workflow
 
-`n8n/workflows/wire3_gtm_pipeline.json` is the current export (via the
-n8n UI's "Export JSON"), taken right after the success run above. Verified
-secret-free: `grep` for `sk-`/`apiKey`/`api_key` literals returns nothing —
-the only `credentials` entries are `{id, name}` references to the "OpenAI
-account" credential object; the real key is injected at process start via
-`CREDENTIALS_OVERWRITE_DATA` in `start.sh`, sourced from the gitignored
-`.env`, and never touches the exported JSON (see SETUP_DECISIONS.md).
+`n8n/workflows/wire3_gtm_pipeline.json` is the current export, re-exported
+after the Docs Writer work and the `Finalize Run` change (via the n8n CLI,
+`n8n export:workflow`, keeping the same top-level shape as the earlier UI
+export). Verified secret-free: a `grep` for OpenAI-style `sk-…` keys, Google
+`GOCSPX`/`ya29.`/refresh-token prefixes, and `client_secret`/`clientSecret`/
+`apiKey`/`api_key` in the workflow and `docs_writer/` files returns nothing.
+The only `credentials` entries are `{id, name}` references: the "OpenAI
+account" object (the real key is injected at process start via
+`CREDENTIALS_OVERWRITE_DATA` in `start.sh`, from the gitignored `.env`) and the
+"Google Docs account" object (its client id/secret and tokens live in n8n's
+own encrypted credential store, in the gitignored `n8n/.n8n/` folder — see
+SETUP_DECISIONS.md). Neither ever touches the exported JSON.
