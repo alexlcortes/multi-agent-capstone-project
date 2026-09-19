@@ -45,6 +45,14 @@ Running log of setup decisions made outside the schema contract, for the final R
 - Google may take a few minutes to apply a newly added redirect URI; a fresh `redirect_uri_mismatch` right after creating the client is worth waiting out before debugging.
 - During sign-in Google shows an "unverified app" warning in Testing mode; that is expected.
 
+## Cost and retry tracking (n8n): post-run script and a server-log count, both approximate
+
+**Decision:** token usage and estimated cost are computed after each run by `n8n/scripts/run_usage.js`, which reads the stored execution from n8n's database and appends a `usage_summary` event to `runs.jsonl`. Retries are approximated inside the workflow by `rate_limit_errors_logged`: the number of HTTP 429 events n8n printed to `logs/n8n_server.log` during the run. There is no true per-node retry count.
+
+**Why:** the guide asks for retry count, token usage and estimated cost per run. In n8n, LLM sub-node token data is unreadable from Code nodes (tested: `No data found from main input`) and stored executions carry no attempt counter, so a workflow node cannot capture either. A post-run script and a log-offset count were the least invasive options that produce a real number.
+
+**Cost if wrong:** both figures are approximations and are labelled that way in the log. The cost is a **lower bound**: n8n's token counts are character-based estimates that exclude hidden reasoning tokens, and search-provider fees are not included. Prices in the script (gpt-5-mini, $0.25 / $2.00 per 1M input/output tokens, verified 2026-09-19) must be updated by hand if they change. The 429 count undercounts silently-successful retries and only works if n8n's output is redirected to `n8n/logs/n8n_server.log`. `budget.max_cost_usd` is recorded but not enforced. The CrewAI implementation should log attempts and provider-reported usage directly, so the two runs are compared with the limitation stated. Before quoting cost in the README, check the OpenAI usage dashboard for the run's time window.
+
 ## Docs Writer: Google Docs REST API via HTTP Request nodes, not a single built-in node
 
 **Decision:** the Docs Writer creates the document with `POST /v1/documents` and fills it with one `documents.batchUpdate` call, using n8n's HTTP Request node with the `Google Docs account` OAuth credential, rather than a single n8n Google Docs node.

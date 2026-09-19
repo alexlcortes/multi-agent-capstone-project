@@ -38,7 +38,7 @@ core logic:
 - `Docs Writer (Placeholder)` — logged a `document_write` event. **Since
   removed**: replaced by the real Docs Writer chain (see below).
 
-Two later edits, made after the original reliability pass:
+Later edits, made after the original reliability pass:
 
 - `Strategy Agent` (prompt) — rule (1) extended: the IDs the agent creates in
   its own output (`ICP-`, `PAIN-`, `PILLAR-`, `CHANNEL-`, `PHASE-`, `METRIC-`,
@@ -48,15 +48,17 @@ Two later edits, made after the original reliability pass:
   `ASM-` or `UNK-`. Added because a full run was rejected by the grounding gate
   for citing `CHANNEL-3` (second occurrence of this class of mistake; the
   first was `PHASE-1`, below).
-- `Finalize Run` — now returns `document_url` at the top level of the HTTP
-  response and records it on the `run_complete` log line. **Not yet exercised
-  by a full run** (the change was made after the last full run; the code was
-  syntax-checked and its input field, `document_url` from `Verify Document &
-  Log`, was confirmed present in the previous run's output).
+- `Finalize Run` — now returns `document_url` and `rate_limit_errors_logged`
+  at the top level of the HTTP response and records both on the `run_complete`
+  log line. Verified in a full run (run 5 under
+  [Docs Writer test runs](#docs-writer-test-runs)).
+- `Init Run Log` — additionally records the server log's byte position at run
+  start (`_server_log_offset`, also on the `pipeline_start` line), which
+  `Finalize Run` uses for the rate-limit count.
 
 **Retry configuration** (Settings → Retry On Fail; n8n only exposes this on
 main-graph nodes, not on `ai_languageModel`/`ai_tool` sub-nodes — see
-[Retry semantics](#retry-semantics-what-i-verified) below):
+[Retry semantics](#retry-semantics--what-i-verified) below):
 
 | Node | Max Tries | Wait Between Tries | On Error |
 |---|---|---|---|
@@ -92,7 +94,10 @@ Every event is one line in `n8n/logs/runs.jsonl`:
 ```
 
 `event_type` is one of: `pipeline_start`, `agent_start`, `agent_end`,
-`tool_call`, `validation_gate`, `document_write`, `run_complete`.
+`tool_call`, `validation_gate`, `document_write`, `run_complete`, and
+`usage_summary`. The last is not written by the workflow: it is appended by
+`n8n/scripts/run_usage.js` after a run (see
+[Retry and cost visibility](#retry-and-cost-visibility)).
 
 `client_run_id` is generated at the webhook before the business `run_id`
 exists (Head Planner invents `run_id`); every later event carries both, so a
@@ -194,6 +199,107 @@ LLM call itself hits a rate limit) — that retries just that one step, not
 the webhook or Head Planner, so a retry never duplicates work that already
 succeeded upstream.
 
+## Retry and cost visibility
+
+The guide's Step 8 asks for retry count, token usage and estimated cost per
+run. n8n does not make either easy to capture from inside a workflow, so both
+are partial. What each does and does not tell you:
+
+### Retries
+
+Retries happen *during* a run: when an agent node throws (for example an
+OpenAI 429), n8n waits 8 s and re-runs just that node, up to 3 tries, before
+the workflow moves on or stops. LangChain inside the OpenAI node also retries
+429s within a single call before n8n sees an error at all.
+
+**There is no true retry count.** n8n stores one execution record per node
+with no attempt counter, and downstream Code nodes only ever see the final
+result, so a first-try success and a third-try success look identical. This
+is an n8n limitation, checked by inspecting stored execution data: per-node
+run data has no attempt field (its keys are `startTime`, `executionIndex`,
+`source`, `hints`, `executionTime`, `metadata`, `executionStatus`, `data`), and
+the execution table's `retryOf`/`retrySuccessId` columns were empty for every
+stored execution.
+
+What is recorded instead: **`rate_limit_errors_logged`** on `run_complete` and
+in the HTTP response — the number of provider rate-limit (HTTP 429) error
+events that n8n printed to `logs/n8n_server.log` between `Init Run Log` and
+`Finalize Run`. Limits:
+- It **undercounts**: a retry that succeeds silently prints nothing, so only
+  failures that reached n8n's console are counted.
+- It depends on n8n's stdout being written to `n8n/logs/n8n_server.log` (e.g.
+  `./start.sh >> logs/n8n_server.log 2>&1`; `start.sh` itself does not
+  redirect). If the file is absent the field is `null`, not `0`.
+- The server log has no per-line timestamps, hence the byte-offset approach
+  rather than a time window; concurrent n8n activity would be counted too.
+- **Verified only partly.** The counting logic was tested against the real
+  server log (6 events in the whole file; a slice from a later offset returns
+  a smaller count), and run 5 below shows the field reaching the response.
+  That run had no rate-limit errors, so the live path returned `0` and has
+  **not yet been seen counting a real 429**.
+
+For the n8n-versus-CrewAI comparison, treat "n8n does not expose per-node
+attempt counts" as a finding in its own right; CrewAI should record attempts
+explicitly.
+
+### Tokens and cost
+
+`n8n/scripts/run_usage.js [execution-id] [--dry-run]` reads one stored
+execution from n8n's database (read-only, via the `sqlite3` CLI) and appends a
+`usage_summary` event to `runs.jsonl` with per-agent model calls, prompt and
+completion tokens, and an estimated cost. It skips an execution that already
+has a summary.
+
+It is a separate post-run step because the data can't be reached from inside
+the workflow: a probe showed a Code node reading `$('OpenAI Chat Model')`
+fails with `No data found from main input` (LLM sub-node output is not on the
+main connection), and an execution is only written to the database after the
+run finishes.
+
+Pricing is for `gpt-5-mini` at **$0.25 per 1M input tokens and $2.00 per 1M
+output tokens**, verified on 2026-09-19 against
+<https://developers.openai.com/api/docs/pricing> (standard tier) and recorded
+in the script with that date.
+
+**The result is a lower bound, not a bill:**
+- n8n reports these counts as `tokenUsageEstimate`, i.e. an estimate from the
+  length of the visible text (roughly 4.5–4.8 characters per token in the runs
+  inspected), not provider-reported usage.
+- `gpt-5-mini` is a reasoning model. Hidden reasoning tokens are billed as
+  output but are not visible to n8n, so output cost is understated. (The
+  pricing page does not say how reasoning tokens are billed for this model.
+  The Analyst step takes about 164 s to emit about 7.2k visible tokens, which
+  suggests substantial hidden reasoning; that is an inference, not a
+  measurement.)
+- Tool-call argument tokens are counted as 0 completion tokens for the
+  Research Agent.
+- Search-provider fees are excluded. Tavily lists $0.008 per credit with one
+  credit per basic search (<https://docs.tavily.com/documentation/api-credits>);
+  this was not applied because the number of provider requests per MCP tool
+  call was not established.
+
+Estimates from the script (visible-token lower bounds):
+
+| Execution | Outcome | Prompt tok | Completion tok | LLM cost (lower bound) |
+|---|---|---|---|---|
+| 21 (`r-ocala-001`, earlier success) | success | 178,655 | 12,942 | $0.0706 |
+| 23 (`run_oq7f3`) | failed at gate | 811,925 | 12,898 | $0.2288 |
+| 24 (`run_oz9f3`) | success | 664,995 | 13,375 | $0.1930 |
+| 26 (`client-mu8s7hpa-o2y7m5`) | success | 657,242 | 13,338 | $0.1910 |
+
+Observations from these numbers:
+- **The Research Agent dominates.** In executions 23, 24 and 26 it made 14, 13
+  and 13 model calls and consumed 585k–732k of the prompt tokens, because the
+  agent re-sends its growing context on every tool-call round. In execution 21
+  it made only 2 calls (about 107k prompt tokens). Its behaviour varies from
+  run to run, so cost does too.
+- **A failed run costs about as much as a successful one**, since the
+  validation gates sit at the end of the pipeline.
+- The lower bounds are well under the brief's $2.50 ceiling, but because they
+  omit hidden reasoning and search fees, staying under budget is **not
+  demonstrated**. Compare against the OpenAI usage dashboard for the run's
+  time window before quoting a cost in the README or KPI table.
+
 ## Validation questions (from the capstone guide), answered against this workflow
 
 **Does the Head Planner receive the complete brief?**
@@ -225,7 +331,7 @@ mitigation — not a real evidence/theme/SWOT/assumption ID — and blocked it.
 **Does a failed search retry without duplicating the entire run?**
 The webhook is never re-triggered and Head Planner is never re-run by any
 retry in this workflow — retries are scoped to the single agent step that
-failed (see [Retry semantics](#retry-semantics-what-i-verified)). Individual
+failed (see [Retry semantics](#retry-semantics--what-i-verified)). Individual
 tool-call failures don't retry mechanically, but they also don't restart
 anything: they're caught, logged, and the plan continues.
 
@@ -233,13 +339,16 @@ anything: they're caught, logged, and the plan continues.
 Time: yes, fully — every `agent_end`/`run_complete` event carries
 `duration_ms`, and `Finalize Run` computes total wall-clock time and compares
 it against the brief's `budget.max_wall_clock_minutes`, flagging (`issues`)
-rather than silently overrunning. Cost: partially — `tool_calls_executed` is
-compared against `budget.max_search_calls`, and the brief's
-`budget.max_cost_usd` ceiling is carried into every `run_complete` line, but
-actual per-run dollar cost isn't computed from token usage in this pass
-(n8n's own execution UI shows per-call token counts — visible via each LLM
-sub-node's Output/Logs panel — but that isn't currently piped into the code
-nodes' `$json`). This is the one guide-requested field left as a known gap.
+rather than silently overrunning. Cost: estimated, as a **lower bound**, by
+a post-run script — `tool_calls_executed` is compared against
+`budget.max_search_calls` inside the workflow, and `n8n/scripts/run_usage.js`
+turns n8n's stored per-model token counts into a per-agent and total dollar
+estimate (`usage_summary` event). It is not a measured bill: n8n's token
+counts are character-based estimates that omit hidden reasoning tokens, and
+search-provider fees are excluded. See
+[Retry and cost visibility](#retry-and-cost-visibility). `budget.max_cost_usd`
+is carried into every `run_complete` line but is **not enforced** against
+either figure.
 
 **Does the Docs Writer reject incomplete or invalid content?**
 Yes, demonstrated live, twice: `Validate For Docs Writer` rejected the first
@@ -330,7 +439,7 @@ class of mistake as the `PHASE-1` failure above, despite the prompt already
 forbidding invented ids. The Docs Writer never ran; HTTP 500 after 404 s. No
 document was created.
 
-**Fix:** the Strategy Agent prompt was extended (see "Two later edits" above).
+**Fix:** the Strategy Agent prompt was extended (see "Later edits" above).
 The gate itself was not loosened, and no auto-repair of bad ids was added: a
 gate that silently strips citations would defeat the point of the check.
 
@@ -352,8 +461,27 @@ gate that silently strips citations would defeat the point of the check.
 Caveats on this result: it is one successful run after one failure, so it shows
 the pipeline can pass, not that the Strategy Agent will never repeat the
 citation mistake — the gate is what guarantees a bad artifact cannot become a
-document. Dollar cost was **not** measured (the known gap above still stands);
+document. Dollar cost was not measured at the time of this run; a visible-token
+lower bound of $0.193 was added afterwards by `run_usage.js` (see
+[Retry and cost visibility](#retry-and-cost-visibility)), and
 `budget.max_cost_usd` is recorded but not checked against real spend.
+
+**5. Full run — verification of the retry/usage/URL changes.**
+`client_run_id: client-mu8s7hpa-o2y7m5` (execution 26), run after the
+`Finalize Run` / `Init Run Log` edits and with the same brief.
+
+- HTTP 200, `status: "success"`, `issues: []`, 443.7 s (7 min 24 s)
+- Response now contains `document_url` (a new Google Doc, verified by the
+  `Verify Document & Log` check: 0 errors, 3.6 s) and `rate_limit_errors_logged: 0`
+- `pipeline_start` logged `server_log_offset: 23390`
+- 3/3 research questions answered; 148 evidence records; 12/12 planned tool
+  calls executed; 0 invalid URLs; evidence coverage 100%; grounding clean
+- `run_usage.js` for this execution: 657,242 prompt / 13,338 completion tokens,
+  visible-token lower bound $0.191
+
+The `0` for rate-limit errors is expected for a run with no provider errors; it
+shows the field is populated end to end, not that the counter detects a real
+429 in a live run.
 
 Raw log lines: `n8n/logs/runs.jsonl`, filtered by each `client_run_id` above.
 
