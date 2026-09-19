@@ -73,7 +73,7 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
       "position": [
-        448,
+        416,
         0
       ],
       "id": "65d46acd-c268-4dce-ac23-ea1d4d9f99d0",
@@ -136,7 +136,7 @@
       "typeVersion": 1.4,
       "position": [
         1184,
-        288
+        400
       ],
       "id": "2dd1bea9-ef96-40d2-9648-93e7ff221738",
       "name": "MCP Research Tools"
@@ -238,7 +238,7 @@
         "messages": {
           "messageValues": [
             {
-              "message": "You are the Strategy Agent in a market-research pipeline. You receive the AnalystArtifact as JSON, already grounded in the Research Agent's evidence set (competitor_comparison_table, pricing_matrix, product_feature_comparison, market_themes, swot, seven_p_analysis, assumptions_unknowns_conflicts).\n\nBuild the StrategyArtifact strictly from this Analyst artifact. Rules, in order of importance:\n\n(1) Never invent a supporting_id. Every supporting_ids value you write must be copied exactly from an ID that actually appears in the Analyst artifact you were given: an evidence_ids entry already cited somewhere in it (an EV-xxxxxxxx string), a market_themes[].theme_id (THEME-N), a swot item_id (SWOT-S/W/O/T-N), an assumptions_unknowns_conflicts.assumptions[].id (ASM-N), or an assumptions_unknowns_conflicts.unknowns[].id (UNK-N). If you have nothing real to cite, do not fabricate one -- use basis \"inference\" or \"brief_stated\" with an empty supporting_ids array instead.\n\n(2) Every strategic/factual field uses the StrategyCitedField shape { value, supporting_ids, basis }. basis is \"evidence\" (supporting_ids must be non-empty and must resolve to real IDs from the input), \"brief_stated\" (a given fact about Wire3 itself -- no mobile bundle, low brand recognition, regional fiber ISP, price/value switcher segment -- not something you researched), or \"inference\" (your own strategic judgment; supporting_ids may be empty, but include them when a specific theme or evidence record clearly prompted the recommendation).\n\n(3) Prefer citing Analyst-level IDs (THEME-, SWOT-, ASM-, UNK-) over raw evidence IDs where a theme or SWOT item already captures the point -- that is what those syntheses are for. Cite a raw EV- id only when a claim is more precise than any existing theme (e.g. one specific competitor's fee).\n\n(4) competitor_name and competitive_frame values are always exactly one of: \"Wire3\", \"Spectrum\", \"AT&T\", \"T-Mobile Home Internet\". Never any other spelling.\n\n(5) value_proposition.no_bundle_gap_response and value_proposition.low_brand_recognition_response are both required -- never omit either. These describe Wire3's own strategic response, so they are normally basis \"brief_stated\" or \"inference\", not \"evidence\" (competitor research doesn't tell you how Wire3 should respond).\n\n(6) icps: 1 to 3 entries. message_pillars: exactly 3 to 5 entries. Bounds are strict -- do not go over or under.\n\n(7) channels[].budget_tier should skew \"low\" or \"medium\" -- the brief requires channels that fit a regional/local budget, not a national-brand budget. A \"high\" tier must be explicitly justified in rationale. channel_category is a fixed enum: digital_paid, digital_organic, local_offline, partnership, referral. channel_name stays free text.\n\n(8) launch_phases[].sequence_order is a required integer (1, 2, 3, ...) that defines the real order -- do not rely on array position alone.\n\n(9) success_metrics[].target_value uses basis \"evidence\" only when benchmarked against a real sourced figure from the Analyst artifact; otherwise \"inference\".\n\n(10) follow_up_research_questions should include an entry for each unresolved item in the Analyst artifact's assumptions_unknowns_conflicts.unknowns, linking back via related_unknown_ids where applicable.\n\n(11) IDs: icp_id ^ICP-[0-9]+$, pain_id ^PAIN-[0-9]+$, pillar_id ^PILLAR-[0-9]+$, channel_id ^CHANNEL-[0-9]+$, phase_id ^PHASE-[0-9]+$, metric_id ^METRIC-[0-9]+$, risk_id ^RISK-[0-9]+$, frq_id ^FRQ-[0-9]+$.\n\nSet brief_id to the same brief_id you were given. Output only the structured artifact, no prose outside the required fields."
+              "message": "You are the Strategy Agent in a market-research pipeline. You receive the AnalystArtifact as JSON, already grounded in the Research Agent's evidence set (competitor_comparison_table, pricing_matrix, product_feature_comparison, market_themes, swot, seven_p_analysis, assumptions_unknowns_conflicts).\n\nBuild the StrategyArtifact strictly from this Analyst artifact. Rules, in order of importance:\n\n(1) Never invent a supporting_id. Every supporting_ids value you write must be copied exactly from an ID that actually appears in the Analyst artifact you were given: an evidence_ids entry already cited somewhere in it (an EV-xxxxxxxx string), a market_themes[].theme_id (THEME-N), a swot item_id (SWOT-S/W/O/T-N), an assumptions_unknowns_conflicts.assumptions[].id (ASM-N), or an assumptions_unknowns_conflicts.unknowns[].id (UNK-N). If you have nothing real to cite, do not fabricate one -- use basis \"inference\" or \"brief_stated\" with an empty supporting_ids array instead. The IDs you create inside your own output -- icp_id, pain_id, pillar_id, channel_id, phase_id, metric_id, risk_id, frq_id (the ICP-, PAIN-, PILLAR-, CHANNEL-, PHASE-, METRIC-, RISK-, FRQ- prefixes) -- are labels for your own output, never sources. Never put any of them in supporting_ids, not even to say that a launch activity relates to a channel, ICP or pillar. A claim that rests only on your own earlier output is basis \"inference\" with an empty supporting_ids array (or with only genuine Analyst-level IDs, if some of those also prompted it). Before you finish, re-scan every supporting_ids array in the whole artifact and delete any value that does not start with EV-, THEME-, SWOT-, ASM- or UNK-.\n\n(2) Every strategic/factual field uses the StrategyCitedField shape { value, supporting_ids, basis }. basis is \"evidence\" (supporting_ids must be non-empty and must resolve to real IDs from the input), \"brief_stated\" (a given fact about Wire3 itself -- no mobile bundle, low brand recognition, regional fiber ISP, price/value switcher segment -- not something you researched), or \"inference\" (your own strategic judgment; supporting_ids may be empty, but include them when a specific theme or evidence record clearly prompted the recommendation).\n\n(3) Prefer citing Analyst-level IDs (THEME-, SWOT-, ASM-, UNK-) over raw evidence IDs where a theme or SWOT item already captures the point -- that is what those syntheses are for. Cite a raw EV- id only when a claim is more precise than any existing theme (e.g. one specific competitor's fee).\n\n(4) competitor_name and competitive_frame values are always exactly one of: \"Wire3\", \"Spectrum\", \"AT&T\", \"T-Mobile Home Internet\". Never any other spelling.\n\n(5) value_proposition.no_bundle_gap_response and value_proposition.low_brand_recognition_response are both required -- never omit either. These describe Wire3's own strategic response, so they are normally basis \"brief_stated\" or \"inference\", not \"evidence\" (competitor research doesn't tell you how Wire3 should respond).\n\n(6) icps: 1 to 3 entries. message_pillars: exactly 3 to 5 entries. Bounds are strict -- do not go over or under.\n\n(7) channels[].budget_tier should skew \"low\" or \"medium\" -- the brief requires channels that fit a regional/local budget, not a national-brand budget. A \"high\" tier must be explicitly justified in rationale. channel_category is a fixed enum: digital_paid, digital_organic, local_offline, partnership, referral. channel_name stays free text.\n\n(8) launch_phases[].sequence_order is a required integer (1, 2, 3, ...) that defines the real order -- do not rely on array position alone.\n\n(9) success_metrics[].target_value uses basis \"evidence\" only when benchmarked against a real sourced figure from the Analyst artifact; otherwise \"inference\".\n\n(10) follow_up_research_questions should include an entry for each unresolved item in the Analyst artifact's assumptions_unknowns_conflicts.unknowns, linking back via related_unknown_ids where applicable.\n\n(11) IDs: icp_id ^ICP-[0-9]+$, pain_id ^PAIN-[0-9]+$, pillar_id ^PILLAR-[0-9]+$, channel_id ^CHANNEL-[0-9]+$, phase_id ^PHASE-[0-9]+$, metric_id ^METRIC-[0-9]+$, risk_id ^RISK-[0-9]+$, frq_id ^FRQ-[0-9]+$.\n\nSet brief_id to the same brief_id you were given. Output only the structured artifact, no prose outside the required fields."
             }
           ]
         },
@@ -288,7 +288,7 @@
       "typeVersion": 1.3,
       "position": [
         992,
-        256
+        416
       ],
       "id": "da597ca9-efa3-49e5-8be7-0c7fbbc28539",
       "name": "Strategy Output Schema"
@@ -318,19 +318,6 @@
       ],
       "id": "f04b453e-2b7d-46f7-87df-29761464009f",
       "name": "Validate For Docs Writer"
-    },
-    {
-      "parameters": {
-        "jsCode": "const fs = require('fs');\nconst LOG_DIR = './logs';\nfunction appendLog(event) {\n  fs.mkdirSync(LOG_DIR, { recursive: true });\n  fs.appendFileSync(LOG_DIR + '/runs.jsonl', JSON.stringify({ ts: new Date().toISOString(), implementation: 'n8n', ...event }) + '\\n');\n}\n\nconst input = $input.first().json;\nconst clientRunId = input._client_run_id;\nconst runId = input._run_id;\nconst startedAt = input._t_docs_writer_start;\nconst endedAt = new Date().toISOString();\nconst durationMs = startedAt ? new Date(endedAt) - new Date(startedAt) : null;\n\nif (input.status !== 'accepted') {\n  appendLog({\n    event_type: 'document_write',\n    client_run_id: clientRunId,\n    run_id: runId,\n    node: 'Docs Writer (Placeholder)',\n    status: 'rejected',\n    duration_ms: durationMs,\n    error: 'Docs Writer received an item that was not marked accepted by the validation gate.',\n  });\n  throw new Error('Docs Writer received an item that was not marked accepted by the validation gate -- refusing to proceed.');\n}\n\nconst artifact = input.artifact;\n\n// Placeholder for the real Docs Writer: Google Docs OAuth is deferred to P6.2\n// (see SETUP_DECISIONS.md). This node's only job right now is to prove it never\n// receives anything the gate upstream didn't explicitly accept -- it does not yet\n// call any external API.\nconst summary = {\n  brief_id: input.brief_id,\n  sections_ready: [\n    'Ideal customer profiles',\n    'Customer pains and desired outcomes',\n    'Value proposition',\n    'Positioning and differentiation',\n    'Message pillars',\n    'Recommended channels',\n    'Launch phases and activities',\n    'Success metrics',\n    'Risks',\n    'Follow-up research questions',\n  ],\n  icp_count: artifact.icps.length,\n  message_pillar_count: artifact.message_pillars.length,\n  channel_count: artifact.channels.length,\n};\n\nappendLog({\n  event_type: 'document_write',\n  client_run_id: clientRunId,\n  run_id: runId,\n  node: 'Docs Writer (Placeholder)',\n  status: 'placeholder_ok',\n  duration_ms: durationMs,\n  icp_count: summary.icp_count,\n  message_pillar_count: summary.message_pillar_count,\n  channel_count: summary.channel_count,\n});\n\nreturn [{\n  json: {\n    docs_writer_status: 'placeholder -- Google Docs OAuth deferred to P6.2, see SETUP_DECISIONS.md',\n    summary,\n    artifact,\n    _client_run_id: clientRunId,\n    _run_id: runId,\n  },\n}];\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1296,
-        -240
-      ],
-      "id": "fa3576f6-3651-441a-bc91-c9b47d5f8b92",
-      "name": "Docs Writer (Placeholder)"
     },
     {
       "parameters": {
@@ -396,6 +383,112 @@
       ],
       "id": "076ed417-07eb-482f-8e9a-1a84abab1fd7",
       "name": "Finalize Run"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node: \"Build Docs Content\" (Docs Writer, step 1 of 5)\n// Renders the accepted Strategy artifact into Google Docs batchUpdate requests.\n// Source of truth for the node body -- paste into the Code node's JS field.\nconst fs = require('fs');\nconst LOG_DIR = './logs';\nfunction appendLog(event) {\n  fs.mkdirSync(LOG_DIR, { recursive: true });\n  fs.appendFileSync(LOG_DIR + '/runs.jsonl', JSON.stringify({ ts: new Date().toISOString(), implementation: 'n8n', ...event }) + '\\n');\n}\n\nconst input = $input.first().json;\nconst clientRunId = input._client_run_id;\nconst runId = input._run_id;\nconst startedAt = input._t_docs_writer_start;\n\nfunction fail(message) {\n  appendLog({\n    event_type: 'document_write',\n    client_run_id: clientRunId,\n    run_id: runId,\n    node: 'Build Docs Content',\n    status: 'error',\n    duration_ms: startedAt ? Date.now() - new Date(startedAt).getTime() : null,\n    error: message,\n  });\n  throw new Error('Docs Writer: ' + message);\n}\n\nif (input.status !== 'accepted') {\n  fail('received an item that was not marked accepted by the validation gate -- refusing to proceed.');\n}\n\nconst artifact = input.artifact;\nconst analyst = $('Validate Evidence Coverage').first().json.artifact || {};\nconst evidenceSet = $('Build Evidence Records').first().json.evidence || [];\nconst evById = new Map(evidenceSet.map((e) => [e.evidence_id, e]));\n\n// ---- 1. Index analyst-level findings so THEME-/SWOT-/ASM-/UNK-/CONF- ids resolve to EV- ids ----\nconst findings = new Map(); // id -> { id, label, evidence_ids }\nconst evIdsOf = (x) => x.evidence_ids || x.supporting_evidence_ids || x.related_evidence_ids || [];\nconst addFinding = (id, label, evs) => {\n  if (id) findings.set(id, { id, label: String(label || id), evidence_ids: Array.isArray(evs) ? evs : [] });\n};\nfor (const t of analyst.market_themes || []) addFinding(t.theme_id, t.title, evIdsOf(t));\nconst swot = analyst.swot || {};\nfor (const group of ['strengths', 'weaknesses', 'opportunities', 'threats']) {\n  for (const s of swot[group] || []) addFinding(s.item_id, s.statement, evIdsOf(s));\n}\nconst auc = analyst.assumptions_unknowns_conflicts || {};\nfor (const group of ['assumptions', 'unknowns', 'conflicts']) {\n  for (const x of auc[group] || []) addFinding(x.id, x.statement || x.description || x.title, evIdsOf(x));\n}\n\n// ---- 2. Collect every supporting_ids reference in the Strategy artifact ----\nconst isCited = (v) => v && typeof v === 'object' && !Array.isArray(v) && Array.isArray(v.supporting_ids) && 'value' in v;\nconst citedIds = new Set();\n(function walk(o) {\n  if (Array.isArray(o)) return o.forEach(walk);\n  if (o && typeof o === 'object') {\n    if (Array.isArray(o.supporting_ids)) o.supporting_ids.forEach((id) => citedIds.add(id));\n    Object.values(o).forEach(walk);\n  }\n})(artifact);\n\nconst directEv = new Set();\nconst citedFindings = [];\nconst unresolved = [];\nfor (const id of citedIds) {\n  if (/^EV-/.test(id)) directEv.add(id);\n  else if (findings.has(id)) citedFindings.push(findings.get(id));\n  else unresolved.push(id);\n}\nif (unresolved.length) fail(`Unresolvable citation id(s): ${unresolved.join(', ')}`);\n\nconst sourceIds = new Set(directEv);\nfor (const f of citedFindings) f.evidence_ids.forEach((id) => sourceIds.add(id));\nconst orphaned = [...sourceIds].filter((id) => !evById.has(id));\nif (orphaned.length) fail(`Orphaned citation(s) -- evidence_id not in the evidence set: ${orphaned.join(', ')}`);\n\nconst natural = (a, b) => String(a).localeCompare(String(b), 'en', { numeric: true });\ncitedFindings.sort((a, b) => natural(a.id, b.id));\nconst sources = [...sourceIds].sort(natural).map((id) => evById.get(id));\n\n// ---- 3. Build blocks: { text, style, boldLen, links[] } ----\nconst blocks = [];\nconst add = (text, style = 'P', extra = {}) => blocks.push({ text, style, ...extra });\nconst label = (k) => k.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());\nconst cite = (f) => {\n  const ids = f.supporting_ids || [];\n  const tag = ids.length ? ids.join(', ') : f.basis === 'brief_stated' ? 'brief' : f.basis || 'inference';\n  const v = Array.isArray(f.value) ? f.value.join(', ') : String(f.value);\n  return `${v} [${tag}]`;\n};\nconst primitive = (v) => (Array.isArray(v) ? v.join(', ') : String(v));\nconst labelled = (k, text, style = 'BULLET') => {\n  const lead = `${label(k)}: `;\n  add(lead + text, style, { boldLen: lead.length });\n};\n\nfunction renderObject(obj, skip = []) {\n  for (const [k, v] of Object.entries(obj)) {\n    if (skip.includes(k) || v === null || v === undefined) continue;\n    if (isCited(v)) labelled(k, cite(v));\n    else if (Array.isArray(v) && v.length && v.every(isCited)) {\n      add(`${label(k)}:`, 'BULLET', { boldLen: label(k).length + 1 });\n      v.forEach((c) => add(cite(c), 'BULLET2'));\n    } else if (Array.isArray(v) && v.every((x) => x === null || typeof x !== 'object')) labelled(k, primitive(v));\n    else if (Array.isArray(v)) {\n      add(`${label(k)}:`, 'BULLET', { boldLen: label(k).length + 1 });\n      v.forEach((item) => (item && typeof item === 'object' ? renderObject(item) : add(primitive(item), 'BULLET2')));\n    } else if (typeof v === 'object') {\n      add(`${label(k)}:`, 'BULLET', { boldLen: label(k).length + 1 });\n      renderObject(v);\n    } else labelled(k, primitive(v));\n  }\n}\n\nfunction renderItems(items, idKey, nameKey) {\n  for (const item of items || []) {\n    const name = nameKey && item[nameKey] ? (isCited(item[nameKey]) ? cite(item[nameKey]) : item[nameKey]) : '';\n    add(`${item[idKey]}${name ? ': ' + name : ''}`, 'H3');\n    renderObject(item, [idKey, nameKey].filter(Boolean));\n  }\n}\n\nconst dateStr = new Date().toISOString().slice(0, 16).replace('T', ' ');\nconst title = `Wire3 GTM Plan - ${artifact.brief_id} - ${dateStr} UTC`;\n\nadd('Wire3 Go-To-Market Plan', 'TITLE');\nadd(`Brief: ${artifact.brief_id} | Generated: ${dateStr} UTC | Sources cited: ${sources.length}`, 'P');\nadd(\n  'How to read citations: bracketed IDs such as [THEME-3] are analyst findings, listed in Appendix A with the evidence behind them; every source is in Appendix B as a clickable link. [inference] marks strategist judgment not directly supported by a source; [brief] marks a fact stated in the project brief.',\n  'P',\n);\n\nconst sections = [];\nconst section = (name, fn) => { sections.push(name); add(`${sections.length}. ${name}`, 'H2'); fn(); };\n\nsection('Ideal customer profiles', () => renderItems(artifact.icps, 'icp_id', 'name'));\nsection('Customer pains and desired outcomes', () => renderItems(artifact.pains_and_outcomes, 'pain_id'));\nsection('Value proposition', () => renderObject(artifact.value_proposition));\nsection('Positioning and differentiation', () => renderObject(artifact.positioning));\nsection('Message pillars', () => renderItems(artifact.message_pillars, 'pillar_id', 'title'));\nsection('Recommended channels', () => renderItems(artifact.channels, 'channel_id', 'channel_name'));\nsection('Launch phases and activities', () => {\n  const phases = [...(artifact.launch_phases || [])].sort((a, b) => (a.sequence_order || 0) - (b.sequence_order || 0));\n  renderItems(phases, 'phase_id', 'phase_name');\n});\nsection('Success metrics', () => renderItems(artifact.success_metrics, 'metric_id', 'name'));\nsection('Risks', () => renderItems(artifact.risks, 'risk_id'));\nsection('Follow-up research questions', () => renderItems(artifact.follow_up_research_questions, 'frq_id'));\n\nadd('Appendix A: Analyst findings referenced', 'H2');\nfor (const f of citedFindings) {\n  const lead = `[${f.id}] `;\n  const evs = f.evidence_ids.length ? f.evidence_ids.map((e) => `[${e}]`).join(' ') : 'no direct source evidence (assumption or open unknown)';\n  add(`${lead}${f.label} -- ${evs}`, 'BULLET', { boldLen: lead.length });\n}\n\nadd('Appendix B: Sources', 'H2');\nconst HTTP_URL_RE = /^https?:\\/\\/\\S+$/i;\nfor (const e of sources) {\n  const lead = `[${e.evidence_id}] `;\n  const t = e.source_title || e.source_url || e.evidence_id;\n  const ok = HTTP_URL_RE.test(e.source_url || '');\n  const tail = ` (${e.source_type || 'source'}${e.publication_date ? ', ' + e.publication_date : ''})`;\n  add(lead + t + tail, 'BULLET', { boldLen: lead.length, link: ok ? { offset: lead.length, length: t.length, url: e.source_url } : null });\n}\n\n// ---- 4. Lay out text and translate blocks into Docs API requests ----\nlet pos = 1; // Docs body index starts at 1\nlet fullText = '';\nfor (const b of blocks) {\n  b.start = pos;\n  fullText += b.text + '\\n';\n  pos += b.text.length + 1;\n  b.end = pos;\n}\n\nconst requests = [{ insertText: { location: { index: 1 }, text: fullText } }];\nconst styleMap = { TITLE: 'TITLE', H2: 'HEADING_2', H3: 'HEADING_3', P: 'NORMAL_TEXT', BULLET: 'NORMAL_TEXT', BULLET2: 'NORMAL_TEXT' };\nfor (const b of blocks) {\n  requests.push({\n    updateParagraphStyle: {\n      range: { startIndex: b.start, endIndex: b.end },\n      paragraphStyle: { namedStyleType: styleMap[b.style] },\n      fields: 'namedStyleType',\n    },\n  });\n}\n// Bold lead labels and hyperlinks (text-only styles, so no index shifting).\nfor (const b of blocks) {\n  if (b.boldLen) {\n    requests.push({ updateTextStyle: { range: { startIndex: b.start, endIndex: b.start + b.boldLen }, textStyle: { bold: true }, fields: 'bold' } });\n  }\n  if (b.link) {\n    requests.push({\n      updateTextStyle: {\n        range: { startIndex: b.start + b.link.offset, endIndex: b.start + b.link.offset + b.link.length },\n        textStyle: { link: { url: b.link.url } },\n        fields: 'link',\n      },\n    });\n  }\n}\n// Bullets last: merge consecutive bullet paragraphs into one range each.\nlet run = null;\nconst flush = () => {\n  if (run) requests.push({ createParagraphBullets: { range: { startIndex: run.start, endIndex: run.end }, bulletPreset: 'BULLET_DISC_CIRCLE_SQUARE' } });\n  run = null;\n};\nfor (const b of blocks) {\n  if (b.style === 'BULLET' || b.style === 'BULLET2') run = run ? { start: run.start, end: b.end } : { start: b.start, end: b.end };\n  else flush();\n}\nflush();\n\nconst expected = {\n  title,\n  section_headings: sections.map((s, i) => `${i + 1}. ${s}`),\n  source_ids: sources.map((e) => e.evidence_id),\n  link_urls: sources.filter((e) => HTTP_URL_RE.test(e.source_url || '')).map((e) => e.source_url),\n  allowed_evidence_ids: evidenceSet.map((e) => e.evidence_id),\n};\n\nappendLog({\n  event_type: 'document_write',\n  client_run_id: clientRunId,\n  run_id: runId,\n  node: 'Build Docs Content',\n  status: 'content_built',\n  duration_ms: startedAt ? Date.now() - new Date(startedAt).getTime() : null,\n  section_count: sections.length,\n  source_count: sources.length,\n  cited_finding_count: citedFindings.length,\n  request_count: requests.length,\n});\n\nreturn [{\n  json: {\n    title,\n    requests,\n    expected,\n    brief_id: artifact.brief_id,\n    artifact,\n    _client_run_id: clientRunId,\n    _run_id: runId,\n    _t_docs_writer_start: startedAt,\n  },\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1744,
+        432
+      ],
+      "id": "0fb95470-458d-4565-be3e-c4f98de4be98",
+      "name": "Build Docs Content"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://docs.googleapis.com/v1/documents",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDocsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ title: $json.title }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1968,
+        432
+      ],
+      "id": "8c3aa9f7-acab-4de9-bfbc-428733560716",
+      "name": "Docs: Create Document",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 8000,
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "BGUepsApY5bNnY7u",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{ $json.documentId }}:batchUpdate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDocsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ requests: $('Build Docs Content').first().json.requests }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2192,
+        432
+      ],
+      "id": "0b43f6e4-b3c4-4ded-bfa1-3c197b3c7b68",
+      "name": "Docs: Write Content",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "BGUepsApY5bNnY7u",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://docs.googleapis.com/v1/documents/{{ $('Docs: Create Document').first().json.documentId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDocsOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2416,
+        432
+      ],
+      "id": "71a01d39-174b-4c98-b40f-e95b671be19f",
+      "name": "Docs: Read Back",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 8000,
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "BGUepsApY5bNnY7u",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node: \"Verify Document & Log\" (Docs Writer, step 5 of 5)\n// Reads back the created Google Doc and checks it matches what Build Docs Content planned.\n// Source of truth for the node body -- paste into the Code node's JS field.\nconst fs = require('fs');\nconst LOG_DIR = './logs';\nfunction appendLog(event) {\n  fs.mkdirSync(LOG_DIR, { recursive: true });\n  fs.appendFileSync(LOG_DIR + '/runs.jsonl', JSON.stringify({ ts: new Date().toISOString(), implementation: 'n8n', ...event }) + '\\n');\n}\n\nconst build = $('Build Docs Content').first().json;\nconst created = $('Docs: Create Document').first().json;\nconst doc = $input.first().json;\nconst startedAt = build._t_docs_writer_start;\nconst expected = build.expected;\n\nconst documentId = created.documentId || doc.documentId;\nconst documentUrl = `https://docs.google.com/document/d/${documentId}/edit`;\n\n// Flatten the doc into plain text and a set of link URLs.\nlet text = '';\nconst linkUrls = new Set();\nfor (const block of (doc.body && doc.body.content) || []) {\n  for (const el of (block.paragraph && block.paragraph.elements) || []) {\n    const run = el.textRun;\n    if (!run) continue;\n    text += run.content || '';\n    const url = run.textStyle && run.textStyle.link && run.textStyle.link.url;\n    if (url) linkUrls.add(url);\n  }\n}\n\nconst errors = [];\nif (doc.title !== expected.title) errors.push(`Title mismatch: expected \"${expected.title}\", got \"${doc.title}\".`);\nfor (const h of expected.section_headings) if (!text.includes(h)) errors.push(`Missing section heading: ${h}`);\nfor (const id of expected.source_ids) if (!text.includes(`[${id}]`)) errors.push(`Source ${id} missing from Appendix B.`);\nfor (const url of expected.link_urls) if (!linkUrls.has(url)) errors.push(`Missing hyperlink for source URL: ${url}`);\n\n// Every evidence_id referenced anywhere in the document must exist in the evidence set (orphan check).\nconst allowed = new Set(expected.allowed_evidence_ids);\nconst referenced = new Set(text.match(/\\bEV-[0-9a-f]{8}\\b/g) || []);\nconst orphaned = [...referenced].filter((id) => !allowed.has(id));\nif (orphaned.length) errors.push(`Orphaned evidence_id(s) in document: ${orphaned.join(', ')}`);\n\nconst durationMs = startedAt ? Date.now() - new Date(startedAt).getTime() : null;\nappendLog({\n  event_type: 'document_write',\n  client_run_id: build._client_run_id,\n  run_id: build._run_id,\n  node: 'Verify Document & Log',\n  status: errors.length ? 'error' : 'ok',\n  duration_ms: durationMs,\n  document_id: documentId,\n  document_url: documentUrl,\n  section_count: expected.section_headings.length,\n  source_count: expected.source_ids.length,\n  link_count: linkUrls.size,\n  referenced_evidence_ids: referenced.size,\n  orphaned_evidence_ids: orphaned.length,\n  errors,\n});\nif (errors.length) throw new Error('Docs Writer post-write check failed: ' + errors.join(' | '));\n\nconst artifact = build.artifact;\nreturn [{\n  json: {\n    docs_writer_status: 'document_created',\n    document_id: documentId,\n    document_url: documentUrl,\n    checks: {\n      sections_present: expected.section_headings.length,\n      sources_listed: expected.source_ids.length,\n      hyperlinks_verified: expected.link_urls.length,\n      orphaned_evidence_ids: 0,\n    },\n    artifact,\n    _client_run_id: build._client_run_id,\n    _run_id: build._run_id,\n  },\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        432
+      ],
+      "id": "3cff5e4d-aa7e-4130-b16e-761240c7158d",
+      "name": "Verify Document & Log"
     }
   ],
   "pinData": {},
@@ -580,7 +673,7 @@
       "main": [
         [
           {
-            "node": "Docs Writer (Placeholder)",
+            "node": "Build Docs Content",
             "type": "main",
             "index": 0
           }
@@ -631,7 +724,51 @@
         ]
       ]
     },
-    "Docs Writer (Placeholder)": {
+    "Build Docs Content": {
+      "main": [
+        [
+          {
+            "node": "Docs: Create Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Docs: Create Document": {
+      "main": [
+        [
+          {
+            "node": "Docs: Write Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Docs: Write Content": {
+      "main": [
+        [
+          {
+            "node": "Docs: Read Back",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Docs: Read Back": {
+      "main": [
+        [
+          {
+            "node": "Verify Document & Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Document & Log": {
       "main": [
         [
           {
@@ -648,10 +785,9 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "f741ee48-0fbe-48f6-bb25-2b53624f4da6",
+  "versionId": "2140c29e-8a90-42c8-8f05-975bbc906c83",
   "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "9f76e34940b9899abb1c1daa4a946e37a1232e746ef4188fcab36f46669898ed"
+    "templateCredsSetupCompleted": true
   },
   "nodeGroups": [],
   "id": "BNyo78Ibsp5CeW0T",
