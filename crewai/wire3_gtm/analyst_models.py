@@ -82,7 +82,7 @@ class PricingMatrixRow(BaseModel):
     promo_status: CitedPromoStatus
     promo_price_usd_per_month: CitedNullableNumber
     promo_duration_months: CitedNullableInt
-    post_promo_price_usd_per_month: CitedNumber
+    post_promo_price_usd_per_month: CitedNullableNumber
     equipment_fee_usd_per_month: CitedNullableNumber | None = None
     early_termination_fee_usd: CitedNullableNumber | None = None
     blended_12mo_effective_price_usd: DerivedField
@@ -90,6 +90,8 @@ class PricingMatrixRow(BaseModel):
     @model_validator(mode="after")
     def _promo_rules_and_blended_price(self):
         status = self.promo_status.value
+        post_field = self.post_promo_price_usd_per_month
+        post = post_field.value
         if status == "has_promo" and (
             self.promo_price_usd_per_month.value is None
             or self.promo_duration_months.value is None
@@ -98,17 +100,33 @@ class PricingMatrixRow(BaseModel):
         if status == "no_promo_found" and not self.promo_status.evidence_ids:
             raise ValueError("'no_promo_found' must cite the page that was checked")
 
+        # A price is a sourced fact: an 'inference' price is a guess, and a guessed
+        # post-promo price (live run: set equal to the promo price) erases the promo
+        # cliff the strategy is built on. Unknown means null, not a made-up number.
+        if post is not None and post_field.basis == "inference":
+            raise ValueError(
+                "post_promo_price_usd_per_month must be cited from evidence, or null if unknown: "
+                "never an inferred number"
+            )
+
         # The blended price is computed, not sourced: apply the fixed formula in
         # code so both implementations get identical numbers from identical
         # inputs, instead of trusting the LLM's arithmetic. Duration is capped at
         # 12 because this is a 12-month figure.
-        post = self.post_promo_price_usd_per_month.value
         if status == "has_promo":
             promo, months = self.promo_price_usd_per_month.value, min(self.promo_duration_months.value, 12)
+            if months < 12 and post is None:
+                raise ValueError(
+                    "a promo shorter than 12 months needs an evidence-cited post-promo price to compute the "
+                    "12-month blended price; find that price in the evidence or omit this plan"
+                )
         else:
+            if post is None:
+                raise ValueError("a plan with no promo and no known price cannot be priced: omit this plan")
             promo, months = post, 0
+        # With a 12-month promo the post-promo price has zero weight, so it may be null.
         self.blended_12mo_effective_price_usd.value = round(
-            (promo * months + post * (12 - months)) / 12, 2
+            (promo * months + (post or 0.0) * (12 - months)) / 12, 2
         )
         self.blended_12mo_effective_price_usd.formula = BLENDED_FORMULA
         return self

@@ -84,7 +84,12 @@ analyze_evidence:
     {{ value, derived_from_evidence_ids, formula }} using
     ((promo_price * promo_duration_months) + (post_promo_price * (12 - promo_duration_months))) / 12,
     with promo_duration_months = 0 and promo_price = post_promo_price when there
-    is no promo.
+    is no promo. Prices are sourced facts, never guesses: post_promo_price_usd_per_month
+    is either cited from evidence (basis "evidence") or null when unknown; never
+    fill it with an inferred number and never copy the promo price into it. A promo
+    of 12 or more months does not need a post-promo price (it does not affect the
+    12-month blend). A promo shorter than 12 months, or a plan with no promo, does
+    need an evidence-cited price: find one in the evidence or omit that plan.
 
     (7) promo_status is "has_promo", "no_promo_found" or "not_researched".
     "no_promo_found" must cite the page you checked; only "not_researched" may

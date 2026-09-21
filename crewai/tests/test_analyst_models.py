@@ -144,9 +144,47 @@ def test_invented_evidence_id_is_caught_by_grounding(valid):
 
 
 def test_wire3_pricing_row_needs_an_evidence_cited_price(valid):
-    guess = price_row("Wire3", post_promo_price_usd_per_month=cited(70.0, "inference"))
+    guess = price_row("Wire3", post_promo_price_usd_per_month=cited(None, "inference"))  # unknown price, not evidence
     valid["pricing_matrix"].append(guess)
     with pytest.raises(ValidationError, match="Wire3 row only with a post-promo price cited from"):
         AnalystArtifact.model_validate(valid)
     valid["pricing_matrix"][-1] = price_row("Wire3")  # evidence-cited price is fine
     AnalystArtifact.model_validate(valid)
+
+
+# --- prices are sourced facts, never guesses ---------------------------------
+
+def test_an_inferred_post_promo_price_is_rejected(valid):
+    valid["pricing_matrix"][0]["post_promo_price_usd_per_month"] = cited(30.0, "inference")  # the live-run flaw
+    with pytest.raises(ValidationError, match="never an inferred number"):
+        AnalystArtifact.model_validate(valid)
+
+
+def test_unknown_post_promo_price_is_null_and_a_12_month_promo_still_blends(valid):
+    valid["pricing_matrix"][0]["post_promo_price_usd_per_month"] = cited(None, "inference")
+    artifact = AnalystArtifact.model_validate(valid)
+    row = artifact.pricing_matrix[0]
+    assert row.post_promo_price_usd_per_month.value is None
+    assert row.blended_12mo_effective_price_usd.value == 30.0  # 12 months at the promo price
+    jsonschema.validate(dump_contract(artifact), SCHEMA)  # null is valid: the schema leaves `value` untyped
+
+
+def test_a_short_promo_needs_an_evidenced_post_promo_price(valid):
+    row = valid["pricing_matrix"][0]
+    row["promo_duration_months"] = cited(6)
+    row["post_promo_price_usd_per_month"] = cited(None, "inference")
+    with pytest.raises(ValidationError, match="shorter than 12 months"):
+        AnalystArtifact.model_validate(valid)
+    row["post_promo_price_usd_per_month"] = cited(60.0)  # evidence-cited: fine
+    assert AnalystArtifact.model_validate(valid).pricing_matrix[0].blended_12mo_effective_price_usd.value == 45.0
+
+
+def test_a_plan_with_no_promo_and_no_known_price_is_rejected(valid):
+    valid["pricing_matrix"][0].update(
+        promo_status=cited("no_promo_found"),
+        promo_price_usd_per_month=cited(None, "inference"),
+        promo_duration_months=cited(None, "inference"),
+        post_promo_price_usd_per_month=cited(None, "inference"),
+    )
+    with pytest.raises(ValidationError, match="cannot be priced"):
+        AnalystArtifact.model_validate(valid)
