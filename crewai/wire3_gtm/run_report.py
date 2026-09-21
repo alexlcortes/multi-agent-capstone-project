@@ -6,6 +6,7 @@ from wire3_gtm.run_store import RunStore
 
 KPI_LATENCY_MIN = 15  # guide Step 10: brief to drafted GTM document in under 15 minutes
 KPI_TOP_TIER = 0.80
+MIN_SOURCES_PER_RQ = 3  # below this a question counts as covered but thinly supported (reported, not blocking)
 
 
 def build_run_complete(monitor: RunMonitor, store: RunStore, *, plan=None, evidence=None, coverage=None,
@@ -19,6 +20,11 @@ def build_run_complete(monitor: RunMonitor, store: RunStore, *, plan=None, evide
     coverage = coverage or {}
     strategy_clean = None if strategy_report is None else not strategy_report.get("wire3_response_claims_evidence")
 
+    # Calls the plan named but the Research Agent never made. `executed` counts every recorded call,
+    # planned or not, so subtract the unplanned ones. (A live run skipped 2 of 15 and was reported success.)
+    never_run = (coverage.get("planned") or 0) - ((coverage.get("executed") or 0) - (coverage.get("unplanned") or 0))
+    if never_run > 0:
+        issues.append(f"{never_run} of {coverage['planned']} planned research call(s) were never executed"); degraded = True
     if coverage.get("failed"):
         issues.append(f"{coverage['failed']} research tool call(s) failed after retries"); degraded = True
     if any(s.get("status") == "salvaged" for s in steps.values()):
@@ -27,17 +33,25 @@ def build_run_complete(monitor: RunMonitor, store: RunStore, *, plan=None, evide
         issues.append(f"{link_report['broken_url_count']} cited link(s) are broken"); degraded = True
     if link_report and link_report.get("invalid_url_count"):
         issues.append(f"{link_report['invalid_url_count']} malformed source URL(s)"); degraded = True
+    if analyst_report and analyst_report.get("coverage_gaps"):
+        issues.append(f"the Analyst was accepted with {len(analyst_report['coverage_gaps'])} research question(s) "
+                      "uncited because the time budget left no room for another attempt"); degraded = True
     if analyst_report:
         q = analyst_report.get("source_quality") or {}
         if q and q.get("top_tier_share", 1) < KPI_TOP_TIER:
             issues.append(f"source quality {q['top_tier_share']:.0%} top-tier is below the {KPI_TOP_TIER:.0%} KPI target")
-        for key, label in (("unsupported_numbers", "number(s) marked evidence not found in the cited text"),
+        for key, label in (("pricing_repairs", "pricing row(s) repaired in code (a Wire3 row dropped or an inferred price nulled)"),
+                           ("unsupported_numbers", "number(s) marked evidence not found in the cited text"),
                            ("dropped_ids", "invented evidence id(s) removed")):
             if analyst_report.get(key):
                 issues.append(f"{len(analyst_report[key])} {label}")
     for role, u in monitor.usage.items():  # Research is exempt: one LLM step per tool call (SETUP_DECISIONS)
         if role != "Research Agent" and u.llm_calls > monitor.budget.max_llm_calls_per_role:
             issues.append(f"{role} used {u.llm_calls} LLM calls (brief cap {monitor.budget.max_llm_calls_per_role} per role)")
+    depth = (analyst_report or {}).get("rq_source_depth") or {}
+    thin = sorted(f"{rq} ({n})" for rq, n in depth.items() if n < MIN_SOURCES_PER_RQ)
+    if thin:  # per-source coverage is lenient by design, so make a thinly supported question visible
+        issues.append(f"thin coverage: {', '.join(thin)} backed by fewer than {MIN_SOURCES_PER_RQ} distinct cited sources")
     minutes = monitor.elapsed_s() / 60
     if minutes > monitor.budget.max_wall_clock_minutes:
         issues.append(f"took {minutes:.1f} min, over the {monitor.budget.max_wall_clock_minutes} min budget"); degraded = True

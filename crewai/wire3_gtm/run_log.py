@@ -49,6 +49,9 @@ class Budget:
     max_wall_clock_minutes: float = 12
     max_llm_calls_per_role: int = 6  # informational: see SETUP_DECISIONS (Research is exempt)
     max_cost_usd: float = 2.5
+    # Time to keep in hand after the Analyst for Strategy + link check + document. Measured:
+    # Strategy 68-82 s, links ~10 s, docs ~9 s across recorded runs; rounded up.
+    reserve_after_analyst_s: float = 100
 
     @classmethod
     def from_brief(cls, brief: dict) -> "Budget":
@@ -113,6 +116,8 @@ class RunMonitor:
         self.provider_retries = 0
         self.guardrail_rejections: Counter = Counter()
         self.active_role: str | None = None
+        self._mark: dict[str, float] = {}
+        self.last_attempt_s: dict[str, float] = {}
         self._starts: dict[str, tuple[datetime, Usage]] = {}
         self.role_results: dict[str, dict] = {}
 
@@ -145,6 +150,20 @@ class RunMonitor:
             raise BudgetExceeded(f"cost budget reached {where}: ${self.cost_usd():.3f} spent, "
                                  f"limit ${self.budget.max_cost_usd}")
 
+    def attempt_seconds(self, role: str) -> float:
+        """Seconds since this role's previous attempt ended (or its task started), i.e. how long the
+        attempt that just finished took. Called once per guardrail attempt."""
+        now = self.clock()
+        took = now - self._mark.get(role, now)
+        self._mark[role] = now
+        self.last_attempt_s[role] = took
+        return took
+
+    def can_afford_retry(self, role: str) -> bool:
+        """Is there time for another attempt like the last one, plus the steps after this one?"""
+        need = self.last_attempt_s.get(role, 0.0) + self.budget.reserve_after_analyst_s
+        return self.elapsed_s() + need <= self.budget.max_wall_clock_minutes * 60
+
     def take_search_slot(self) -> bool:
         """Reserve one search call (each attempt counts, retries included). False when exhausted."""
         with self.lock:
@@ -169,6 +188,7 @@ class RunMonitor:
     def on_task_started(self, role: str, ts: datetime | None = None) -> None:
         with self.lock:
             self.active_role = role
+            self._mark[role] = self.clock()
             self._starts[role] = (ts or datetime.now(timezone.utc), self.usage.get(role, Usage()).snapshot())
         self.event("agent_start", node=role, agent=role, model=MODEL, provider=PROVIDER, status="ok", _ts=ts)
 

@@ -10,7 +10,7 @@ from wire3_gtm.evidence import EvidenceRecord
 def rec(eid, rq, excerpt="plain text", source_type="company"):
     return EvidenceRecord(
         evidence_id=eid, research_question_id=rq, claim=excerpt, source_title="t",
-        source_url="https://x.example", source_type=source_type,
+        source_url=f"https://x.example/{eid}", source_type=source_type,
         retrieval_timestamp="2026-09-20T00:00:00Z", excerpt=excerpt,
     )
 

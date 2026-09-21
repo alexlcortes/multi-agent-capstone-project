@@ -286,3 +286,45 @@ def test_preflight_event_accepts_the_real_health_check_shape(tmp_path):
     assert e["gate"] == "mcp_preflight" and e["status"] == "ok" and e["active_provider"] == "tavily"
     assert e["provider_key_configured"] is True and e["server_status"] == "ok"
     assert "key" not in json.dumps(e).replace("provider_key_configured", "")  # no key values, only whether one is set
+
+
+# --- honest run status: skipped calls and thin coverage -------------------------------------
+
+def test_planned_calls_the_agent_never_made_degrade_the_run(tmp_path, valid, strategy):
+    """Regression: a live run skipped 2 of 15 planned calls and was reported as a clean success."""
+    steps = make_steps(valid, strategy)
+    inner = steps["research"].fn
+
+    def research_that_skips(*a):
+        phase = inner(*a)
+        phase.collector.calls.clear()  # the agent made none of the planned calls
+        return phase
+
+    steps["research"].fn = research_that_skips
+    store, _, go = run(tmp_path, steps)
+    go()
+    rc = json.loads(store.load_text("06_run_complete.json"))
+    assert rc["status"] == "degraded" and any("planned research call(s) were never executed" in i for i in rc["issues"])
+
+
+def test_a_complete_research_step_is_not_flagged(tmp_path, valid, strategy):
+    store, _, go = run(tmp_path, make_steps(valid, strategy))
+    go()
+    rc = json.loads(store.load_text("06_run_complete.json"))
+    assert rc["status"] == "success" and not any("never executed" in i for i in rc["issues"])
+
+
+def test_a_thinly_supported_question_is_listed_but_does_not_degrade_the_run(tmp_path, valid, strategy):
+    steps = make_steps(valid, strategy)
+    inner = steps["analyst"].fn
+    steps["analyst"].fn = lambda *a: (lambda r: r)(inner(*a))
+    store, _, go = run(tmp_path, steps)
+    go()
+    report = json.loads(store.load_text("03_analyst_report.json"))
+    report["rq_source_depth"] = {"RQ1": 18, "RQ4": 2, "RQ5": 1}
+    store.save_json("03_analyst_report.json", report)  # what a real Analyst step records
+    from wire3_gtm.pipeline import _finish
+
+    _finish(store, RunMonitor(store, log_path=tmp_path / "runs2.jsonl"), None)
+    rc = json.loads(store.load_text("06_run_complete.json"))
+    assert any("thin coverage: RQ4 (2), RQ5 (1)" in i for i in rc["issues"]) and "RQ1" not in " ".join(rc["issues"])

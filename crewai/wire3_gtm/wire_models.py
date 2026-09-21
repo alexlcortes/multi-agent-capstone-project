@@ -44,14 +44,15 @@ def wire_model(cls: type[BaseModel], cache: dict | None = None) -> type[BaseMode
     return cache[cls]
 
 
-def strict_or_feedback(model: type[BaseModel], output) -> tuple[BaseModel | None, str | None]:
+def strict_or_feedback(model: type[BaseModel], output, raw: str | None = None) -> tuple[BaseModel | None, str | None]:
     """Validate the reply against the strict model. (object, None) on success; (None, message
-    for the retry prompt) on failure."""
+    for the retry prompt) on failure. `raw` overrides output.raw (used to validate a repaired copy)."""
     from wire3_gtm.analyst_checks import invalid_reason
 
+    text = output.raw if raw is None else raw
     try:
-        return model.model_validate_json(output.raw), None
+        return model.model_validate_json(text), None
     except ValidationError:
-        return None, invalid_reason(model, output.raw)
+        return None, invalid_reason(model, text)
     except ValueError:  # not JSON at all
-        return None, invalid_reason(model, output.raw)
+        return None, invalid_reason(model, text)

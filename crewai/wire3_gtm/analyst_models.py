@@ -232,7 +232,11 @@ class AssumptionsUnknownsConflicts(BaseModel):
 class AnalystArtifact(BaseModel):
     brief_id: str
     competitor_comparison_table: list[CompetitorComparisonRow] = Field(min_length=4, max_length=4)
-    pricing_matrix: list[PricingMatrixRow] = Field(min_length=4)
+    # DELIBERATE deviation from analyst_artifact.schema.json (minItems 4, "one row per CompetitorName"):
+    # the schema counts Wire3, but Wire3's price is not public and the brief forbids inventing it, so a
+    # priced Wire3 row usually cannot exist. 3 = one row per priced competitor, which _competitor_coverage
+    # enforces. n8n's artifact already has 3 rows (its prompt makes Wire3 optional).
+    pricing_matrix: list[PricingMatrixRow] = Field(min_length=3)
     product_feature_comparison: list[ProductFeatureRow] = Field(min_length=4, max_length=4)
     market_themes: list[MarketTheme] = Field(min_length=3, max_length=6)
     swot: Swot

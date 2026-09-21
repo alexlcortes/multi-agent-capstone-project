@@ -252,12 +252,20 @@ def build_document(
                     f"{' (met)' if q.get('meets_80pct_target') else ' (not met)'}.",
                     "BULLET",
                 )
-            for label, key in (("Numbers marked as evidence but not found in the cited text", "unsupported_numbers"),
+            for label, key in (("Pricing rows adjusted automatically (Wire3 row without a sourced price dropped, or an inferred price removed)", "pricing_repairs"),
+                               ("Numbers marked as evidence but not found in the cited text", "unsupported_numbers"),
                                ("Invented evidence ids removed from the analysis", "dropped_ids"),
                                ("Themes whose research-question links were recomputed from their evidence", "theme_rq_repairs")):
                 n = len(analyst_report.get(key) or [])
                 if n:
                     b.add(f"{label}: {n}.", "BULLET")
+            depth = analyst_report.get("rq_source_depth") or {}
+            if depth:
+                thin = min(depth, key=lambda k: (depth[k], k))
+                b.add(f"Research-question coverage: every question with evidence is backed by at least {depth[thin]} "
+                      f"distinct cited source(s); the thinnest is {thin}.", "BULLET")
+            for gap in analyst_report.get("coverage_gaps") or []:
+                b.add(f"Coverage gap accepted because the time budget was reached: {gap}", "BULLET")
             if analyst_report.get("salvaged_from"):
                 b.add(f"The analysis was recovered from a saved draft ({analyst_report['salvaged_from']}).", "BULLET")
 

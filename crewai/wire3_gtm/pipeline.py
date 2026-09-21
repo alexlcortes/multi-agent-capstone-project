@@ -12,8 +12,8 @@ from crewai import Crew, Process
 
 from wire3_gtm.agents import build_agents
 from wire3_gtm.analyst_checks import (
-    coverage_errors, drop_invented_ids, make_analyst_guardrail, repair_theme_rqs, source_quality,
-    theme_rq_errors, unsupported_number_flags,
+    coverage_errors, drop_invented_ids, make_analyst_guardrail, order_by_rq, repair_pricing, repair_theme_rqs,
+    rq_checklist, rq_source_depth, source_quality, theme_rq_errors, unsupported_number_flags,
 )
 from wire3_gtm.analyst_models import AnalystArtifact, check_grounding, dump_contract
 from wire3_gtm.strategy_checks import (
@@ -53,6 +53,8 @@ def _recording_guardrail(store: RunStore | None, step: str, inner: Callable,
 
     def guardrail(output):
         attempt[0] += 1
+        if monitor is not None:
+            monitor.attempt_seconds(role or step)  # how long the attempt that just finished took
         ok, result = inner(output)
         if store is not None:
             store.save_attempt(step, attempt[0], output.raw, None if ok else result)
@@ -105,21 +107,28 @@ class AnalystResult:
     theme_rq_repairs: list[dict]  # themes whose RQs were rewritten from their cited evidence
     source_quality: dict
     dropped_ids: list[dict] = field(default_factory=list)  # invented evidence ids removed (never remapped)
+    coverage_gaps: list[str] = field(default_factory=list)  # RQs left uncited because time ran out (run is degraded)
+    pricing_repairs: list[dict] = field(default_factory=list)  # rows dropped / guesses nulled in code (see repair_pricing)
 
 
 def run_analyst(plan: ResearchPlan, evidence: list[EvidenceRecord], store: RunStore | None = None,
                 monitor: RunMonitor | None = None) -> AnalystResult:
     """Analyst step. The evidence goes in as an EvidenceSet JSON document and
     comes out as a validated AnalystArtifact; no free text in between."""
-    evidence_set = EvidenceSet(run_id=plan.run_id, evidence=evidence)
+    evidence_set = EvidenceSet(run_id=plan.run_id, evidence=order_by_rq(evidence))
     agents = build_agents()
     dropped_log: list[dict] = []
+    gaps_log: list[str] = []
+    pricing_log: list[dict] = []
+    degrade = (lambda: not monitor.can_afford_retry("Analyst Agent")) if monitor is not None else None
     tasks = build_tasks(agents, guardrails={
         "analyze_evidence": _recording_guardrail(
-            store, "03_analyst", make_analyst_guardrail(evidence, dropped_log), monitor, "Analyst Agent")})
+            store, "03_analyst", make_analyst_guardrail(evidence, dropped_log, degrade, gaps_log, pricing_log),
+            monitor, "Analyst Agent")})
     task = tasks["analyze_evidence"]
     Crew(agents=[agents["analyst"]], tasks=[task], process=Process.sequential).kickoff(
-        inputs={"evidence_set": evidence_set.model_dump_json()}
+        inputs={"evidence_set": evidence_set.model_dump_json(),
+                "rq_checklist": json.dumps(rq_checklist(plan, evidence), indent=1)}
     )
     artifact = task.output.pydantic
     if artifact is None:
@@ -130,7 +139,9 @@ def run_analyst(plan: ResearchPlan, evidence: list[EvidenceRecord], store: RunSt
     artifact, dropped = drop_invented_ids(artifact, valid_ids)  # idempotent after the guardrail's pass
     dropped_ids = dropped or list(dropped_log)
     theme_rq_repairs = repair_theme_rqs(artifact, evidence)
-    errors = check_grounding(artifact, valid_ids) + theme_rq_errors(artifact, evidence) + coverage_errors(artifact, evidence)
+    coverage_gaps = list(gaps_log)  # accepted on purpose because time ran out; anything else must still be clean
+    errors = check_grounding(artifact, valid_ids) + theme_rq_errors(artifact, evidence) + (
+        [] if coverage_gaps else coverage_errors(artifact, evidence))
     if errors:
         raise RuntimeError(f"Analyst artifact failed hard checks after retries: {errors[:5]}")
     return AnalystResult(
@@ -139,6 +150,8 @@ def run_analyst(plan: ResearchPlan, evidence: list[EvidenceRecord], store: RunSt
         theme_rq_repairs=theme_rq_repairs,
         source_quality=source_quality(artifact, evidence),
         dropped_ids=dropped_ids,
+        coverage_gaps=coverage_gaps,
+        pricing_repairs=list(pricing_log),
     )
 
 
@@ -256,10 +269,14 @@ def step_analyst(ctx: RunContext, plan: ResearchPlan, evidence: list[EvidenceRec
             "theme_rq_repairs": result.theme_rq_repairs,
             "source_quality": result.source_quality,
             "dropped_ids": result.dropped_ids,
+            "coverage_gaps": result.coverage_gaps,
+            "rq_source_depth": rq_source_depth(analyst, evidence),
+            "pricing_repairs": result.pricing_repairs,
         })
         monitor.event("validation_gate", node="Analyst Agent", gate="analyst_grounding", status="ok",
                       dropped_id_count=len(result.dropped_ids), theme_rq_repairs=len(result.theme_rq_repairs),
                       unsupported_number_count=len(result.unsupported_numbers),
+                      coverage_gaps=len(result.coverage_gaps), pricing_repairs=len(result.pricing_repairs),
                       top_tier_share=result.source_quality.get("top_tier_share"))
     return analyst
 
@@ -416,9 +433,10 @@ def salvage_analyst(store: RunStore) -> Path:
     for path in drafts:
         raw = _json.loads(path.read_text())["raw"]
         try:
-            artifact = AnalystArtifact.model_validate_json(raw)
-        except ValidationError as exc:
-            rejected.append(f"{path.name}: not a valid AnalystArtifact ({exc.error_count()} errors)")
+            doc, pricing_repairs = repair_pricing(_json.loads(raw))  # the same repairs the guardrail applies
+            artifact = AnalystArtifact.model_validate(doc)
+        except (ValidationError, ValueError, TypeError) as exc:
+            rejected.append(f"{path.name}: not a valid AnalystArtifact ({getattr(exc, 'error_count', lambda: 1)()} errors)")
             continue
         artifact, dropped = drop_invented_ids(artifact, valid_ids)
         repairs = repair_theme_rqs(artifact, evidence)
@@ -430,6 +448,7 @@ def salvage_analyst(store: RunStore) -> Path:
         store.save_json("03_analyst_report.json", {
             "salvaged_from": path.name,
             "dropped_ids": dropped,
+            "pricing_repairs": pricing_repairs,
             "theme_rq_repairs": repairs,
             "unsupported_numbers": unsupported_number_flags(artifact, evidence),
             "source_quality": source_quality(artifact, evidence),

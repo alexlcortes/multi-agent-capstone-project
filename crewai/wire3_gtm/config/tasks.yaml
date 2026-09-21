@@ -45,8 +45,17 @@ analyze_evidence:
     evidence_id, research_question_id, claim, source_title, source_url,
     source_type, publication_date, retrieval_timestamp, excerpt, validation_status.
 
-    EvidenceSet:
+    EvidenceSet, listed in research-question order (RQ1's records first, then RQ2's, and so on):
     {evidence_set}
+
+    Research-question checklist. Your artifact is REJECTED, at the cost of a full re-run, unless it
+    cites at least one search result returned for EVERY question below that has 5 or more records.
+    The same page often appears under several evidence_ids, one per question its search served, and
+    citing any one of them counts for all of those questions. Plan for this while you write, not at
+    the end: for each question pick records that fit a table cell,
+    theme, SWOT item or 7P entry, and cite them there. A question with records must be used, not
+    parked under unknowns. Before you answer, tick each question off against the ids you cited.
+    {rq_checklist}
 
     Build the AnalystArtifact strictly from this evidence. Rules, in order of
     importance:
@@ -77,10 +86,10 @@ analyze_evidence:
     figure was not researched.
 
     (6) pricing_matrix has at least one row per Spectrum, AT&T and T-Mobile Home
-    Internet and at least 4 rows in total; reach 4 by adding further real plan
-    tiers of those competitors, never by inventing a tier. Include a Wire3 row
-    only if you have an evidence-cited Wire3 price; never put a placeholder price
-    on a Wire3 row (omit the row and list Wire3 pricing in unknowns). blended_12mo_effective_price_usd is
+    Internet (3 rows is enough; add further real plan tiers if the evidence has
+    them, never invent one). Do NOT include a Wire3 pricing row unless you have an
+    evidence-cited Wire3 price; Wire3's price is not public, so normally list Wire3
+    pricing under unknowns instead (a Wire3 row without a sourced price is dropped). blended_12mo_effective_price_usd is
     {{ value, derived_from_evidence_ids, formula }} using
     ((promo_price * promo_duration_months) + (post_promo_price * (12 - promo_duration_months))) / 12,
     with promo_duration_months = 0 and promo_price = post_promo_price when there

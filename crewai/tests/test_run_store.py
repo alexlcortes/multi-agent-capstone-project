@@ -35,11 +35,14 @@ class Counter:
 
 def make_steps(valid, strategy, strategy_fails=False):
     def research(brief, store, monitor=None):
-        return SimpleNamespace(plan=PLAN, evidence=EVIDENCE, collector=EvidenceCollector())
+        collector = EvidenceCollector()  # record the one planned call, as a real research step would
+        collector.record("recent_news", {"company_name": "AT&T"},
+                         '{"source_title": "t", "source_url": "https://x.example", "excerpt": "e", "retrieval_timestamp": "T"}')
+        return SimpleNamespace(plan=PLAN, evidence=EVIDENCE, collector=collector)
 
     def analyst(plan, evidence, store, monitor=None):
         return SimpleNamespace(artifact=AnalystArtifact.model_validate(valid), unsupported_numbers=[],
-                               theme_rq_repairs=[], source_quality={}, dropped_ids=[])
+                               theme_rq_repairs=[], source_quality={}, dropped_ids=[], coverage_gaps=[], pricing_repairs=[])
 
     def strat(analyst_artifact, store, monitor=None):
         if strategy_fails:
