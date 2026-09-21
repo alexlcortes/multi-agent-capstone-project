@@ -25,7 +25,7 @@ from wire3_gtm.models import ResearchPlan
 from wire3_gtm.evidence import EvidenceCollector as _EC  # noqa: F401
 from wire3_gtm.analyst_models import cited_evidence_ids
 from wire3_gtm.links import HTTP_URL_RE, check_links, mcp_validator
-from wire3_gtm.research_tools import mcp_preflight, research_tools
+from wire3_gtm.research_tools import enforce_plan, mcp_preflight, research_tools
 from wire3_gtm.run_log import Budget, RunMonitor, activate, flush_events, install_listeners
 from wire3_gtm.run_report import build_run_complete, format_summary
 from wire3_gtm.run_store import RunStore
@@ -90,9 +90,12 @@ def run_planning_and_research(brief: dict, store: RunStore | None = None, monito
             process=Process.sequential,
         )
         crew.kickoff(inputs={"brief": json.dumps(brief)})
-    plan = phase["plan_research"].output.pydantic
-    if plan is None:
-        raise RuntimeError("Head Planner did not return a valid ResearchPlan")
+        plan = phase["plan_research"].output.pydantic
+        if plan is None:
+            raise RuntimeError("Head Planner did not return a valid ResearchPlan")
+        # The agent is asked to make every planned call and sometimes does not: make the rest here,
+        # while the MCP connection is still open.
+        enforce_plan(plan, collector, tools, monitor)
     return PhaseResult(plan, phase["plan_research"].output.raw, collector.build_evidence(plan), collector)
 
 

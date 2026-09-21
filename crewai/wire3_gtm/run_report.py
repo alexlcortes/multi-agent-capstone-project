@@ -25,6 +25,8 @@ def build_run_complete(monitor: RunMonitor, store: RunStore, *, plan=None, evide
     never_run = (coverage.get("planned") or 0) - ((coverage.get("executed") or 0) - (coverage.get("unplanned") or 0))
     if never_run > 0:
         issues.append(f"{never_run} of {coverage['planned']} planned research call(s) were never executed"); degraded = True
+    if coverage.get("enforced"):  # recovered: the pipeline made the calls, so this is information, not a failure
+        issues.append(f"the Research Agent skipped {coverage['enforced']} planned call(s); the pipeline ran them")
     if coverage.get("failed"):
         issues.append(f"{coverage['failed']} research tool call(s) failed after retries"); degraded = True
     if any(s.get("status") == "salvaged" for s in steps.values()):

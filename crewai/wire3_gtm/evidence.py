@@ -8,6 +8,7 @@ Records" node), so no LLM ever paraphrases or invents a source.
 import ast
 import json
 import re
+import threading
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Literal
@@ -101,6 +102,7 @@ class ToolCallRecord:
     attempts: int = 1  # 1 = no retry. Only the FINAL outcome becomes evidence, so a retry never duplicates it.
     duration_ms: int | None = None
     attempt_errors: list[str] = field(default_factory=list)  # why each failed attempt failed
+    source: str = "agent"  # "agent", or "enforced" when the pipeline ran a planned call the agent skipped
 
 
 @dataclass
@@ -111,12 +113,16 @@ class EvidenceCollector:
     # If set, every call is appended here as one JSON line the moment it returns,
     # so paid search results survive a crash before the evidence set is built.
     sink: Path | None = None
+    source: str = "agent"  # stamped on every call recorded while set; enforce_plan sets it to "enforced"
+    _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
     def _add(self, rec: ToolCallRecord) -> None:
-        self.calls.append(rec)
-        if self.sink is not None:
-            with self.sink.open("a") as f:
-                f.write(json.dumps(asdict(rec), default=str) + "\n")
+        rec.source = self.source
+        with self._lock:  # enforced calls run in a small thread pool
+            self.calls.append(rec)
+            if self.sink is not None:
+                with self.sink.open("a") as f:
+                    f.write(json.dumps(asdict(rec), default=str) + "\n")
 
     @classmethod
     def from_jsonl(cls, path: Path) -> "EvidenceCollector":
@@ -141,6 +147,20 @@ class EvidenceCollector:
             return
         found = [r for r in results if "source_url" in r]
         self._add(ToolCallRecord(tool, args, "ok" if found else "empty_result", found, **meta))
+
+    def missing_planned(self, plan: ResearchPlan) -> list:
+        """Planned calls with no recorded call of the same tool AND the same arguments. Exact on purpose:
+        match_plan's looser same-tool fallback is for tagging evidence with research questions, and must
+        not let a call with different arguments count as having made a planned one."""
+        made = [(c.tool, _norm(c.args)) for c in self.calls]
+        missing = []
+        for planned in plan.planned_tool_calls:
+            key = (planned.tool, _norm(planned.args.model_dump()))
+            if key in made:
+                made.remove(key)  # each recorded call satisfies at most one planned call
+            else:
+                missing.append(planned)
+        return missing
 
     def match_plan(self, plan: ResearchPlan) -> list[list[str]]:
         """For each recorded call, the RQ ids of the planned call it fulfils
@@ -186,11 +206,15 @@ class EvidenceCollector:
             "executed": made,
             "failed": sum(c.status in ("failed", "budget_exceeded") for c in self.calls),
             "retried": sum(c.attempts > 1 for c in self.calls),
+            "enforced": sum(c.source == "enforced" for c in self.calls),
             "empty": sum(c.status == "empty_result" for c in self.calls),
             "unplanned": sum(1 for rq in self.match_plan(plan) if not rq),
         }
 
 
+def _norm(args: dict) -> tuple:
+    return tuple(sorted((k, str(v).strip().lower()) for k, v in args.items() if k != "max_results" and v is not None))
+
+
 def _same_args(planned: dict, actual: dict) -> bool:
-    norm = lambda d: {k: str(v).strip().lower() for k, v in d.items() if k != "max_results" and v is not None}  # noqa: E731
-    return norm(planned) == norm(actual)
+    return _norm(planned) == _norm(actual)

@@ -108,6 +108,42 @@ def research_tools(collector: EvidenceCollector, url: str = MCP_URL, monitor=Non
         yield [_recording(t, collector, monitor, policy) for t in wanted]
 
 
+def enforce_plan(plan, collector: EvidenceCollector, tools: list, monitor=None) -> list[str]:
+    """Run, in code, every planned call the Research Agent skipped (a live run skipped 2 of 15 and the
+    pipeline carried on). Each planned call is fully specified (tool + arguments), so nothing is left to
+    interpret. Calls go through the same recording wrappers, so retries, backoff, the search budget and
+    evidence recording all apply, and each one is marked source="enforced" so the record still shows the
+    agent skipped it. Returns a description of each call it ran; idempotent."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    missing = collector.missing_planned(plan)
+    if not missing:
+        return []
+    by_name = {t.name: t for t in tools}
+
+    def run_one(planned) -> None:
+        args = {k: v for k, v in planned.args.model_dump().items() if v is not None}
+        tool = by_name.get(planned.tool)
+        try:
+            if tool is None:
+                raise KeyError(f"no research tool named {planned.tool!r}")
+            tool.run(**args)  # records itself, with retries and the search budget
+        except Exception as exc:  # noqa: BLE001 -- argument validation errors surface before the wrapper runs
+            collector.record(planned.tool, args, None, error=f"{type(exc).__name__}: {exc}"[:300])
+
+    collector.source = "enforced"
+    try:
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            list(pool.map(run_one, missing))
+    finally:
+        collector.source = "agent"
+    described = [f"{p.tool}({p.args.company_name}{', ' + p.args.region if p.args.region else ''})" for p in missing]
+    if monitor is not None:
+        monitor.event("validation_gate", node="Research Agent", gate="plan_enforcement", status="degraded",
+                      skipped_by_agent=described, ran_by_pipeline=len(described))
+    return described
+
+
 class McpUnavailable(RuntimeError):
     pass
 
