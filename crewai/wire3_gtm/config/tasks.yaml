@@ -1,0 +1,146 @@
+# One task per agent. expected_output states the exact deliverable and its
+# contract; output_pydantic models (models.py) enforce it where defined.
+
+plan_research:
+  agent: head_planner
+  description: >
+    Project brief (JSON):
+    {brief}
+
+    Produce the bounded research plan for the Research Agent. Assign RQ ids in
+    brief order, plan only company_overview, competitor_discovery,
+    product_portfolio_mapping, pricing_research and recent_news calls, tag each
+    call with the RQ ids it serves, cover every RQ at least once, copy the budget
+    from the brief, keep total calls within max_search_calls, and generate a
+    short unique run_id. company_name in every call must be Wire3 or one of the
+    brief's competitors, never an invented placeholder; include region only for
+    competitor_discovery and pricing_research, and set it to null otherwise.
+  expected_output: >
+    A single ResearchPlan JSON object with: run_id, region, segment, competitors,
+    research_questions [{id, question, priority}], planned_tool_calls
+    [{tool, args, research_question_ids}], budget {max_search_calls,
+    max_wall_clock_minutes, max_llm_calls_per_role, max_cost_usd}, and
+    assumptions_and_gaps. Every RQ is served by at least one call; the number of
+    planned calls does not exceed max_search_calls. No prose outside the object.
+
+execute_research:
+  agent: research
+  description: >
+    The Head Planner's ResearchPlan (JSON) is provided in your context. Execute
+    every entry in its planned_tool_calls exactly once,
+    with exactly the given args. Do not add, skip or substitute calls. If a call
+    fails, note it and continue.
+  expected_output: >
+    A short plain-text confirmation: number of planned calls completed, and the
+    tool and args of any that failed. No summary of the tool results. The raw
+    tool outputs are captured as the evidence set (EvidenceRecord list per
+    schemas/research_evidence.schema.json) by the pipeline, not by this agent.
+  context: [plan_research]
+
+analyze_evidence:
+  agent: analyst
+  description: >
+    Input: an EvidenceSet as JSON, {{ run_id, evidence: EvidenceRecord[] }}, built
+    in code from the Research Agent's raw tool output. Each record has
+    evidence_id, research_question_id, claim, source_title, source_url,
+    source_type, publication_date, retrieval_timestamp, excerpt, validation_status.
+
+    EvidenceSet:
+    {evidence_set}
+
+    Build the AnalystArtifact strictly from this evidence. Rules, in order of
+    importance:
+
+    (1) Never invent an evidence_id. Every evidence_ids / derived_from_evidence_ids /
+    supporting_evidence_ids / evidence_id_a / evidence_id_b value must be copied
+    exactly from an evidence_id in the EvidenceSet. With no evidence for a field,
+    do not fabricate a citation: use basis "inference" or "brief_stated" with an
+    empty evidence_ids array, or record the gap in unknowns.
+
+    (2) Every factual field is {{ value, evidence_ids, basis }}. basis is "evidence"
+    (evidence_ids non-empty, all real), "brief_stated" (a given fact about Wire3
+    from the brief, not researched), or "inference" (your own synthesis;
+    evidence_ids may be empty).
+
+    (3) competitor_name is exactly one of: "Wire3", "Spectrum", "AT&T",
+    "T-Mobile Home Internet". Map "Charter Spectrum" to "Spectrum".
+
+    (4) competitor_comparison_table and product_feature_comparison have exactly 4
+    rows, one per name, even with little or no evidence for one of them.
+
+    (5) The Wire3 row: has_mobile_bundle_available is false with basis
+    "brief_stated", and service_type is "fiber" with basis "brief_stated". Use
+    Wire3 evidence (wire3.com sources) where the EvidenceSet has it. If a
+    required Wire3 numeric field (e.g. top speed) has no evidence and no stated
+    value in the brief, use basis "inference", give a placeholder consistent
+    with a regional fiber ISP, and add a matching unknowns entry saying the
+    figure was not researched.
+
+    (6) pricing_matrix has at least one row per Spectrum, AT&T and T-Mobile Home
+    Internet and at least 4 rows in total; reach 4 by adding further real plan
+    tiers of those competitors, never by inventing a tier. Include a Wire3 row
+    only if you have an evidence-cited Wire3 price; never put a placeholder price
+    on a Wire3 row (omit the row and list Wire3 pricing in unknowns). blended_12mo_effective_price_usd is
+    {{ value, derived_from_evidence_ids, formula }} using
+    ((promo_price * promo_duration_months) + (post_promo_price * (12 - promo_duration_months))) / 12,
+    with promo_duration_months = 0 and promo_price = post_promo_price when there
+    is no promo.
+
+    (7) promo_status is "has_promo", "no_promo_found" or "not_researched".
+    "no_promo_found" must cite the page you checked; only "not_researched" may
+    have empty evidence_ids.
+
+    (8) market_themes: 3 to 6, each with a theme-level supporting_evidence_ids
+    list and related_research_question_ids taken from the evidence you used.
+
+    (9) swot: at least 1 item per category, each with its own basis.
+
+    (10) seven_p_analysis has exactly the 7 keys product, price, place,
+    promotion, people, process, physical_evidence. market_description describes
+    the current competitive market only, never a recommendation for Wire3.
+
+    (11) Use unknowns for any research question the evidence cannot resolve, and
+    conflicts when two records for the same research_question_id disagree
+    (reference both evidence_ids, discard neither).
+
+    (12) IDs: THEME-n, SWOT-(S|W|O|T)n, ASM-n, UNK-n, CONF-n.
+
+    (13) A theme's related_research_question_ids must be the research_question_id
+    values of the evidence in its supporting_evidence_ids, not RQs you merely
+    consider relevant.
+
+    (14) Every research question with 5 or more records in the EvidenceSet must
+    be cited somewhere in the artifact; an unknowns entry does not excuse it.
+    Use unknowns for genuine gaps (a missing figure), not to skip evidence you
+    were given. An RQ with fewer than 5 records may instead be listed in unknowns.
+
+    (15) basis "evidence" on a number means the number appears in the cited
+    excerpt or claim. If it does not, use basis "inference" or list it in
+    unknowns; do not attach a citation that does not contain the figure.
+
+    Set brief_id to the EvidenceSet's run_id.
+  expected_output: >
+    A single AnalystArtifact JSON object (schemas/analyst_artifact.schema.json):
+    brief_id, competitor_comparison_table (4 rows), pricing_matrix,
+    product_feature_comparison (4 rows), market_themes (3-6), swot,
+    seven_p_analysis, assumptions_unknowns_conflicts. Every factual field is
+    {value, evidence_ids, basis}; basis "evidence" requires non-empty
+    evidence_ids that all exist in the input EvidenceSet. No prose outside the
+    object.
+
+build_strategy:
+  agent: strategy
+  description: >
+    Using only the AnalystArtifact, build the StrategyArtifact for Wire3's Ocala
+    price/value-switcher segment. Every supporting_id must be copied from an
+    EV-, THEME-, SWOT-, ASM- or UNK- id present in the Analyst artifact. Never
+    cite your own ICP-/PAIN-/PILLAR-/CHANNEL-/PHASE-/METRIC-/RISK-/FRQ- ids.
+    Address the no-mobile-bundle and low-brand-recognition gaps explicitly.
+  expected_output: >
+    A single StrategyArtifact JSON object conforming to
+    schemas/strategy_artifact.schema.json: brief_id, icps, pains_and_outcomes,
+    value_proposition, positioning, message_pillars, channels, launch_phases,
+    success_metrics, risks, follow_up_research_questions. Every claim is a
+    StrategyCitedField {value, supporting_ids, basis}; basis "evidence" requires
+    non-empty supporting_ids that all resolve to real Analyst-artifact ids.
+  context: [analyze_evidence]

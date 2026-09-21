@@ -1,0 +1,34 @@
+{
+  "company": "Wire3",
+  "product": "Residential fiber internet (standalone, no bundled mobile plan)",
+  "region": "Ocala, FL / Marion County, FL",
+  "segment": "Residential price/value switchers currently on a competitor",
+  "competitors": ["Charter Spectrum", "AT&T", "T-Mobile Home Internet"],
+  "business_question": "What go-to-market strategy (positioning, pricing/promo structure, messaging, channels) will convert price/value-motivated residential switchers in Ocala/Marion County away from Spectrum, AT&T and T-Mobile Home Internet, within budget, given Wire3 has no mobile bundle and low brand recognition?",
+  "research_questions": [
+    "What is each competitor's actual serviceable footprint and advertised speed tiers in Ocala/Marion County specifically?",
+    "What are current standalone and bundled pricing tiers, promo rates, and post-promo rates for each competitor?",
+    "What early-termination fees, equipment/rental fees, and other recurring surcharges does each competitor charge?",
+    "What documented triggers cause residential customers to switch ISPs (promo-cliff bill shock, reliability, customer service, moving)?",
+    "How much does a bundled mobile plan influence purchase decisions for price/value switchers specifically?",
+    "What do verified customer reviews/complaints say about each competitor's pain points, prioritizing Ocala/central-FL sources?",
+    "How have other regional fiber ISPs without a mobile bundle positioned and priced against national cable/wireless incumbents?",
+    "What marketing channels are effective and cost-appropriate for a low-brand-recognition regional ISP in a mid-size FL market?"
+  ],
+  "required_output_sections": [
+    "Executive summary", "Research scope & evidence table", "Competitor comparison table", "Pricing matrix",
+    "Ideal customer profile(s)", "Customer pains and desired outcomes", "Value proposition and positioning",
+    "Message pillars", "Recommended channels", "Launch phases and activities", "Success metrics",
+    "Risks, assumptions, and open follow-up research questions", "Citations / evidence appendix"
+  ],
+  "budget": {
+    "max_search_calls": 40,
+    "max_wall_clock_minutes": 12,
+    "max_llm_calls_per_role": 6,
+    "max_cost_usd": 2.5
+  },
+  "sources": {
+    "preferred": ["spectrum.com", "att.com", "t-mobile.com/home-internet", "FCC National Broadband Map", "BroadbandNow", "J.D. Power / ACSI", "Parks Associates", "BBB", "Trustpilot", "Reddit", "Ocala Star-Banner", "Fierce Telecom", "Light Reading"],
+    "excluded": ["anything behind login/paywall", "competitor non-public data", "Wire3 non-public internal data"]
+  }
+}

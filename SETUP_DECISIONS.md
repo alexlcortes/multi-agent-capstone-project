@@ -68,3 +68,11 @@ Running log of setup decisions made outside the schema contract, for the final R
 **Why:** setting a sharing policy is a separate, consequential choice (it exposes generated content and, via Drive, could reach people the developer didn't intend), and no requirement for it was found while building. The private default is the safe one.
 
 **Cost if wrong:** a grader or teammate opening `document_url` will get an access request until the document is shared. Decide how the deliverable reaches reviewers (share the document, export it to PDF, or attach it to the submission) before submission. Every full run also leaves one more document in Drive, so test runs need occasional manual cleanup.
+
+## CrewAI: the "6 LLM calls per role" budget counts reasoning calls, not per-tool steps
+
+**Decision:** in the CrewAI implementation, the brief's cap of 6 LLM calls per agent role is applied to an agent's reasoning and planning calls. The Research Agent's one-LLM-step-per-tool-call loop is treated as tool execution and is bounded by the plan instead (at most `max_search_calls`, 40). Research's `max_iter` is 50, the same as n8n's Research node. Head Planner, Analyst and Strategy keep `max_iter=6`. Actual LLM calls per role are counted from `LLMCallStartedEvent` (`wire3_gtm/verify_handoff.py`) and reported, not assumed.
+
+**Why:** an agent that calls tools makes one LLM request per tool call plus a final one, so a 14-call plan takes 15 requests (measured on 2026-09-20: Head Planner 1, Research 15). A literal cap of 6 stopped Research after about 6 of 15 planned calls (`max_iter=6` gave 6/15 executed), which silently truncated the evidence set. n8n's Research Agent has the same per-call pattern with `maxIterations` 50, so this keeps the two implementations comparable.
+
+**Cost if wrong:** the brief's per-role budget is not literally met for Research: 15 LLM calls against a cap of 6. The comparison must state this for both implementations. If a grader reads the cap literally, the alternatives are issuing the plan's calls in parallel within one or two LLM steps, or executing the plan in code with the agent only reporting. `max_iter` is a ceiling, not a counter, and nothing yet fails a run that goes over 6 reasoning calls.

@@ -1,11 +1,18 @@
 [project]
 name = "wire3-gtm-crewai"
 version = "0.1.0"
-description = "Add your description here"
+description = "CrewAI implementation of the Wire3 Ocala GTM multi-agent pipeline"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "crewai>=1.15.21",
-    "crewai-tools>=1.15.21",
+    "crewai-tools[mcp]>=1.15.21",
     "python-dotenv>=1.2.3",
+    "pyyaml>=6.0.3",
+]
+
+[dependency-groups]
+dev = [
+    "jsonschema>=4.26.0",
+    "pytest>=9.1.1",
 ]
