@@ -131,16 +131,75 @@ analyze_evidence:
 build_strategy:
   agent: strategy
   description: >
-    Using only the AnalystArtifact, build the StrategyArtifact for Wire3's Ocala
-    price/value-switcher segment. Every supporting_id must be copied from an
-    EV-, THEME-, SWOT-, ASM- or UNK- id present in the Analyst artifact. Never
-    cite your own ICP-/PAIN-/PILLAR-/CHANNEL-/PHASE-/METRIC-/RISK-/FRQ- ids.
-    Address the no-mobile-bundle and low-brand-recognition gaps explicitly.
+    Input: the AnalystArtifact as JSON, already grounded in the Research Agent's
+    evidence (competitor_comparison_table, pricing_matrix,
+    product_feature_comparison, market_themes, swot, seven_p_analysis,
+    assumptions_unknowns_conflicts).
+
+    AnalystArtifact:
+    {analyst_artifact}
+
+    Build the StrategyArtifact strictly from it, for Wire3's Ocala price/value
+    switcher segment. Rules, in order of importance:
+
+    (1) Never invent a supporting_id. Every supporting_ids value must be copied
+    from an id that appears in the Analyst artifact: an evidence id it already
+    cites (EV-xxxxxxxx), a market_themes[].theme_id (THEME-n), a swot item_id
+    (SWOT-S/W/O/T-n), an assumptions[].id (ASM-n) or an unknowns[].id (UNK-n).
+    The ids you create (icp_id, pain_id, pillar_id, channel_id, phase_id,
+    metric_id, risk_id, frq_id) are labels for your own output, never sources:
+    never put them in supporting_ids. A claim resting only on your own earlier
+    output is basis "inference" with empty supporting_ids. Before finishing,
+    re-scan every supporting_ids array and delete any value that does not start
+    with EV-, THEME-, SWOT-, ASM- or UNK-.
+
+    (2) Every strategic/factual field is {{ value, supporting_ids, basis }}. basis
+    is "evidence" (supporting_ids non-empty and real), "brief_stated" (a given
+    fact about Wire3 itself: no mobile bundle, low brand recognition, regional
+    fiber ISP, price/value switcher segment) or "inference" (your own strategic
+    judgment; supporting_ids may be empty, but include them when a specific
+    theme or evidence record clearly prompted the recommendation).
+
+    (3) Prefer Analyst-level ids (THEME-, SWOT-, ASM-, UNK-) over raw EV- ids
+    where a theme or SWOT item already captures the point. Cite a raw EV- id
+    only when a claim is more precise than any existing theme.
+
+    (4) Competitor names, in current_provider and competitive_frame, are exactly
+    "Wire3", "Spectrum", "AT&T" or "T-Mobile Home Internet".
+
+    (5) value_proposition.no_bundle_gap_response and
+    low_brand_recognition_response are both required. They describe Wire3's own
+    response, so they are normally basis "brief_stated" or "inference", not
+    "evidence".
+
+    (6) icps: 1 to 3. message_pillars: 3 to 5. Bounds are strict.
+
+    (7) channels[].budget_tier should skew "low" or "medium" (a regional budget,
+    not a national-brand budget); a "high" tier must be justified in rationale.
+    channel_category is one of digital_paid, digital_organic, local_offline,
+    partnership, referral. channel_name is free text.
+
+    (8) launch_phases[].sequence_order is a required unique integer (1, 2, 3...)
+    that defines the real order.
+
+    (9) success_metrics[].target_value uses basis "evidence" only when
+    benchmarked against a real figure from the Analyst artifact; otherwise
+    "inference".
+
+    (10) follow_up_research_questions must include an entry for every unknowns[]
+    item in the Analyst artifact, linking back via related_unknown_ids.
+
+    (11) IDs: ICP-n, PAIN-n, PILLAR-n, CHANNEL-n, PHASE-n, METRIC-n, RISK-n,
+    FRQ-n. related_icp_ids and target_icp_ids must name ICPs you defined.
+
+    This is an academic, hypothetical strategy exercise: frame recommendations
+    as illustrative, and do not state Wire3 internal facts that are not in the
+    Analyst artifact or brief. Set brief_id to the Analyst artifact's brief_id.
   expected_output: >
-    A single StrategyArtifact JSON object conforming to
-    schemas/strategy_artifact.schema.json: brief_id, icps, pains_and_outcomes,
-    value_proposition, positioning, message_pillars, channels, launch_phases,
-    success_metrics, risks, follow_up_research_questions. Every claim is a
-    StrategyCitedField {value, supporting_ids, basis}; basis "evidence" requires
-    non-empty supporting_ids that all resolve to real Analyst-artifact ids.
-  context: [analyze_evidence]
+    A single StrategyArtifact JSON object (schemas/strategy_artifact.schema.json):
+    brief_id, icps (1-3), pains_and_outcomes, value_proposition (with both gap
+    responses), positioning, message_pillars (3-5), channels, launch_phases,
+    success_metrics, risks, follow_up_research_questions (one per Analyst
+    unknown). Every claim is {value, supporting_ids, basis}; basis "evidence"
+    requires non-empty supporting_ids that all resolve to ids in the Analyst
+    artifact. No prose outside the object.

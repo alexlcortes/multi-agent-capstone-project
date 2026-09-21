@@ -82,13 +82,91 @@ def coverage_errors(artifact: AnalystArtifact, evidence: list[EvidenceRecord]) -
     return errors
 
 
-def make_analyst_guardrail(evidence: list[EvidenceRecord]):
+def drop_invented_ids(artifact: AnalystArtifact, valid_ids: set[str]) -> tuple[AnalystArtifact, list[dict]]:
+    """Remove evidence ids that are not in the evidence set; never remap them.
+
+    Measured on a failed live run: the invented ids were 2, 3, 5 and 5 edits from
+    the nearest real id. The 5s were pure hallucinations, and the 2 pointed at an
+    unrelated page, so "fix it to the closest id" would attach a real but
+    irrelevant source to a claim. Dropping is the honest repair: a field left
+    with no citation falls to basis 'inference'.
+
+    Only fields that can legitimately be empty are repaired. A theme's
+    supporting_evidence_ids, a derived field's derived_from_evidence_ids and a
+    conflict's evidence_id_a/b must keep at least one id, so those are left
+    alone and the guardrail rejects them. Returns the repaired artifact and a
+    list of every change; the original is returned unchanged if the repair
+    would not validate."""
+    from pydantic import ValidationError
+
+    doc = artifact.model_dump()
+    changes: list[dict] = []
+
+    def walk(node, path):
+        if isinstance(node, dict):
+            ids = node.get("evidence_ids")
+            if isinstance(ids, list):
+                kept = [i for i in ids if i in valid_ids]
+                if len(kept) != len(ids):
+                    downgraded = node.get("basis") == "evidence" and not kept
+                    changes.append({"path": path, "dropped": [i for i in ids if i not in valid_ids],
+                                    "basis_downgraded_to_inference": downgraded})
+                    node["evidence_ids"] = kept
+                    if downgraded:
+                        node["basis"] = "inference"
+            for key in ("supporting_evidence_ids", "derived_from_evidence_ids"):
+                ids = node.get(key)
+                if isinstance(ids, list):
+                    kept = [i for i in ids if i in valid_ids]
+                    if kept and len(kept) != len(ids):
+                        changes.append({"path": f"{path}.{key}" if path else key,
+                                        "dropped": [i for i in ids if i not in valid_ids],
+                                        "basis_downgraded_to_inference": False})
+                        node[key] = kept
+            for k, v in node.items():
+                walk(v, f"{path}.{k}" if path else k)
+        elif isinstance(node, list):
+            for i, v in enumerate(node):
+                walk(v, f"{path}[{i}]")
+
+    walk(doc, "")
+    if not changes:
+        return artifact, []
+    try:
+        return AnalystArtifact.model_validate(doc), changes
+    except ValidationError:
+        return artifact, []
+
+
+def invalid_reason(model, raw: str) -> str:
+    """Why `raw` is not a valid `model`, in words the LLM can act on. CrewAI hands
+    the guardrail pydantic=None on a schema failure, which alone would only say
+    'return a valid object'."""
+    from pydantic import ValidationError
+
+    try:
+        model.model_validate_json(raw)
+    except ValidationError as exc:
+        details = "; ".join(f"{'.'.join(map(str, e['loc']))}: {e['msg']}" for e in exc.errors()[:8])
+        return f"Your output is not a valid {model.__name__}. Fix and return the full object. Errors: {details}"
+    except ValueError as exc:
+        return f"Your output is not valid JSON for {model.__name__}: {exc}"
+    return f"Return a valid {model.__name__} object."
+
+
+def make_analyst_guardrail(evidence: list[EvidenceRecord], dropped_log: list | None = None):
+    """dropped_log receives the ids dropped from the most recent attempt."""
     valid_ids = set(_rq_by_id(evidence))
 
     def guardrail(output):
         artifact = output.pydantic
         if artifact is None:
-            return False, "Return a valid AnalystArtifact object."
+            return False, invalid_reason(AnalystArtifact, output.raw)
+        artifact, dropped = drop_invented_ids(artifact, valid_ids)
+        if dropped:
+            output.pydantic = artifact
+        if dropped_log is not None:
+            dropped_log[:] = dropped
         errors = (
             check_grounding(artifact, valid_ids)
             + coverage_errors(artifact, evidence)
@@ -96,9 +174,9 @@ def make_analyst_guardrail(evidence: list[EvidenceRecord]):
         if errors:
             return False, (
                 "Fix these problems and return the full corrected artifact. Copy evidence ids only "
-                "from the evidence set (or use basis 'inference' with empty evidence_ids); theme RQs "
-                "must come from the evidence the theme cites; every RQ with 5+ evidence records must be cited "
-                "(unknowns do not excuse it). Problems: " + " | ".join(errors[:15])
+                "from the evidence set, character for character (or use basis 'inference' with empty "
+                "evidence_ids); every RQ with 5+ evidence records must be cited (unknowns do not "
+                "excuse it). Problems: " + " | ".join(errors[:15])
             )
         return True, output
 

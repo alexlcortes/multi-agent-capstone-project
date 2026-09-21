@@ -63,3 +63,54 @@ def test_source_quality_share(valid):
     assert q["top_tier_share"] == 0.0 and not q["meets_80pct_target"]
     q = source_quality(art(valid), [rec(EV[0], "RQ2", source_type="primary")])
     assert q["meets_80pct_target"]
+
+
+# --- invented-id repair: drop, never remap -----------------------------------
+
+from wire3_gtm.analyst_checks import drop_invented_ids  # noqa: E402
+from wire3_gtm.analyst_models import check_grounding  # noqa: E402
+
+NEAR_MISS = "EV-aaaaaaab"  # one character away from the real EV-aaaaaaaa
+
+
+def test_invented_id_is_dropped_not_remapped_and_basis_falls_to_inference(valid):
+    valid["competitor_comparison_table"][1]["footprint_confirmed_in_region"]["evidence_ids"] = [NEAR_MISS]
+    fixed, changes = drop_invented_ids(art(valid), set(EV))
+    field = fixed.competitor_comparison_table[1].footprint_confirmed_in_region
+    assert field.evidence_ids == []  # NOT remapped to the "nearby" real id
+    assert field.basis == "inference"
+    assert changes == [{"path": "competitor_comparison_table[1].footprint_confirmed_in_region",
+                        "dropped": [NEAR_MISS], "basis_downgraded_to_inference": True}]
+    assert check_grounding(fixed, set(EV)) == []
+
+
+def test_other_valid_ids_and_basis_are_kept(valid):
+    field = valid["competitor_comparison_table"][1]["footprint_confirmed_in_region"]
+    field["evidence_ids"] = [EV[0], NEAR_MISS]
+    fixed, changes = drop_invented_ids(art(valid), set(EV))
+    kept = fixed.competitor_comparison_table[1].footprint_confirmed_in_region
+    assert kept.evidence_ids == [EV[0]] and kept.basis == "evidence"
+    assert changes[0]["basis_downgraded_to_inference"] is False
+
+
+def test_swot_item_is_repaired_too(valid):
+    valid["swot"]["strengths"][0].update(basis="evidence", evidence_ids=[NEAR_MISS])
+    fixed, _ = drop_invented_ids(art(valid), set(EV))
+    assert fixed.swot.strengths[0].basis == "inference" and fixed.swot.strengths[0].evidence_ids == []
+
+
+def test_fields_that_must_keep_an_id_are_left_for_the_guardrail(valid):
+    valid["market_themes"][0]["supporting_evidence_ids"] = [NEAR_MISS]  # would leave the theme uncited
+    fixed, changes = drop_invented_ids(art(valid), set(EV))
+    assert changes == [] and fixed.market_themes[0].supporting_evidence_ids == [NEAR_MISS]
+    assert check_grounding(fixed, set(EV))  # still flagged
+
+    valid["market_themes"][0]["supporting_evidence_ids"] = [EV[0], NEAR_MISS]  # one real id remains: safe
+    fixed, changes = drop_invented_ids(art(valid), set(EV))
+    assert fixed.market_themes[0].supporting_evidence_ids == [EV[0]] and len(changes) == 1
+
+
+def test_clean_artifact_is_returned_unchanged(valid):
+    a = art(valid)
+    fixed, changes = drop_invented_ids(a, set(EV))
+    assert fixed is a and changes == []

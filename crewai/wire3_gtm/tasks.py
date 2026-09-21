@@ -5,10 +5,12 @@ from crewai import Agent, Task
 
 from wire3_gtm.agents import CONFIG_DIR
 from wire3_gtm.analyst_models import AnalystArtifact
+from wire3_gtm.strategy_models import StrategyArtifact
 from wire3_gtm.models import ResearchPlan, plan_guardrail
 
 # Tasks with a Pydantic contract defined so far; the rest are validated downstream.
-OUTPUT_MODELS = {"plan_research": ResearchPlan, "analyze_evidence": AnalystArtifact}
+OUTPUT_MODELS = {"plan_research": ResearchPlan, "analyze_evidence": AnalystArtifact,
+                "build_strategy": StrategyArtifact}
 GUARDRAILS = {"plan_research": plan_guardrail}
 
 

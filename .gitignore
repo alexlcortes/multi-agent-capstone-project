@@ -25,3 +25,6 @@ node_modules/
 # n8n server stdout — not a deliverable, just process output; the run-record
 # evidence lives in n8n/logs/runs.jsonl, which IS tracked.
 n8n/logs/*.log
+
+# CrewAI per-run interim artifacts (evidence, drafts). Force-add a run you want to keep as a deliverable.
+crewai/runs/

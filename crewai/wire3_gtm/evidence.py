@@ -8,7 +8,8 @@ Records" node), so no LLM ever paraphrases or invents a source.
 import ast
 import json
 import re
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -104,18 +105,36 @@ class EvidenceCollector:
     """Receives every tool call the Research Agent makes."""
 
     calls: list[ToolCallRecord] = field(default_factory=list)
+    # If set, every call is appended here as one JSON line the moment it returns,
+    # so paid search results survive a crash before the evidence set is built.
+    sink: Path | None = None
+
+    def _add(self, rec: ToolCallRecord) -> None:
+        self.calls.append(rec)
+        if self.sink is not None:
+            with self.sink.open("a") as f:
+                f.write(json.dumps(asdict(rec), default=str) + "\n")
+
+    @classmethod
+    def from_jsonl(cls, path: Path) -> "EvidenceCollector":
+        """Rebuild a collector from a saved tool-call log (salvage after a crash)."""
+        collector = cls()
+        for line in path.read_text().splitlines():
+            if line.strip():
+                collector.calls.append(ToolCallRecord(**json.loads(line)))
+        return collector
 
     def record(self, tool: str, args: dict, raw: str | None, error: str | None = None) -> None:
         if error is not None:
-            self.calls.append(ToolCallRecord(tool, args, "failed", error=error))
+            self._add(ToolCallRecord(tool, args, "failed", error=error))
             return
         try:
             results = parse_tool_output(raw or "")
         except json.JSONDecodeError as exc:
-            self.calls.append(ToolCallRecord(tool, args, "failed", error=f"unparseable output: {exc}"))
+            self._add(ToolCallRecord(tool, args, "failed", error=f"unparseable output: {exc}"))
             return
         found = [r for r in results if "source_url" in r]
-        self.calls.append(ToolCallRecord(tool, args, "ok" if found else "empty_result", found))
+        self._add(ToolCallRecord(tool, args, "ok" if found else "empty_result", found))
 
     def match_plan(self, plan: ResearchPlan) -> list[list[str]]:
         """For each recorded call, the RQ ids of the planned call it fulfils
