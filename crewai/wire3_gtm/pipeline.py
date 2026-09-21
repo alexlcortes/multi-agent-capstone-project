@@ -251,3 +251,66 @@ def salvage_analyst(store: RunStore) -> Path:
         store.mark_salvaged("analyst", salvaged_from=path.name, dropped_id_count=len(dropped))
         return store.path("03_analyst_artifact.json")
     raise RuntimeError("no saved Analyst draft passes the hard checks: " + " | ".join(rejected))
+
+
+def run_docs(store: RunStore, backend: str = "local", client=None) -> dict:
+    """Docs Writer milestone. Reads the run's saved, validated artifacts, so it
+    can be run (or re-run) against any finished run without touching the LLM steps.
+
+    backend "local":  build the document, save Markdown, and verify our own
+                      Docs requests against a simulated read-back. No Google.
+    backend "google": also create the Google Doc, write it, read it back,
+                      verify it, and export a PDF.
+
+    Idempotent: the document id is saved the moment the Doc exists, and a resume
+    verifies that document instead of creating a second one."""
+    from wire3_gtm import docs_google
+    from wire3_gtm.docs_content import DocsContentError, build_document, render_markdown, to_docs_requests
+
+    if backend not in ("local", "google"):
+        raise ValueError(f"unknown docs backend {backend!r}")
+    for name in ("01_plan.json", "02_evidence_set.json", "03_analyst_artifact.json", "04_strategy_artifact.json"):
+        if not store.exists(name):
+            raise DocsContentError(f"cannot write a document: {name} is missing; finish the text pipeline first")
+
+    with store.step("docs"):
+        plan = ResearchPlan.model_validate_json(store.load_text("01_plan.json"))
+        evidence = EvidenceSet.model_validate_json(store.load_text("02_evidence_set.json")).evidence
+        analyst = AnalystArtifact.model_validate_json(store.load_text("03_analyst_artifact.json"))
+        strategy = StrategyArtifact.model_validate_json(store.load_text("04_strategy_artifact.json"))
+        report = json.loads(store.load_text("03_analyst_report.json")) if store.exists("03_analyst_report.json") else None
+
+        doc_plan = build_document(strategy, analyst, evidence, plan, store.run_id, analyst_report=report)
+        requests = to_docs_requests(doc_plan)
+        store.save_text("05_document.md", render_markdown(doc_plan))
+        store.save_json("05_document_requests.json", requests)
+
+        # our own requests, applied to an empty document in UTF-16 units: catches index bugs offline
+        local_errors = docs_google.verify(doc_plan.expected, docs_google.simulate_docs(doc_plan, requests))
+        if local_errors:
+            raise DocsContentError("document failed the local check: " + " | ".join(local_errors[:5]))
+        result = {"backend": backend, "title": doc_plan.title, "sections": len(doc_plan.sections),
+                  "sources": len(doc_plan.sources), "status": "local_verified", "document_url": None}
+
+        if backend == "google":
+            client = client or docs_google.GoogleDocs()
+            prior = json.loads(store.load_text("05_document.json")) if store.exists("05_document.json") else {}
+            doc_id = prior.get("document_id")
+            if doc_id is None:
+                doc_id = client.create(doc_plan.title)
+                store.save_json("05_document.json", {**result, "document_id": doc_id, "status": "created",
+                                                     "document_url": docs_google.url_for(doc_id)})
+                client.write(doc_id, requests)  # single atomic batchUpdate, deliberately not retried
+                store.save_json("05_document.json", {**result, "document_id": doc_id, "status": "written",
+                                                     "document_url": docs_google.url_for(doc_id)})
+            doc = client.read(doc_id)
+            errors = docs_google.verify(doc_plan.expected, doc)
+            if errors:
+                raise DocsContentError(
+                    f"Google Doc {docs_google.url_for(doc_id)} failed the post-write check: " + " | ".join(errors[:8]))
+            pdf = client.export_pdf(doc_id)
+            store.path("05_document.pdf").write_bytes(pdf)
+            result.update(status="verified", document_id=doc_id, document_url=docs_google.url_for(doc_id),
+                          pdf_bytes=len(pdf))
+        store.save_json("05_document.json", result)
+    return result

@@ -2,6 +2,9 @@
 uv run python -m wire3_gtm run          # full pipeline, artifacts kept in runs/<run_id>/
 uv run python -m wire3_gtm run RUN_ID   # resume: finished steps are loaded from disk
 uv run python -m wire3_gtm salvage RUN_ID  # recover a failed Analyst step from its saved drafts
+uv run python -m wire3_gtm docs RUN_ID     # Docs Writer, local Markdown only (no Google)
+uv run python -m wire3_gtm docs RUN_ID --google   # also create, verify and export the Google Doc
+uv run python -m wire3_gtm google-auth     # one-time Google consent (opens a browser)
 """
 
 import sys
@@ -31,6 +34,18 @@ def main() -> None:
         from wire3_gtm.run_store import RunStore
 
         print("Salvaged:", salvage_analyst(RunStore(sys.argv[2])))
+        return
+    if sys.argv[1:2] == ["google-auth"]:
+        from wire3_gtm.docs_google import authorize
+
+        print("Token saved to", authorize())
+        return
+    if sys.argv[1:2] == ["docs"]:
+        from wire3_gtm.pipeline import run_docs
+        from wire3_gtm.run_store import RunStore
+
+        result = run_docs(RunStore(sys.argv[2]), "google" if "--google" in sys.argv else "local")
+        print(result)
         return
     agents = build_agents()
     for name, task in build_tasks(agents).items():

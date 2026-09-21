@@ -10,6 +10,7 @@ pipeline never costs the research and analysis already paid for.
       02_research_report.json
       03_analyst_artifact.json   03_analyst_report.json
       04_strategy_artifact.json  04_strategy_report.json
+      05_document.md/.json/.pdf  05_document_requests.json   (Docs Writer, optional later milestone)
       attempts/                  every guardrail attempt's raw output + feedback,
                                  including drafts that were rejected
 
@@ -85,7 +86,10 @@ class RunStore:
         m["steps"].setdefault(name, {}).update(fields)
         m["status"] = (
             "failed" if any(s.get("status") == "failed" for s in m["steps"].values())
-            else "complete" if all(m["steps"].get(s, {}).get("status") in ("ok", "resumed", "salvaged") for s in STEPS)
+            else "complete" if all(
+                m["steps"].get(s, {}).get("status") in ("ok", "resumed", "salvaged")
+                for s in STEPS + (("docs",) if "docs" in m["steps"] else ())  # docs is an optional later milestone
+            )
             else "in_progress"
         )
         self._write_manifest(m)
