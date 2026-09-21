@@ -7,10 +7,13 @@ from wire3_gtm.agents import CONFIG_DIR
 from wire3_gtm.analyst_models import AnalystArtifact
 from wire3_gtm.strategy_models import StrategyArtifact
 from wire3_gtm.models import ResearchPlan, plan_guardrail
+from wire3_gtm.wire_models import wire_model
 
 # Tasks with a Pydantic contract defined so far; the rest are validated downstream.
-OUTPUT_MODELS = {"plan_research": ResearchPlan, "analyze_evidence": AnalystArtifact,
-                "build_strategy": StrategyArtifact}
+# The LLM call is given validator-free "wire" twins; the strict models validate in the guardrails
+# (wire_models.py explains why: custom validators used to raise inside the OpenAI SDK).
+OUTPUT_MODELS = {"plan_research": wire_model(ResearchPlan), "analyze_evidence": wire_model(AnalystArtifact),
+                "build_strategy": wire_model(StrategyArtifact)}
 GUARDRAILS = {"plan_research": plan_guardrail}
 
 

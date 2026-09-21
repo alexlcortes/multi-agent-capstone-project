@@ -159,9 +159,12 @@ def make_analyst_guardrail(evidence: list[EvidenceRecord], dropped_log: list | N
     valid_ids = set(_rq_by_id(evidence))
 
     def guardrail(output):
-        artifact = output.pydantic
+        from wire3_gtm.wire_models import strict_or_feedback
+
+        artifact, feedback = strict_or_feedback(AnalystArtifact, output)  # custom rules run here, not in the SDK
         if artifact is None:
-            return False, invalid_reason(AnalystArtifact, output.raw)
+            return False, feedback
+        output.pydantic = artifact
         artifact, dropped = drop_invented_ids(artifact, valid_ids)
         if dropped:
             output.pydantic = artifact

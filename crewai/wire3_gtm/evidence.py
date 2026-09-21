@@ -95,9 +95,12 @@ def parse_tool_output(raw: str) -> list[dict]:
 class ToolCallRecord:
     tool: str
     args: dict
-    status: Literal["ok", "empty_result", "failed"]
+    status: Literal["ok", "empty_result", "failed", "budget_exceeded"]
     results: list[dict] = field(default_factory=list)
     error: str | None = None
+    attempts: int = 1  # 1 = no retry. Only the FINAL outcome becomes evidence, so a retry never duplicates it.
+    duration_ms: int | None = None
+    attempt_errors: list[str] = field(default_factory=list)  # why each failed attempt failed
 
 
 @dataclass
@@ -124,17 +127,20 @@ class EvidenceCollector:
                 collector.calls.append(ToolCallRecord(**json.loads(line)))
         return collector
 
-    def record(self, tool: str, args: dict, raw: str | None, error: str | None = None) -> None:
+    def record(self, tool: str, args: dict, raw: str | None, error: str | None = None, *,
+               attempts: int = 1, duration_ms: int | None = None, attempt_errors: list[str] | None = None,
+               status: str | None = None) -> None:
+        meta = {"attempts": attempts, "duration_ms": duration_ms, "attempt_errors": list(attempt_errors or [])}
         if error is not None:
-            self._add(ToolCallRecord(tool, args, "failed", error=error))
+            self._add(ToolCallRecord(tool, args, status or "failed", error=error, **meta))
             return
         try:
             results = parse_tool_output(raw or "")
         except json.JSONDecodeError as exc:
-            self._add(ToolCallRecord(tool, args, "failed", error=f"unparseable output: {exc}"))
+            self._add(ToolCallRecord(tool, args, "failed", error=f"unparseable output: {exc}", **meta))
             return
         found = [r for r in results if "source_url" in r]
-        self._add(ToolCallRecord(tool, args, "ok" if found else "empty_result", found))
+        self._add(ToolCallRecord(tool, args, "ok" if found else "empty_result", found, **meta))
 
     def match_plan(self, plan: ResearchPlan) -> list[list[str]]:
         """For each recorded call, the RQ ids of the planned call it fulfils
@@ -178,7 +184,8 @@ class EvidenceCollector:
         return {
             "planned": planned,
             "executed": made,
-            "failed": sum(c.status == "failed" for c in self.calls),
+            "failed": sum(c.status in ("failed", "budget_exceeded") for c in self.calls),
+            "retried": sum(c.attempts > 1 for c in self.calls),
             "empty": sum(c.status == "empty_result" for c in self.calls),
             "unplanned": sum(1 for rq in self.match_plan(plan) if not rq),
         }

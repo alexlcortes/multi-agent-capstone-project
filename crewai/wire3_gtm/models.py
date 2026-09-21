@@ -71,9 +71,12 @@ def plan_guardrail(output):
     """Task guardrail: on failure CrewAI re-prompts the Head Planner with the
     message. Every call must target a real company from the brief, not an
     invented placeholder (topic-level questions map onto the named companies)."""
-    plan: ResearchPlan | None = output.pydantic
+    from wire3_gtm.wire_models import strict_or_feedback
+
+    plan, feedback = strict_or_feedback(ResearchPlan, output)  # the bounded/complete rules run here, not in the SDK
     if plan is None:
-        return False, "Return a valid ResearchPlan object."
+        return False, feedback
+    output.pydantic = plan
     allowed = {"wire3", *(c.strip().lower() for c in plan.competitors)}
     bad = sorted({c.args.company_name for c in plan.planned_tool_calls
                   if c.args.company_name.strip().lower() not in allowed})

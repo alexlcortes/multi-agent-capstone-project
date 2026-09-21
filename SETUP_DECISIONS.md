@@ -90,3 +90,42 @@ Running log of setup decisions made outside the schema contract, for the final R
 **Reliability choices:** the document id is saved the moment the Doc exists, and a rerun verifies that document instead of creating another. `batchUpdate` is deliberately not retried (an ambiguous failure could insert the text twice); create, read and export retry up to 3 times. Before anything is written the content is re-validated with the same checks as the guardrails, and the requests are applied to a simulated document (UTF-16 indexing, as Google uses) and verified locally.
 
 **Cost if wrong:** the Google path has been tested only against a fake client and a simulated read-back, not a live Google account, until `google-auth` has been run. The post-write check confirms headings, source ids, hyperlinks and orphaned ids; it does not check that the text reads well.
+
+## CrewAI logging, retries, budget and cost: same schema as n8n, measured instead of estimated
+
+**Decision:** CrewAI writes `crewai/logs/runs.jsonl` in the same event schema as `n8n/logs/runs.jsonl` (`pipeline_start`, `agent_start/end`, `tool_call`, `validation_gate`, `document_write`, `run_complete`, `usage_summary`), with `implementation: "crewai"`. `python -m wire3_gtm compare` prints the latest run of each side by side. A `run_complete` is written however a run ends (`success`, `degraded`, `failed`, `stopped_budget`).
+
+**How it differs from n8n, and why the comparison must say so:**
+- **Tokens and cost** are provider-reported per LLM call and include hidden reasoning tokens (a one-word "pong" call spent 64 of its 74 output tokens on reasoning). n8n's counts are character estimates without reasoning, so its cost is a lower bound and CrewAI's is exact for the LLM. Prices are copied from `n8n/scripts/run_usage.js` (verified there 2026-09-19) and were not re-verified. Search-provider fees are excluded on both sides.
+- **Retries** are counted, in three kinds: search-tool attempts beyond the first, guardrail re-prompts, and the OpenAI SDK's own transient retries. n8n's figure is the number of HTTP 429s in a server log.
+- **Links** are checked with a real HEAD request through the MCP `validate_source` tool. Only a 404/410 or an unresolvable hostname counts as broken; 403/429 and similar are `blocked` (the page exists) and timeouts, resets and 5xx are `unverified`. My first version counted timeouts as broken and marked a healthy run degraded; three "broken" links were timeouts, and two of those pages answered a normal request with 403. n8n's `invalid_url_count` only checks URL format.
+
+**Retries and backoff:** search calls retry transient failures (provider errors, timeouts, 429/5xx) up to 3 attempts with 2 s and 4 s backoff; bad arguments are not retried. Every attempt counts against the search budget, and only the final result becomes evidence, so a retry cannot create duplicate evidence. The Google `batchUpdate` is never retried (see the Docs Writer decision).
+
+**Budget enforcement** (limits come from the brief): search calls are refused once 40 are used; wall-clock time and cost are checked between steps and after every rejected draft, and a breach stops the run as `stopped_budget` with its artifacts kept, so it can be resumed. n8n only records its cost budget. Tested offline and with a fake pipeline; not yet triggered in a live run.
+
+**Caching: none, deliberately.** Search results are not cached across runs. Each run must be able to show its own retrieval timestamps and drift, and a bounded run costs cents, so a cache would add staleness risk for little saving. Within a run, evidence is saved once and reused on resume, so a failure never repeats a search. Every evidence record carries its `retrieval_timestamp`.
+
+**Cost if wrong / known limits:** the per-role "6 LLM calls" cap is reported but Research is exempt (see the earlier decision). The 12-minute budget is tight: the Analyst alone takes 5 to 7 minutes and retries can push a run past it. The compare table is only fair if both implementations run the same brief: the recorded n8n runs used a 3-question brief and the CrewAI runs use all 8.
+
+## CrewAI orchestration: a crewai.Flow over typed state, and validator-free "wire" models for the LLM call
+
+**Decision (Flow):** the pipeline runs as a `crewai.Flow` (`crewai/wire3_gtm/flow.py`): one `@start` / `@listen` step per role (research, analysis, strategy, link check, document), with the shared artifacts (`ResearchPlan`, evidence list, `AnalystArtifact`, `StrategyArtifact`) held as typed Flow state. The step bodies are ordinary functions in `pipeline.py` that also save every artifact to the run store, so a failed run still resumes from disk. `run_pipeline()` keeps its signature and simply kicks off the Flow, which is why the existing tests exercise it unchanged. The guide asks for a Flow that "passes the shared artifacts between roles"; this is that, and `pipeline_start` records `orchestrator: crewai.Flow`.
+
+**Decision (wire models):** the LLM call is given a validator-free twin of each contract (`wire_models.wire_model`), and the strict model validates the reply in the task guardrail. **Why:** CrewAI's OpenAI path parses the reply with `chat.completions.parse(response_format=Model)`, which runs inside the OpenAI SDK. A custom validator that rejected the reply (a Wire3 pricing row with a short promo and no sourced post-promo price) raised out of the LLM call: no guardrail feedback, no retry, no saved draft, and a 9-minute Analyst step lost (run `run-20260920-230711`, still in `crewai/logs/runs.jsonl` as a failed run). The wire twin has the same fields, types and Field constraints, and the generated JSON Schema is identical (asserted in `tests/test_wire_models.py`), so constrained decoding is unchanged; only the custom rules moved. Verified live: in `run-20260920-232205` a rule violation arrived as guardrail feedback, the model corrected it on the next attempt, and the run succeeded.
+
+**Cost if wrong:** structural constraints that OpenAI does not enforce during decoding (for example string length) can still raise inside the SDK; that path is unchanged and has not failed in any recorded run. Each guardrail retry costs about 2 minutes and about $0.05 of Analyst tokens, and the 12-minute budget leaves room for roughly two.
+
+## Same-brief comparison (8 questions), n=1 run per implementation
+
+Both implementations were run on the same 8-question brief and budget (n8n via its editor's test webhook with a payload built from `crewai/brief.json`; the earlier recorded n8n runs used a different 3-question brief and are not comparable).
+
+| | n8n (`run-9f4b2a`) | CrewAI Flow (`run-20260920-232205`) |
+|---|---|---|
+| Latency | 4.1 min | 11.6 min |
+| Analyst | 113 s, 1 LLM call | 509 s, 4 LLM calls (3 guardrail rejections) |
+| LLM cost | $0.2006, a lower bound (no reasoning tokens) | $0.2041, provider-reported incl. reasoning |
+| Questions answered / evidence | 8/8, 206 records | 8/8, 338 records |
+| Broken links | not checked (URL format only) | 0 of 30 cited, HEAD-checked |
+
+**How to read it:** the latency gap is mostly the extra Analyst attempts, not the framework. Per LLM call the Analyst takes about the same (113 s vs 127 s). CrewAI's guardrails reject drafts that n8n's gates accept: n8n's Analyst artifact, run through CrewAI's checks, has 8 violations (service/technology types written as free text instead of `cable | fiber | dsl | fixed_wireless`, an inferred post-promo price, a 82-character theme title), and against the original shared `analyst_artifact.schema.json` it has 2 (a pricing matrix with 3 rows where the schema requires 4, and the same over-long title). n8n's prompt tells it Wire3 need not be priced, which conflicts with the schema's `minItems: 4`. So the two implementations are not enforcing the same contract, and the stricter one is slower.

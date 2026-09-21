@@ -248,3 +248,25 @@ def test_values_are_formatted_for_people_not_python(valid, strategy):
     assert "**Has mobile bundle available:** No [brief]" in md  # Wire3 row: False -> No
     assert "**Top advertised speed mbps down:** 1000 [" in md  # 1000.0 -> 1000
     assert "True" not in md and "False" not in md and "1000.0" not in md
+
+
+def test_only_the_research_agent_is_given_the_research_tools():
+    """Guide: are MCP and the search provider available to the *intended* agent?"""
+    from crewai.tools import BaseTool
+    from pydantic import BaseModel
+
+    from wire3_gtm.agents import build_agents
+
+    class A(BaseModel):
+        company_name: str
+
+    class T(BaseTool):
+        name: str = "recent_news"
+        description: str = "d"
+        args_schema: type = A
+
+        def _run(self, company_name: str) -> str:
+            return ""
+
+    agents = build_agents(research_tools=[T()])
+    assert [a for a, ag in agents.items() if ag.tools] == ["research"]

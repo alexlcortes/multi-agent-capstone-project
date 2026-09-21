@@ -66,12 +66,13 @@ def unknown_coverage_errors(strategy: StrategyArtifact, analyst: AnalystArtifact
 
 
 def make_strategy_guardrail(analyst: AnalystArtifact):
-    from wire3_gtm.analyst_checks import invalid_reason
-
     def guardrail(output):
-        strategy = output.pydantic
+        from wire3_gtm.wire_models import strict_or_feedback
+
+        strategy, feedback = strict_or_feedback(StrategyArtifact, output)  # custom rules run here, not in the SDK
         if strategy is None:
-            return False, invalid_reason(StrategyArtifact, output.raw)
+            return False, feedback
+        output.pydantic = strategy
         errors = grounding_errors(strategy, analyst) + unknown_coverage_errors(strategy, analyst)
         if errors:
             return False, (

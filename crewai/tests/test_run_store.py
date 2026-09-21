@@ -1,3 +1,4 @@
+import json
 from types import SimpleNamespace
 
 import pytest
@@ -33,19 +34,21 @@ class Counter:
 
 
 def make_steps(valid, strategy, strategy_fails=False):
-    def research(brief, store):
+    def research(brief, store, monitor=None):
         return SimpleNamespace(plan=PLAN, evidence=EVIDENCE, collector=EvidenceCollector())
 
-    def analyst(plan, evidence, store):
+    def analyst(plan, evidence, store, monitor=None):
         return SimpleNamespace(artifact=AnalystArtifact.model_validate(valid), unsupported_numbers=[],
                                theme_rq_repairs=[], source_quality={}, dropped_ids=[])
 
-    def strat(analyst_artifact, store):
+    def strat(analyst_artifact, store, monitor=None):
         if strategy_fails:
             raise RuntimeError("guardrail exhausted")
         return SimpleNamespace(artifact=StrategyArtifact.model_validate(strategy), report={})
 
-    return {"research": Counter(research), "analyst": Counter(analyst), "strategy": Counter(strat)}
+    links = lambda store, analyst_artifact, evidence: {  # noqa: E731
+        "urls_total": 1, "invalid_url_count": 0, "broken_url_count": 0, "blocked": 0, "ok": 1, "unchecked": 0}
+    return {"research": Counter(research), "analyst": Counter(analyst), "strategy": Counter(strat), "links": links}
 
 
 def test_failure_in_last_step_keeps_earlier_artifacts(tmp_path, valid, strategy):
@@ -159,3 +162,37 @@ def test_resuming_a_salvaged_step_keeps_the_salvaged_status(tmp_path):
     with store.step("strategy"):
         pass
     assert store.manifest()["status"] == "complete"  # salvaged counts as a finished step
+
+
+def test_a_research_crash_can_be_salvaged_from_the_searches_already_saved(tmp_path):
+    """Research died part-way: the plan and the tool calls that returned are on disk, and no
+    search has to be paid for again."""
+    from wire3_gtm.pipeline import salvage_research
+
+    store = RunStore("r1", root=tmp_path)
+    store.save_text("01_plan.json", PLAN.model_dump_json())
+    c = EvidenceCollector(sink=store.path("02_tool_calls.jsonl"))
+    c.record("recent_news", {"company_name": "AT&T"},
+             '{"source_title": "t", "source_url": "https://x.example", "excerpt": "e", "retrieval_timestamp": "2026-09-20T00:00:00Z"}',
+             attempts=2)
+    with pytest.raises(RuntimeError):
+        with store.step("research"):
+            raise RuntimeError("research crashed at call 2")
+    salvage_research(store)
+    from wire3_gtm.evidence import EvidenceSet
+    assert len(EvidenceSet.model_validate_json(store.load_text("02_evidence_set.json")).evidence) == 1
+    step = store.manifest()["steps"]["research"]
+    assert step["status"] == "salvaged" and step["tool_calls_recovered"] == 1
+    assert json.loads(store.load_text("02_research_report.json"))["salvaged_from"] == "02_tool_calls.jsonl"
+
+
+def test_salvage_research_refuses_when_there_is_nothing_to_recover(tmp_path):
+    from wire3_gtm.pipeline import salvage_research
+
+    store = RunStore("r1", root=tmp_path)
+    with pytest.raises(RuntimeError, match="nothing to salvage"):
+        salvage_research(store)
+    store.save_text("01_plan.json", PLAN.model_dump_json())
+    store.save_text("02_tool_calls.jsonl", "")
+    with pytest.raises(RuntimeError, match="no evidence"):
+        salvage_research(store)
