@@ -42,7 +42,10 @@ uv run python -m wire3_gtm run --docs local     # ...plus the document as Markdo
 uv run python -m wire3_gtm run --docs google    # ...plus a real Google Doc and PDF (see Google setup)
 uv run python -m wire3_gtm run RUN_ID           # resume: finished steps are loaded from disk, not re-run
 uv run python -m wire3_gtm compare              # latest n8n run vs latest CrewAI run, side by side
+uv run python -m wire3_gtm snapshot RUN_ID      # re-validate a run's Strategy output, save to ../snapshots/RUN_ID
 ```
+
+`runs/` is gitignored. A snapshot is the committed copy of one validated Strategy output: its inputs (plan, evidence, Analyst artifact), `strategy.md`, and `snapshot.json` with the checks passed and a sha256 per file. `wire3_gtm.snapshot.load_snapshot()` refuses edited files, and `tests/test_snapshot.py` builds and verifies the full document from every committed snapshot, with no Google connection.
 
 A run takes roughly 8–12 minutes and, at the pricing in `wire3_gtm/run_log.py`, costs well under the $2.50 budget
 in LLM tokens (search-provider fees are not included). The brief is `brief.json`.

@@ -1,0 +1,697 @@
+{
+ "brief_id": "R001-Wire3-Ocala-0921",
+ "icps": [
+  {
+   "icp_id": "ICP-1",
+   "name": "Residential price/value switcher (Ocala)",
+   "description": {
+    "value": "Households in Ocala that shop primarily on initial price and perceived value (promo-driven), but will switch for reliable multi-gig fiber, transparent pricing and local support.",
+    "supporting_ids": [
+     "THEME-1",
+     "THEME-3",
+     "SWOT-W1"
+    ],
+    "basis": "inference"
+   },
+   "current_provider": {
+    "value": [
+     "Spectrum",
+     "AT&T",
+     "T-Mobile Home Internet"
+    ],
+    "supporting_ids": [
+     "THEME-2",
+     "THEME-3"
+    ],
+    "basis": "evidence"
+   },
+   "demographic_signals": [
+    {
+     "value": "Price-sensitive; responsive to time-limited promos and streaming credits.",
+     "supporting_ids": [
+      "THEME-1"
+     ],
+     "basis": "evidence"
+    },
+    {
+     "value": "Households with multiple streamers and remote workers who value reliability and unlimited data.",
+     "supporting_ids": [
+      "THEME-4"
+     ],
+     "basis": "evidence"
+    }
+   ]
+  },
+  {
+   "icp_id": "ICP-2",
+   "name": "Small-business price/value switcher (Ocala)",
+   "description": {
+    "value": "Local small businesses frustrated with incumbents' distant support or variable reliability, open to switching for faster local technician response and predictable billing.",
+    "supporting_ids": [
+     "THEME-5",
+     "SWOT-O2"
+    ],
+    "basis": "inference"
+   },
+   "current_provider": {
+    "value": [
+     "Spectrum",
+     "AT&T"
+    ],
+    "supporting_ids": [
+     "THEME-3",
+     "THEME-5"
+    ],
+    "basis": "evidence"
+   },
+   "demographic_signals": [
+    {
+     "value": "Values local field technicians and faster on-site SLAs over pure price.",
+     "supporting_ids": [
+      "THEME-5",
+      "SWOT-O2"
+     ],
+     "basis": "evidence"
+    },
+    {
+     "value": "Likely to be influenced by professional-install inclusions and uptime guarantees.",
+     "supporting_ids": [
+      "EV-fe02126f",
+      "EV-91207f04"
+     ],
+     "basis": "evidence"
+    }
+   ]
+  }
+ ],
+ "pains_and_outcomes": [
+  {
+   "pain_id": "PAIN-1",
+   "pain_statement": {
+    "value": "Promo-driven incumbent pricing leads to initial low monthly costs but causes confusion and post-promo bill shock.",
+    "supporting_ids": [
+     "THEME-1",
+     "SWOT-W2"
+    ],
+    "basis": "evidence"
+   },
+   "desired_outcome": {
+    "value": "Clear, predictable pricing (transparent post-promo rates and blended examples) and simple, communicated renewal terms.",
+    "supporting_ids": [
+     "THEME-1"
+    ],
+    "basis": "inference"
+   },
+   "related_icp_ids": [
+    "ICP-1",
+    "ICP-2"
+   ],
+   "severity": {
+    "value": "high",
+    "supporting_ids": [
+     "THEME-1",
+     "SWOT-W2"
+    ],
+    "basis": "evidence"
+   }
+  },
+  {
+   "pain_id": "PAIN-2",
+   "pain_statement": {
+    "value": "Mobile + internet bundles from incumbents change effective price and make simple Internet-only comparisons difficult.",
+    "supporting_ids": [
+     "THEME-2"
+    ],
+    "basis": "evidence"
+   },
+   "desired_outcome": {
+    "value": "A value narrative that normalizes the lack of a mobile bundle (explicitly explaining comparative total cost of ownership) or offers alternative bundle equivalents.",
+    "supporting_ids": [
+     "ASM-1",
+     "THEME-2"
+    ],
+    "basis": "inference"
+   },
+   "related_icp_ids": [
+    "ICP-1"
+   ],
+   "severity": {
+    "value": "medium",
+    "supporting_ids": [
+     "THEME-2",
+     "ASM-1"
+    ],
+    "basis": "evidence"
+   }
+  },
+  {
+   "pain_id": "PAIN-3",
+   "pain_statement": {
+    "value": "Low local brand recognition for Wire3 reduces trust among switchers compared with national incumbents.",
+    "supporting_ids": [
+     "SWOT-W1"
+    ],
+    "basis": "evidence"
+   },
+   "desired_outcome": {
+    "value": "Fast awareness and social proof (local PR, testimonials, visible construction milestones) to build trust and lower perceived risk of switching.",
+    "supporting_ids": [
+     "THEME-3",
+     "SWOT-S1"
+    ],
+    "basis": "inference"
+   },
+   "related_icp_ids": [
+    "ICP-1",
+    "ICP-2"
+   ],
+   "severity": {
+    "value": "medium",
+    "supporting_ids": [
+     "SWOT-W1",
+     "THEME-3"
+    ],
+    "basis": "evidence"
+   }
+  }
+ ],
+ "value_proposition": {
+  "headline": {
+   "value": "Ocala\u2019s local fiber alternative: predictable pricing, multi-gig reliability, and fast local support.",
+   "supporting_ids": [
+    "THEME-3",
+    "THEME-1",
+    "THEME-5"
+   ],
+   "basis": "inference"
+  },
+  "supporting_points": [
+   {
+    "value": "Multi-gig symmetric fiber plans with included eero Wi\u2011Fi and professional installation.",
+    "supporting_ids": [
+     "SWOT-S1",
+     "EV-33d161e7",
+     "EV-d1118463"
+    ],
+    "basis": "evidence"
+   },
+   {
+    "value": "Promotions to lower early friction (first month free, streaming credits) timed with build milestones.",
+    "supporting_ids": [
+     "THEME-1",
+     "SWOT-O1"
+    ],
+    "basis": "evidence"
+   },
+   {
+    "value": "Local technicians and faster on-site response for residential and small-business customers.",
+    "supporting_ids": [
+     "THEME-5",
+     "SWOT-O2"
+    ],
+    "basis": "evidence"
+   }
+  ],
+  "no_bundle_gap_response": {
+   "value": "Explicitly acknowledge Wire3 does not offer a mobile bundle; position Internet + streaming + included Wi\u2011Fi devices as an alternative value stack and offer partner streaming credits/referral discounts to narrow the perceived gap.",
+   "supporting_ids": [
+    "ASM-1",
+    "SWOT-O1"
+   ],
+   "basis": "brief_stated"
+  },
+  "low_brand_recognition_response": {
+   "value": "Accelerate visible local credibility via construction milestone PR, neighborhood install spotlights, local testimonials, and trial promotions tied to on-site pro installs.",
+   "supporting_ids": [
+    "THEME-3",
+    "SWOT-W1"
+   ],
+   "basis": "inference"
+  }
+ },
+ "positioning": {
+  "positioning_statement": {
+   "value": "Wire3 is Ocala\u2019s locally built fiber provider offering multi-gig symmetric speeds, transparent launch pricing, and rapid local support\u2014an alternative to incumbent bundle-driven offers.",
+   "supporting_ids": [
+    "THEME-3",
+    "THEME-1",
+    "SWOT-S1",
+    "SWOT-W1"
+   ],
+   "basis": "inference"
+  },
+  "differentiators": [
+   {
+    "value": "Visible local fiber construction and availability claims backed by region-specific rollout messaging.",
+    "supporting_ids": [
+     "THEME-3",
+     "SWOT-S1"
+    ],
+    "basis": "evidence"
+   },
+   {
+    "value": "Included enhanced Wi\u2011Fi (eero) and professional installation to reduce friction at sign-up.",
+    "supporting_ids": [
+     "EV-33d161e7",
+     "EV-fe02126f"
+    ],
+    "basis": "evidence"
+   },
+   {
+    "value": "Local field technicians and small-business support emphasis for faster SLAs.",
+    "supporting_ids": [
+     "THEME-5",
+     "SWOT-O2"
+    ],
+    "basis": "evidence"
+   }
+  ],
+  "competitive_frame": [
+   "Wire3",
+   "Spectrum",
+   "AT&T",
+   "T-Mobile Home Internet"
+  ]
+ },
+ "message_pillars": [
+  {
+   "pillar_id": "PILLAR-1",
+   "title": "Multi-gig reliability & no data caps",
+   "supporting_message": {
+    "value": "Advertise symmetric multi-gig fiber, no data caps, and included eero Wi\u2011Fi to show superior reliability for heavy users and remote work.",
+    "supporting_ids": [
+     "THEME-4",
+     "SWOT-S1",
+     "EV-d1118463"
+    ],
+    "basis": "evidence"
+   },
+   "target_icp_ids": [
+    "ICP-1",
+    "ICP-2"
+   ]
+  },
+  {
+   "pillar_id": "PILLAR-2",
+   "title": "Transparent promos and predictable billing",
+   "supporting_message": {
+    "value": "Lead with promo details and clearly communicate post-promo pricing examples to reduce bill-shock and build trust.",
+    "supporting_ids": [
+     "THEME-1",
+     "SWOT-W2"
+    ],
+    "basis": "evidence"
+   },
+   "target_icp_ids": [
+    "ICP-1"
+   ]
+  },
+  {
+   "pillar_id": "PILLAR-3",
+   "title": "Local support, fast fixes",
+   "supporting_message": {
+    "value": "Promote local technicians, faster on-site response and business-focused SLAs to win customers frustrated with distant call centers.",
+    "supporting_ids": [
+     "THEME-5",
+     "SWOT-O2"
+    ],
+    "basis": "evidence"
+   },
+   "target_icp_ids": [
+    "ICP-2",
+    "ICP-1"
+   ]
+  },
+  {
+   "pillar_id": "PILLAR-4",
+   "title": "Value without mobile bundle",
+   "supporting_message": {
+    "value": "Explain the comparative TCO: high-speed fiber + streaming credits + included Wi\u2011Fi can match or beat bundle-adjusted prices from incumbents.",
+    "supporting_ids": [
+     "ASM-1",
+     "THEME-2",
+     "SWOT-O1"
+    ],
+    "basis": "inference"
+   },
+   "target_icp_ids": [
+    "ICP-1"
+   ]
+  }
+ ],
+ "channels": [
+  {
+   "channel_id": "CHANNEL-1",
+   "channel_name": "Targeted digital search & social ads (promo-focused)",
+   "channel_category": "digital_paid",
+   "budget_tier": "medium",
+   "rationale": {
+    "value": "Paid search and social ads capture active switchers searching promo terms and highlight time-limited offers tied to availability checks.",
+    "supporting_ids": [
+     "THEME-1",
+     "THEME-3"
+    ],
+    "basis": "inference"
+   },
+   "target_icp_ids": [
+    "ICP-1"
+   ]
+  },
+  {
+   "channel_id": "CHANNEL-2",
+   "channel_name": "Local SEO, availability landing pages & organic social",
+   "channel_category": "digital_organic",
+   "budget_tier": "low",
+   "rationale": {
+    "value": "Organic channels build credibility around local availability, construction milestones, and testimonials at low cost.",
+    "supporting_ids": [
+     "THEME-3",
+     "SWOT-W1"
+    ],
+    "basis": "inference"
+   },
+   "target_icp_ids": [
+    "ICP-1",
+    "ICP-2"
+   ]
+  },
+  {
+   "channel_id": "CHANNEL-3",
+   "channel_name": "Local events, community PR and direct mail",
+   "channel_category": "local_offline",
+   "budget_tier": "medium",
+   "rationale": {
+    "value": "Community activation (press about build milestones, booth at local events, direct mail) builds trust among residents who prefer local proof points.",
+    "supporting_ids": [
+     "THEME-3",
+     "SWOT-W1"
+    ],
+    "basis": "evidence"
+   },
+   "target_icp_ids": [
+    "ICP-1",
+    "ICP-2"
+   ]
+  },
+  {
+   "channel_id": "CHANNEL-4",
+   "channel_name": "Streaming partner credits & local partnerships",
+   "channel_category": "partnership",
+   "budget_tier": "low",
+   "rationale": {
+    "value": "Partnering for streaming credits or local business bundles replicates some perceived value of mobile bundles without building a mobile product.",
+    "supporting_ids": [
+     "SWOT-O1",
+     "THEME-1",
+     "ASM-1"
+    ],
+    "basis": "inference"
+   },
+   "target_icp_ids": [
+    "ICP-1"
+   ]
+  },
+  {
+   "channel_id": "CHANNEL-5",
+   "channel_name": "Customer referral & installer-led door campaigns",
+   "channel_category": "referral",
+   "budget_tier": "low",
+   "rationale": {
+    "value": "Referral incentives and installer neighborhood outreach convert nearby homes during build phases and amplify local testimonials.",
+    "supporting_ids": [
+     "THEME-3",
+     "SWOT-O2"
+    ],
+    "basis": "inference"
+   },
+   "target_icp_ids": [
+    "ICP-1",
+    "ICP-2"
+   ]
+  }
+ ],
+ "launch_phases": [
+  {
+   "phase_id": "PHASE-1",
+   "phase_name": "Awareness & availability",
+   "sequence_order": 1,
+   "timeframe": "Weeks 0-6 (pre- and early-rollout)",
+   "activities": [
+    {
+     "value": "Publish availability map, construction milestone PR and neighborhood-level landing pages with promo messaging.",
+     "supporting_ids": [
+      "THEME-3",
+      "SWOT-S1"
+     ],
+     "basis": "evidence"
+    },
+    {
+     "value": "Run targeted digital ads to price/value switchers promoting first-month-free and streaming credits.",
+     "supporting_ids": [
+      "THEME-1"
+     ],
+     "basis": "evidence"
+    }
+   ],
+   "exit_criteria": "Availability pages live for target neighborhoods; initial digital campaigns achieving target CTR and landing-page conversion rates (see metrics)."
+  },
+  {
+   "phase_id": "PHASE-2",
+   "phase_name": "Convert & onboard",
+   "sequence_order": 2,
+   "timeframe": "Weeks 4-16 (peak install window)",
+   "activities": [
+    {
+     "value": "Offer clear promo pricing with explicit post-promo examples at checkout; enable pro-install scheduling and local tech introductions.",
+     "supporting_ids": [
+      "THEME-1",
+      "EV-fe02126f"
+     ],
+     "basis": "evidence"
+    },
+    {
+     "value": "Activate referral incentives and streaming partner credits at install to offset lack of mobile bundle.",
+     "supporting_ids": [
+      "ASM-1",
+      "SWOT-O1"
+     ],
+     "basis": "inference"
+    }
+   ],
+   "exit_criteria": "Achieve target new-customer sign-ups in build areas and maintain installation quality KPIs below defect threshold."
+  },
+  {
+   "phase_id": "PHASE-3",
+   "phase_name": "Retain & scale",
+   "sequence_order": 3,
+   "timeframe": "Months 3-12 (post-rollout scale)",
+   "activities": [
+    {
+     "value": "Push referral campaigns, monitor local NPS and quickly remediate installation complaints with local crews.",
+     "supporting_ids": [
+      "THEME-5",
+      "SWOT-T2"
+     ],
+     "basis": "evidence"
+    },
+    {
+     "value": "Iterate pricing packages and consider limited third-party mobile/ISP partnerships if needed to close bundle-sensitive segments.",
+     "supporting_ids": [
+      "THEME-2",
+      "ASM-1"
+     ],
+     "basis": "inference"
+    }
+   ],
+   "exit_criteria": "Sustained monthly net adds and retention above target thresholds; referral program drives a growing share of new sign-ups."
+  }
+ ],
+ "success_metrics": [
+  {
+   "metric_id": "METRIC-1",
+   "name": "Net new subscribers in Ocala (first 6 months)",
+   "definition": "Count of activated residential and small-business subscriptions in target Ocala neighborhoods within 6 months of campaign start.",
+   "target_value": {
+    "value": "1,000 net new subscribers in 6 months (illustrative regional target)",
+    "supporting_ids": [
+     "THEME-3",
+     "THEME-1"
+    ],
+    "basis": "inference"
+   },
+   "measurement_cadence": "monthly"
+  },
+  {
+   "metric_id": "METRIC-2",
+   "name": "Promo-to-paid conversion rate (month 1 -> month 3)",
+   "definition": "Share of promo-originated customers who remain active after the immediate promo period (indicator of post-promo satisfaction).",
+   "target_value": {
+    "value": ">= 70% retained past initial promo period (inference)",
+    "supporting_ids": [
+     "THEME-1",
+     "SWOT-W2"
+    ],
+    "basis": "inference"
+   },
+   "measurement_cadence": "monthly"
+  },
+  {
+   "metric_id": "METRIC-3",
+   "name": "Installation quality / defect rate",
+   "definition": "Percentage of installs requiring rework or causing customer complaints within 30 days.",
+   "target_value": {
+    "value": "<= 3% rework/complaint rate (inference)",
+    "supporting_ids": [
+     "SWOT-T2",
+     "THEME-5"
+    ],
+    "basis": "inference"
+   },
+   "measurement_cadence": "weekly"
+  },
+  {
+   "metric_id": "METRIC-4",
+   "name": "Local NPS (residential & small business)",
+   "definition": "Net Promoter Score measured for Ocala customers to assess local credibility and support performance.",
+   "target_value": {
+    "value": "NPS >= 40 within 6 months (inference)",
+    "supporting_ids": [
+     "THEME-5",
+     "SWOT-W1"
+    ],
+    "basis": "inference"
+   },
+   "measurement_cadence": "monthly"
+  }
+ ],
+ "risks": [
+  {
+   "risk_id": "RISK-1",
+   "statement": {
+    "value": "Incumbents use aggressive mobile+internet bundles and promo stacking to defend customers, making switch economics harder for Wire3.",
+    "supporting_ids": [
+     "SWOT-T1",
+     "THEME-2"
+    ],
+    "basis": "evidence"
+   },
+   "likelihood": {
+    "value": "high",
+    "supporting_ids": [
+     "SWOT-T1"
+    ],
+    "basis": "evidence"
+   },
+   "impact": {
+    "value": "high",
+    "supporting_ids": [
+     "THEME-2",
+     "SWOT-T1"
+    ],
+    "basis": "evidence"
+   },
+   "mitigation": {
+    "value": "Emphasize alternative value (streaming credits, included Wi\u2011Fi), transparent TCO comparisons, and local support benefits; explore partnerships to mimic bundle economics.",
+    "supporting_ids": [
+     "SWOT-O1",
+     "ASM-1",
+     "THEME-1"
+    ],
+    "basis": "inference"
+   }
+  },
+  {
+   "risk_id": "RISK-2",
+   "statement": {
+    "value": "Local reports of installation damage or service disruptions could slow adoption during rollout.",
+    "supporting_ids": [
+     "SWOT-T2"
+    ],
+    "basis": "evidence"
+   },
+   "likelihood": {
+    "value": "medium",
+    "supporting_ids": [
+     "SWOT-T2"
+    ],
+    "basis": "evidence"
+   },
+   "impact": {
+    "value": "high",
+    "supporting_ids": [
+     "SWOT-T2"
+    ],
+    "basis": "evidence"
+   },
+   "mitigation": {
+    "value": "Deploy quality-grade installation SOPs, rapid local remediation teams, and proactive communications; surface testimonials from clean installs promptly.",
+    "supporting_ids": [
+     "THEME-5",
+     "SWOT-O2"
+    ],
+    "basis": "inference"
+   }
+  },
+  {
+   "risk_id": "RISK-3",
+   "statement": {
+    "value": "Post-promo churn or perceived bill-shock if post-promo rates are unclear or high.",
+    "supporting_ids": [
+     "THEME-1",
+     "SWOT-W2"
+    ],
+    "basis": "evidence"
+   },
+   "likelihood": {
+    "value": "high",
+    "supporting_ids": [
+     "THEME-1"
+    ],
+    "basis": "evidence"
+   },
+   "impact": {
+    "value": "medium",
+    "supporting_ids": [
+     "SWOT-W2"
+    ],
+    "basis": "evidence"
+   },
+   "mitigation": {
+    "value": "Publish clear post-promo pricing examples at point-of-sale, offer blended 12-month pricing options and proactive renewal reminders to set expectations.",
+    "supporting_ids": [
+     "THEME-1"
+    ],
+    "basis": "inference"
+   }
+  }
+ ],
+ "follow_up_research_questions": [
+  {
+   "frq_id": "FRQ-1",
+   "question": "What are Wire3\u2019s standard post-promo monthly prices by tier (all published non-promotional rates) and any long-term rate guarantees for Ocala addresses?",
+   "rationale": "Analyst evidence documents promotional pricing but does not list definitive post-promo standard monthly rates across tiers (needed to craft transparent TCO messaging).",
+   "related_unknown_ids": [
+    "UNK-1"
+   ],
+   "priority": "high"
+  },
+  {
+   "frq_id": "FRQ-2",
+   "question": "What are the exact early-termination fees (ETFs) and equipment rental fees for Spectrum, AT&T and T-Mobile in Marion County addresses to allow competitive price comparisons?",
+   "rationale": "Competitive fee schedules are referenced but not compiled; exact numbers are needed to produce apples-to-apples comparisons for switcher messaging.",
+   "related_unknown_ids": [
+    "UNK-2"
+   ],
+   "priority": "medium"
+  },
+  {
+   "frq_id": "FRQ-3",
+   "question": "Can Wire3 provide a street-level serviceability map or address-level availability polygons for Marion County / Ocala to enable precise direct-marketing and door-hanger targeting?",
+   "rationale": "Precise address-level availability is not present in the evidence; availability polygons are needed to focus local offline and paid campaigns and avoid wasted spend.",
+   "related_unknown_ids": [
+    "UNK-3"
+   ],
+   "priority": "high"
+  }
+ ]
+}

@@ -8,6 +8,7 @@ uv run python -m wire3_gtm salvage-research RUN_ID  # rebuild evidence from sear
 uv run python -m wire3_gtm docs RUN_ID     # Docs Writer, local Markdown only (no Google)
 uv run python -m wire3_gtm docs RUN_ID --google   # also create, verify and export the Google Doc
 uv run python -m wire3_gtm google-auth     # one-time Google consent (opens a browser)
+uv run python -m wire3_gtm snapshot RUN_ID  # save a validated Strategy output to snapshots/RUN_ID (no Google)
 """
 
 import sys
@@ -57,6 +58,14 @@ def main() -> None:
         from wire3_gtm.docs_google import authorize
 
         print("Token saved to", authorize())
+        return
+    if sys.argv[1:2] == ["snapshot"]:
+        from wire3_gtm.run_store import RUNS_DIR, RunStore
+        from wire3_gtm.snapshot import export_snapshot
+
+        if not (RUNS_DIR / sys.argv[2]).is_dir():  # RunStore() would create an empty run
+            raise SystemExit(f"no run {sys.argv[2]} in {RUNS_DIR}")
+        print("Snapshot saved to", export_snapshot(RunStore(sys.argv[2])))
         return
     if sys.argv[1:2] == ["docs"]:
         from wire3_gtm.pipeline import run_docs

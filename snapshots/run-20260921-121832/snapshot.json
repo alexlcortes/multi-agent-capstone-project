@@ -1,0 +1,38 @@
+{
+ "source_run_id": "run-20260921-121832",
+ "brief_id": "R001-Wire3-Ocala-0921",
+ "exported_at": "2026-09-23T02:05:07Z",
+ "checks_passed": [
+  "pydantic: plan, evidence set, analyst, strategy",
+  "json_schema: strategy_artifact, analyst_artifact, research_evidence (every record)",
+  "analyst evidence ids exist in the evidence set",
+  "strategy supporting_ids exist in the analyst artifact",
+  "every analyst unknown has a follow-up research question",
+  "strategy and analyst share one brief_id"
+ ],
+ "known_schema_deviations": [
+  "pricing_matrix has 3+ rows, not the schema's 4: Wire3's price is not public and is never invented (SETUP_DECISIONS.md, CrewAI Analyst speed, Decision 2; the Pydantic model enforces the 3-row minimum)"
+ ],
+ "counts": {
+  "evidence_records": 474,
+  "analyst_themes": 5,
+  "analyst_unknowns": 3,
+  "icps": 2,
+  "pains_and_outcomes": 3,
+  "message_pillars": 4,
+  "channels": 5,
+  "launch_phases": 3,
+  "success_metrics": 4,
+  "risks": 3,
+  "follow_up_research_questions": 3
+ },
+ "sha256": {
+  "01_plan.json": "83982039777908f2ff407eaa61d3ab9f4a36c299359f20c5c975d0fcf39b01d9",
+  "02_evidence_set.json": "32befd7801caef358e4612be9129187b6a3203d0e4f87db30af23c86aee84ce7",
+  "03_analyst_artifact.json": "d19d750318c59327e36af9da9b560f68957d4b491f9e4842c93c9874a66ce404",
+  "03_analyst_report.json": "436bb7e659e84327b14f2129b6fad05a37634df50ec5b660c23a41be2a7760cc",
+  "04_strategy_artifact.json": "3bad9dbb5e94c517053f777767dade67fe76ff8ce6fcd08c4b7daa11fec081f7",
+  "04_strategy_report.json": "9ab1b62bbac6ed6a3aac51e764b378e40f50a2a6bd204fe578999128031c1fdc",
+  "strategy.md": "397daf6902bfc684a2d1f8e3facbc24f42b20ebf105b9e7a9bb7100c9896dcc5"
+ }
+}

@@ -1,0 +1,97 @@
+{
+ "unsupported_numbers": [
+  {
+   "path": "pricing_matrix[1].promo_duration_months",
+   "value": 12,
+   "evidence_ids": [
+    "EV-91207f04"
+   ]
+  }
+ ],
+ "theme_rq_repairs": [
+  {
+   "theme_id": "THEME-1",
+   "before": [
+    "RQ2",
+    "RQ7"
+   ],
+   "after": [
+    "RQ2",
+    "RQ3",
+    "RQ7"
+   ]
+  },
+  {
+   "theme_id": "THEME-2",
+   "before": [
+    "RQ5",
+    "RQ2"
+   ],
+   "after": [
+    "RQ2",
+    "RQ3"
+   ]
+  },
+  {
+   "theme_id": "THEME-3",
+   "before": [
+    "RQ1",
+    "RQ4"
+   ],
+   "after": [
+    "RQ2",
+    "RQ4"
+   ]
+  },
+  {
+   "theme_id": "THEME-4",
+   "before": [
+    "RQ1",
+    "RQ4"
+   ],
+   "after": [
+    "RQ1"
+   ]
+  },
+  {
+   "theme_id": "THEME-5",
+   "before": [
+    "RQ4",
+    "RQ7"
+   ],
+   "after": [
+    "RQ7"
+   ]
+  }
+ ],
+ "source_quality": {
+  "cited_records": 61,
+  "by_source_type": {
+   "community": 25,
+   "company": 36
+  },
+  "top_tier_share": 0.59,
+  "meets_80pct_target": false
+ },
+ "dropped_ids": [
+  {
+   "path": "swot.weaknesses[0]",
+   "dropped": [
+    "EV-4e556634"
+   ],
+   "basis_downgraded_to_inference": false
+  }
+ ],
+ "coverage_gaps": [],
+ "rq_source_depth": {
+  "RQ1": 25,
+  "RQ2": 21,
+  "RQ3": 34,
+  "RQ4": 12,
+  "RQ5": 6,
+  "RQ6": 6,
+  "RQ7": 20,
+  "RQ8": 16
+ },
+ "pricing_repairs": []
+}

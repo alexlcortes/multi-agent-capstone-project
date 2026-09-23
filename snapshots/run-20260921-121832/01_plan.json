@@ -1,0 +1,264 @@
+{
+ "run_id": "R001-Wire3-Ocala-0921",
+ "region": "Ocala, FL / Marion County, FL",
+ "segment": "Residential price/value switchers currently on a competitor",
+ "competitors": [
+  "Charter Spectrum",
+  "AT&T",
+  "T-Mobile Home Internet"
+ ],
+ "research_questions": [
+  {
+   "id": "RQ1",
+   "question": "What is each competitor's actual serviceable footprint and advertised speed tiers in Ocala/Marion County specifically?",
+   "priority": "high"
+  },
+  {
+   "id": "RQ2",
+   "question": "What are current standalone and bundled pricing tiers, promo rates, and post-promo rates for each competitor?",
+   "priority": "high"
+  },
+  {
+   "id": "RQ3",
+   "question": "What early-termination fees, equipment/rental fees, and other recurring surcharges does each competitor charge?",
+   "priority": "high"
+  },
+  {
+   "id": "RQ4",
+   "question": "What documented triggers cause residential customers to switch ISPs (promo-cliff bill shock, reliability, customer service, moving)?",
+   "priority": "high"
+  },
+  {
+   "id": "RQ5",
+   "question": "How much does a bundled mobile plan influence purchase decisions for price/value switchers specifically?",
+   "priority": "medium"
+  },
+  {
+   "id": "RQ6",
+   "question": "What do verified customer reviews/complaints say about each competitor's pain points, prioritizing Ocala/central-FL sources?",
+   "priority": "high"
+  },
+  {
+   "id": "RQ7",
+   "question": "How have other regional fiber ISPs without a mobile bundle positioned and priced against national cable/wireless incumbents?",
+   "priority": "medium"
+  },
+  {
+   "id": "RQ8",
+   "question": "What marketing channels are effective and cost-appropriate for a low-brand-recognition regional ISP in a mid-size FL market?",
+   "priority": "high"
+  }
+ ],
+ "planned_tool_calls": [
+  {
+   "tool": "company_overview",
+   "args": {
+    "company_name": "Wire3",
+    "region": null
+   },
+   "research_question_ids": [
+    "RQ7",
+    "RQ8"
+   ]
+  },
+  {
+   "tool": "competitor_discovery",
+   "args": {
+    "company_name": "Charter Spectrum",
+    "region": "Ocala, FL / Marion County, FL"
+   },
+   "research_question_ids": [
+    "RQ1",
+    "RQ4",
+    "RQ5",
+    "RQ6",
+    "RQ8"
+   ]
+  },
+  {
+   "tool": "competitor_discovery",
+   "args": {
+    "company_name": "AT&T",
+    "region": "Ocala, FL / Marion County, FL"
+   },
+   "research_question_ids": [
+    "RQ1",
+    "RQ4",
+    "RQ5",
+    "RQ6",
+    "RQ8"
+   ]
+  },
+  {
+   "tool": "competitor_discovery",
+   "args": {
+    "company_name": "T-Mobile Home Internet",
+    "region": "Ocala, FL / Marion County, FL"
+   },
+   "research_question_ids": [
+    "RQ1",
+    "RQ4",
+    "RQ5",
+    "RQ6",
+    "RQ8"
+   ]
+  },
+  {
+   "tool": "product_portfolio_mapping",
+   "args": {
+    "company_name": "Wire3",
+    "region": null
+   },
+   "research_question_ids": [
+    "RQ1",
+    "RQ7"
+   ]
+  },
+  {
+   "tool": "product_portfolio_mapping",
+   "args": {
+    "company_name": "Charter Spectrum",
+    "region": null
+   },
+   "research_question_ids": [
+    "RQ1",
+    "RQ3"
+   ]
+  },
+  {
+   "tool": "product_portfolio_mapping",
+   "args": {
+    "company_name": "AT&T",
+    "region": null
+   },
+   "research_question_ids": [
+    "RQ1",
+    "RQ3"
+   ]
+  },
+  {
+   "tool": "product_portfolio_mapping",
+   "args": {
+    "company_name": "T-Mobile Home Internet",
+    "region": null
+   },
+   "research_question_ids": [
+    "RQ1",
+    "RQ3"
+   ]
+  },
+  {
+   "tool": "pricing_research",
+   "args": {
+    "company_name": "Charter Spectrum",
+    "region": "Ocala, FL / Marion County, FL"
+   },
+   "research_question_ids": [
+    "RQ2",
+    "RQ3"
+   ]
+  },
+  {
+   "tool": "pricing_research",
+   "args": {
+    "company_name": "AT&T",
+    "region": "Ocala, FL / Marion County, FL"
+   },
+   "research_question_ids": [
+    "RQ2",
+    "RQ3"
+   ]
+  },
+  {
+   "tool": "pricing_research",
+   "args": {
+    "company_name": "T-Mobile Home Internet",
+    "region": "Ocala, FL / Marion County, FL"
+   },
+   "research_question_ids": [
+    "RQ2",
+    "RQ3"
+   ]
+  },
+  {
+   "tool": "pricing_research",
+   "args": {
+    "company_name": "Wire3",
+    "region": "Ocala, FL / Marion County, FL"
+   },
+   "research_question_ids": [
+    "RQ2",
+    "RQ3",
+    "RQ7"
+   ]
+  },
+  {
+   "tool": "recent_news",
+   "args": {
+    "company_name": "Wire3",
+    "region": null
+   },
+   "research_question_ids": [
+    "RQ4",
+    "RQ7",
+    "RQ8"
+   ]
+  },
+  {
+   "tool": "recent_news",
+   "args": {
+    "company_name": "Charter Spectrum",
+    "region": null
+   },
+   "research_question_ids": [
+    "RQ4",
+    "RQ5",
+    "RQ6",
+    "RQ8"
+   ]
+  },
+  {
+   "tool": "recent_news",
+   "args": {
+    "company_name": "AT&T",
+    "region": null
+   },
+   "research_question_ids": [
+    "RQ4",
+    "RQ5",
+    "RQ6",
+    "RQ8"
+   ]
+  },
+  {
+   "tool": "recent_news",
+   "args": {
+    "company_name": "T-Mobile Home Internet",
+    "region": null
+   },
+   "research_question_ids": [
+    "RQ4",
+    "RQ5",
+    "RQ6",
+    "RQ8"
+   ]
+  }
+ ],
+ "budget": {
+  "max_search_calls": 40,
+  "max_wall_clock_minutes": 12,
+  "max_llm_calls_per_role": 6,
+  "max_cost_usd": 2.5
+ },
+ "assumptions_and_gaps": [
+  "Company_name parameter limited to Wire3 and the named competitors per instructions; therefore RQ7 (other regional fiber ISPs) will be researched primarily via Wire3 as an exemplar and via competitors' public positioning—we cannot directly call other regional ISP company_overview endpoints.",
+  "Local, address-level serviceability data may not be publicly available; competitor_discovery and product_portfolio_mapping will rely on advertised coverage maps and third-party aggregators rather than guaranteed per-address provisioning.",
+  "Pricing, promos, and fees can vary by ZIP/parcel and change frequently; pricing_research will capture advertised/published local offers and documented promo terms but may not reflect every door- or ZIP-specific promotion.",
+  "Some desired evidence sources in the brief (e.g., J.D. Power, Parks Associates, FCC datasets) may have paywalls or dataset access constraints; planned calls will use publicly accessible summaries and articles where full datasets are unavailable.",
+  "Wire3 is assumed to have limited public-facing pricing and brand presence; calls for Wire3 may yield sparse direct data and will therefore focus on available product/pricing statements and local news.",
+  "Verified customer complaints and local sentiment (RQ6) may require combing local forums, BBB, Trustpilot and Reddit; competitor_discovery and recent_news calls are scoped to surface representative local/central-FL signals but cannot guarantee exhaustive capture of all user posts.",
+  "Influence of mobile bundle on switch decisions (RQ5) is context-dependent and often studied by industry reports; within tool constraints, recent_news and competitor_discovery will target public reports and articles mentioning bundle influence but may not find rigorous survey data specific to Ocala.",
+  "We will not access or use any paywalled, competitor non-public, or Wire3 internal data per the brief exclusions.",
+  "Time and cost budget copied exactly from the brief; planned calls (16) are well within the max_search_calls limit (40) and intended to fit within the wall-clock and cost constraints."
+ ]
+}

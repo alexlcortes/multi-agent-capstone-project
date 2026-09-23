@@ -1,0 +1,1134 @@
+{
+ "brief_id": "R001-Wire3-Ocala-0921",
+ "competitor_comparison_table": [
+  {
+   "competitor_name": "Wire3",
+   "footprint_confirmed_in_region": {
+    "value": true,
+    "evidence_ids": [
+     "EV-d94963c8",
+     "EV-da49655b"
+    ],
+    "basis": "evidence"
+   },
+   "service_type": {
+    "value": "fiber",
+    "evidence_ids": [
+     "EV-d94963c8",
+     "EV-d1118463"
+    ],
+    "basis": "brief_stated"
+   },
+   "has_mobile_bundle_available": {
+    "value": false,
+    "evidence_ids": [],
+    "basis": "brief_stated"
+   },
+   "top_advertised_speed_mbps_down": {
+    "value": 10000.0,
+    "evidence_ids": [
+     "EV-d1118463",
+     "EV-37a93029"
+    ],
+    "basis": "evidence"
+   },
+   "top_advertised_speed_mbps_up": {
+    "value": 10000.0,
+    "evidence_ids": [
+     "EV-d1118463"
+    ],
+    "basis": "inference"
+   },
+   "summary_note": {
+    "value": "Wire3 is actively expanding into Marion County (Ocala) and markets fiber tiers from 250 Mbps up to 10 Gbps with streaming bundle promotions and included eero Wi\u2011Fi devices.",
+    "evidence_ids": [
+     "EV-d94963c8",
+     "EV-d1118463",
+     "EV-33d161e7",
+     "EV-fe02126f"
+    ],
+    "basis": "evidence"
+   }
+  },
+  {
+   "competitor_name": "Spectrum",
+   "footprint_confirmed_in_region": {
+    "value": true,
+    "evidence_ids": [
+     "EV-56997533",
+     "EV-3c7ea88d"
+    ],
+    "basis": "evidence"
+   },
+   "service_type": {
+    "value": "cable",
+    "evidence_ids": [
+     "EV-31d73084",
+     "EV-6fcc7888"
+    ],
+    "basis": "evidence"
+   },
+   "has_mobile_bundle_available": {
+    "value": true,
+    "evidence_ids": [
+     "EV-33618605",
+     "EV-59451b96"
+    ],
+    "basis": "evidence"
+   },
+   "top_advertised_speed_mbps_down": {
+    "value": 7000.0,
+    "evidence_ids": [
+     "EV-31d73084",
+     "EV-224bf455"
+    ],
+    "basis": "evidence"
+   },
+   "top_advertised_speed_mbps_up": {
+    "value": 7000.0,
+    "evidence_ids": [
+     "EV-31d73084"
+    ],
+    "basis": "evidence"
+   },
+   "summary_note": {
+    "value": "Spectrum (Charter) advertises wide availability in Marion County with multi-gig tiers, promotional first-year pricing, and bundles that include mobile and TV services.",
+    "evidence_ids": [
+     "EV-56997533",
+     "EV-31d73084",
+     "EV-acea4159"
+    ],
+    "basis": "evidence"
+   }
+  },
+  {
+   "competitor_name": "AT&T",
+   "footprint_confirmed_in_region": {
+    "value": true,
+    "evidence_ids": [
+     "EV-26834797",
+     "EV-6016b158"
+    ],
+    "basis": "evidence"
+   },
+   "service_type": {
+    "value": "fiber",
+    "evidence_ids": [
+     "EV-91207f04",
+     "EV-6016b158"
+    ],
+    "basis": "evidence"
+   },
+   "has_mobile_bundle_available": {
+    "value": true,
+    "evidence_ids": [
+     "EV-bf5f8187",
+     "EV-3ccb3abd"
+    ],
+    "basis": "evidence"
+   },
+   "top_advertised_speed_mbps_down": {
+    "value": 5000.0,
+    "evidence_ids": [
+     "EV-26834797",
+     "EV-6016b158"
+    ],
+    "basis": "evidence"
+   },
+   "top_advertised_speed_mbps_up": {
+    "value": 5000.0,
+    "evidence_ids": [
+     "EV-6016b158"
+    ],
+    "basis": "evidence"
+   },
+   "summary_note": {
+    "value": "AT&T offers fiber and fixed-wireless options in the region, markets up to multi-gig speeds (e.g., up to 5,000 Mbps reported in Ocala listings), and promotes first-year fiber pricing on some offers.",
+    "evidence_ids": [
+     "EV-91207f04",
+     "EV-26834797",
+     "EV-3ccb3abd"
+    ],
+    "basis": "evidence"
+   }
+  },
+  {
+   "competitor_name": "T-Mobile Home Internet",
+   "footprint_confirmed_in_region": {
+    "value": true,
+    "evidence_ids": [
+     "EV-ab4afe18",
+     "EV-87cea105"
+    ],
+    "basis": "evidence"
+   },
+   "service_type": {
+    "value": "fixed_wireless",
+    "evidence_ids": [
+     "EV-ab4afe18",
+     "EV-3a643017"
+    ],
+    "basis": "evidence"
+   },
+   "has_mobile_bundle_available": {
+    "value": true,
+    "evidence_ids": [
+     "EV-3a643017",
+     "EV-944ad5f5"
+    ],
+    "basis": "evidence"
+   },
+   "top_advertised_speed_mbps_down": {
+    "value": 2000.0,
+    "evidence_ids": [
+     "EV-87cea105",
+     "EV-7b85fa9b"
+    ],
+    "basis": "evidence"
+   },
+   "top_advertised_speed_mbps_up": {
+    "value": 2000.0,
+    "evidence_ids": [
+     "EV-7b85fa9b"
+    ],
+    "basis": "evidence"
+   },
+   "summary_note": {
+    "value": "T-Mobile sells 5G Home Internet widely and is expanding fiber in select markets; plans range from low-cost fixed-wireless tiers to higher-tier amplified/all-in packages with upgraded gateways.",
+    "evidence_ids": [
+     "EV-a89f66b2",
+     "EV-3a643017",
+     "EV-e2957665"
+    ],
+    "basis": "evidence"
+   }
+  }
+ ],
+ "pricing_matrix": [
+  {
+   "competitor_name": "Spectrum",
+   "plan_name": {
+    "value": "Spectrum Internet\u00ae 1 Gig (promo)",
+    "evidence_ids": [
+     "EV-31d73084",
+     "EV-2dfb031f"
+    ],
+    "basis": "evidence"
+   },
+   "speed_mbps_down": {
+    "value": 1000.0,
+    "evidence_ids": [
+     "EV-31d73084"
+    ],
+    "basis": "evidence"
+   },
+   "promo_status": {
+    "value": "has_promo",
+    "evidence_ids": [
+     "EV-31d73084",
+     "EV-58fa6c25"
+    ],
+    "basis": "evidence"
+   },
+   "promo_price_usd_per_month": {
+    "value": 60.0,
+    "evidence_ids": [
+     "EV-31d73084"
+    ],
+    "basis": "evidence"
+   },
+   "promo_duration_months": {
+    "value": 12,
+    "evidence_ids": [
+     "EV-31d73084"
+    ],
+    "basis": "evidence"
+   },
+   "post_promo_price_usd_per_month": {
+    "value": 100.0,
+    "evidence_ids": [
+     "EV-2dfb031f",
+     "EV-31d73084"
+    ],
+    "basis": "evidence"
+   },
+   "blended_12mo_effective_price_usd": {
+    "value": 60.0,
+    "derived_from_evidence_ids": [
+     "EV-31d73084",
+     "EV-2dfb031f",
+     "EV-58fa6c25"
+    ],
+    "formula": "((promo_price * promo_duration_months) + (post_promo_price * (12 - promo_duration_months))) / 12"
+   }
+  },
+  {
+   "competitor_name": "AT&T",
+   "plan_name": {
+    "value": "AT&T Fiber 1 Gig (first-year promo)",
+    "evidence_ids": [
+     "EV-91207f04",
+     "EV-2c5212c0"
+    ],
+    "basis": "evidence"
+   },
+   "speed_mbps_down": {
+    "value": 1000.0,
+    "evidence_ids": [
+     "EV-91207f04"
+    ],
+    "basis": "evidence"
+   },
+   "promo_status": {
+    "value": "has_promo",
+    "evidence_ids": [
+     "EV-91207f04"
+    ],
+    "basis": "evidence"
+   },
+   "promo_price_usd_per_month": {
+    "value": 50.0,
+    "evidence_ids": [
+     "EV-91207f04"
+    ],
+    "basis": "evidence"
+   },
+   "promo_duration_months": {
+    "value": 12,
+    "evidence_ids": [
+     "EV-91207f04"
+    ],
+    "basis": "evidence"
+   },
+   "post_promo_price_usd_per_month": {
+    "value": 90.0,
+    "evidence_ids": [
+     "EV-2c5212c0"
+    ],
+    "basis": "evidence"
+   },
+   "blended_12mo_effective_price_usd": {
+    "value": 50.0,
+    "derived_from_evidence_ids": [
+     "EV-91207f04",
+     "EV-2c5212c0"
+    ],
+    "formula": "((promo_price * promo_duration_months) + (post_promo_price * (12 - promo_duration_months))) / 12"
+   }
+  },
+  {
+   "competitor_name": "T-Mobile Home Internet",
+   "plan_name": {
+    "value": "Rely Home Internet (AutoPay & voice discount)",
+    "evidence_ids": [
+     "EV-a89f66b2",
+     "EV-3a643017"
+    ],
+    "basis": "evidence"
+   },
+   "speed_mbps_down": {
+    "value": 354.0,
+    "evidence_ids": [
+     "EV-a89f66b2"
+    ],
+    "basis": "evidence"
+   },
+   "promo_status": {
+    "value": "has_promo",
+    "evidence_ids": [
+     "EV-89076a03",
+     "EV-a89f66b2"
+    ],
+    "basis": "evidence"
+   },
+   "promo_price_usd_per_month": {
+    "value": 35.0,
+    "evidence_ids": [
+     "EV-a89f66b2"
+    ],
+    "basis": "evidence"
+   },
+   "promo_duration_months": {
+    "value": 1,
+    "evidence_ids": [],
+    "basis": "inference"
+   },
+   "post_promo_price_usd_per_month": {
+    "value": 35.0,
+    "evidence_ids": [
+     "EV-a89f66b2",
+     "EV-89076a03"
+    ],
+    "basis": "evidence"
+   },
+   "blended_12mo_effective_price_usd": {
+    "value": 35.0,
+    "derived_from_evidence_ids": [
+     "EV-a89f66b2",
+     "EV-89076a03"
+    ],
+    "formula": "((promo_price * promo_duration_months) + (post_promo_price * (12 - promo_duration_months))) / 12"
+   }
+  }
+ ],
+ "product_feature_comparison": [
+  {
+   "competitor_name": "Wire3",
+   "technology_type": {
+    "value": "fiber",
+    "evidence_ids": [
+     "EV-d94963c8",
+     "EV-d1118463"
+    ],
+    "basis": "evidence"
+   },
+   "symmetric_speeds": {
+    "value": true,
+    "evidence_ids": [
+     "EV-d1118463"
+    ],
+    "basis": "inference"
+   },
+   "data_cap_present": {
+    "value": false,
+    "evidence_ids": [
+     "EV-d1118463",
+     "EV-fe02126f"
+    ],
+    "basis": "evidence"
+   },
+   "wifi_router_included": {
+    "value": true,
+    "evidence_ids": [
+     "EV-33d161e7",
+     "EV-d7118dd5"
+    ],
+    "basis": "evidence"
+   },
+   "professional_install_included": {
+    "value": true,
+    "evidence_ids": [
+     "EV-fe02126f",
+     "EV-fc020f49"
+    ],
+    "basis": "evidence"
+   },
+   "self_install_available": {
+    "value": true,
+    "evidence_ids": [
+     "EV-d1118463"
+    ],
+    "basis": "inference"
+   },
+   "contract_required": {
+    "value": false,
+    "evidence_ids": [
+     "EV-89785427",
+     "EV-019b25db"
+    ],
+    "basis": "evidence"
+   },
+   "contract_length_months": {
+    "value": null,
+    "evidence_ids": [
+     "EV-019b25db"
+    ],
+    "basis": "evidence"
+   },
+   "customer_support_channels": {
+    "value": [
+     "phone",
+     "online portal",
+     "local field technicians"
+    ],
+    "evidence_ids": [
+     "EV-d94963c8",
+     "EV-267cec38",
+     "EV-beca7d7f"
+    ],
+    "basis": "evidence"
+   },
+   "additional_features": [
+    {
+     "name": "Enhanced Wi\u2011Fi (eero)",
+     "field": {
+      "value": "Free eero device included with all plans",
+      "evidence_ids": [
+       "EV-33d161e7",
+       "EV-d7118dd5"
+      ],
+      "basis": "evidence"
+     }
+    },
+    {
+     "name": "Total Connect support tiers",
+     "field": {
+      "value": "Two tiers for ongoing support and security (Total Connect Premium referenced)",
+      "evidence_ids": [
+       "EV-33d161e7"
+      ],
+      "basis": "evidence"
+     }
+    }
+   ]
+  },
+  {
+   "competitor_name": "Spectrum",
+   "technology_type": {
+    "value": "cable",
+    "evidence_ids": [
+     "EV-31d73084",
+     "EV-6fcc7888"
+    ],
+    "basis": "evidence"
+   },
+   "symmetric_speeds": {
+    "value": false,
+    "evidence_ids": [
+     "EV-31d73084"
+    ],
+    "basis": "evidence"
+   },
+   "data_cap_present": {
+    "value": false,
+    "evidence_ids": [
+     "EV-224bf455"
+    ],
+    "basis": "evidence"
+   },
+   "wifi_router_included": {
+    "value": true,
+    "evidence_ids": [
+     "EV-31d73084"
+    ],
+    "basis": "evidence"
+   },
+   "professional_install_included": {
+    "value": false,
+    "evidence_ids": [
+     "EV-58fa6c25"
+    ],
+    "basis": "evidence"
+   },
+   "self_install_available": {
+    "value": true,
+    "evidence_ids": [
+     "EV-31d73084"
+    ],
+    "basis": "evidence"
+   },
+   "contract_required": {
+    "value": false,
+    "evidence_ids": [
+     "EV-224bf455"
+    ],
+    "basis": "evidence"
+   },
+   "contract_length_months": {
+    "value": null,
+    "evidence_ids": [
+     "EV-224bf455"
+    ],
+    "basis": "evidence"
+   },
+   "customer_support_channels": {
+    "value": [
+     "phone",
+     "app",
+     "in-store"
+    ],
+    "evidence_ids": [
+     "EV-59451b96",
+     "EV-31d73084"
+    ],
+    "basis": "evidence"
+   },
+   "additional_features": [
+    {
+     "name": "Spectrum TV App",
+     "field": {
+      "value": "Access to Spectrum TV App and bundled app savings",
+      "evidence_ids": [
+       "EV-f228abb9",
+       "EV-acea4159"
+      ],
+      "basis": "evidence"
+     }
+    },
+    {
+     "name": "Spectrum Mobile bundle",
+     "field": {
+      "value": "Mobile plans and first-line free offers tied to Internet bundles",
+      "evidence_ids": [
+       "EV-33618605",
+       "EV-33618605"
+      ],
+      "basis": "evidence"
+     }
+    }
+   ]
+  },
+  {
+   "competitor_name": "AT&T",
+   "technology_type": {
+    "value": "fiber",
+    "evidence_ids": [
+     "EV-91207f04",
+     "EV-6016b158"
+    ],
+    "basis": "evidence"
+   },
+   "symmetric_speeds": {
+    "value": true,
+    "evidence_ids": [
+     "EV-6016b158"
+    ],
+    "basis": "evidence"
+   },
+   "data_cap_present": {
+    "value": false,
+    "evidence_ids": [
+     "EV-a24cf7a2",
+     "EV-3ccb3abd"
+    ],
+    "basis": "evidence"
+   },
+   "wifi_router_included": {
+    "value": true,
+    "evidence_ids": [
+     "EV-91207f04"
+    ],
+    "basis": "evidence"
+   },
+   "professional_install_included": {
+    "value": true,
+    "evidence_ids": [
+     "EV-91207f04"
+    ],
+    "basis": "evidence"
+   },
+   "self_install_available": {
+    "value": true,
+    "evidence_ids": [
+     "EV-91207f04"
+    ],
+    "basis": "evidence"
+   },
+   "contract_required": {
+    "value": false,
+    "evidence_ids": [
+     "EV-91207f04"
+    ],
+    "basis": "evidence"
+   },
+   "contract_length_months": {
+    "value": null,
+    "evidence_ids": [
+     "EV-91207f04"
+    ],
+    "basis": "evidence"
+   },
+   "customer_support_channels": {
+    "value": [
+     "phone",
+     "retail stores",
+     "online portal"
+    ],
+    "evidence_ids": [
+     "EV-bf5f8187",
+     "EV-816a1331"
+    ],
+    "basis": "evidence"
+   },
+   "additional_features": [
+    {
+     "name": "Hotspot allowances",
+     "field": {
+      "value": "Unlimited plans include hotspot allowances varying by tier (e.g., 250GB on top tiers)",
+      "evidence_ids": [
+       "EV-816a1331",
+       "EV-9f736c31"
+      ],
+      "basis": "evidence"
+     }
+    }
+   ]
+  },
+  {
+   "competitor_name": "T-Mobile Home Internet",
+   "technology_type": {
+    "value": "fixed_wireless",
+    "evidence_ids": [
+     "EV-ab4afe18",
+     "EV-3a643017"
+    ],
+    "basis": "evidence"
+   },
+   "symmetric_speeds": {
+    "value": false,
+    "evidence_ids": [
+     "EV-6e011fda",
+     "EV-3c64333d"
+    ],
+    "basis": "evidence"
+   },
+   "data_cap_present": {
+    "value": false,
+    "evidence_ids": [
+     "EV-3a643017",
+     "EV-944ad5f5"
+    ],
+    "basis": "evidence"
+   },
+   "wifi_router_included": {
+    "value": true,
+    "evidence_ids": [
+     "EV-3a643017",
+     "EV-e2957665"
+    ],
+    "basis": "evidence"
+   },
+   "professional_install_included": {
+    "value": false,
+    "evidence_ids": [
+     "EV-4f866997"
+    ],
+    "basis": "evidence"
+   },
+   "self_install_available": {
+    "value": true,
+    "evidence_ids": [
+     "EV-4f866997",
+     "EV-89076a03"
+    ],
+    "basis": "evidence"
+   },
+   "contract_required": {
+    "value": false,
+    "evidence_ids": [
+     "EV-944ad5f5"
+    ],
+    "basis": "evidence"
+   },
+   "contract_length_months": {
+    "value": null,
+    "evidence_ids": [
+     "EV-944ad5f5"
+    ],
+    "basis": "evidence"
+   },
+   "customer_support_channels": {
+    "value": [
+     "phone",
+     "online community",
+     "in-app troubleshooting"
+    ],
+    "evidence_ids": [
+     "EV-3a643017",
+     "EV-cee4b200"
+    ],
+    "basis": "evidence"
+   },
+   "additional_features": [
+    {
+     "name": "Price Lock and rebates",
+     "field": {
+      "value": "Price Lock guarantees and virtual prepaid card rebates (up to $300) for digital activations",
+      "evidence_ids": [
+       "EV-944ad5f5",
+       "EV-bd997613"
+      ],
+      "basis": "evidence"
+     }
+    },
+    {
+     "name": "Upgraded gateways",
+     "field": {
+      "value": "Higher-tier plans include upgraded gateways (Wi\u2011Fi 7 referenced)",
+      "evidence_ids": [
+       "EV-e2957665",
+       "EV-0d3027da"
+      ],
+      "basis": "evidence"
+     }
+    }
+   ]
+  }
+ ],
+ "market_themes": [
+  {
+   "theme_id": "THEME-1",
+   "title": "Promotional pricing and streaming bundles drive sign-ups",
+   "description": "Providers (regional entrants and incumbents) use time-limited promos (first month free, first-year discounts, gift-card rebates) and streaming bundle credits to reduce friction and accelerate sign-ups during rollout windows.",
+   "related_research_question_ids": [
+    "RQ2",
+    "RQ3",
+    "RQ7"
+   ],
+   "supporting_evidence_ids": [
+    "EV-4f63202e",
+    "EV-89785427",
+    "EV-951542ea",
+    "EV-fe02126f"
+   ],
+   "competitors_involved": [
+    "Wire3",
+    "Spectrum",
+    "T-Mobile Home Internet"
+   ]
+  },
+  {
+   "theme_id": "THEME-2",
+   "title": "Mobile + internet bundles affect perceived price/value",
+   "description": "Mobile bundles and cross-product discounts (Spectrum Mobile, AT&T, T-Mobile) change the effective price customers pay and are used by incumbents to increase retention and justify higher post-promo prices.",
+   "related_research_question_ids": [
+    "RQ2",
+    "RQ3"
+   ],
+   "supporting_evidence_ids": [
+    "EV-33618605",
+    "EV-bf5f8187",
+    "EV-32618472"
+   ],
+   "competitors_involved": [
+    "Spectrum",
+    "AT&T",
+    "T-Mobile Home Internet"
+   ]
+  },
+  {
+   "theme_id": "THEME-3",
+   "title": "Local fiber construction confers availability advantage",
+   "description": "Active, visible fiber buildouts (press releases, 'halfway' milestones) let regional ISPs claim availability and offer multi-gig services in target markets, differentiating them from cable/5G incumbents.",
+   "related_research_question_ids": [
+    "RQ2",
+    "RQ4"
+   ],
+   "supporting_evidence_ids": [
+    "EV-d94963c8",
+    "EV-bab0d975",
+    "EV-db5591b3"
+   ],
+   "competitors_involved": [
+    "Wire3",
+    "AT&T",
+    "Spectrum"
+   ]
+  },
+  {
+   "theme_id": "THEME-4",
+   "title": "Reliability and unlimited data remain decision drivers",
+   "description": "Incumbents emphasize reliability and 'no-data-cap' positioning; fixed-wireless plans may exhibit priority thresholds or congestion policies that can push heavy users to fiber.",
+   "related_research_question_ids": [
+    "RQ1"
+   ],
+   "supporting_evidence_ids": [
+    "EV-764b1863",
+    "EV-7b85fa9b",
+    "EV-c4b5ac0f"
+   ],
+   "competitors_involved": [
+    "Spectrum",
+    "AT&T",
+    "T-Mobile Home Internet"
+   ]
+  },
+  {
+   "theme_id": "THEME-5",
+   "title": "Local support is a small-business differentiator",
+   "description": "Small businesses report valuing local technicians and faster responses; regional ISPs promote local staffing and faster SLAs to win business customers.",
+   "related_research_question_ids": [
+    "RQ7"
+   ],
+   "supporting_evidence_ids": [
+    "EV-beca7d7f",
+    "EV-267cec38",
+    "EV-e3110146"
+   ],
+   "competitors_involved": [
+    "Wire3"
+   ]
+  }
+ ],
+ "swot": {
+  "strengths": [
+   {
+    "statement": "Wire3 is actively building fiber into Marion County (Ocala), enabling multi-gig offerings.",
+    "basis": "evidence",
+    "evidence_ids": [
+     "EV-d94963c8",
+     "EV-da49655b"
+    ],
+    "item_id": "SWOT-S1"
+   },
+   {
+    "statement": "Spectrum has scale and a broad bundle set (Internet, Mobile, TV) to cross-sell in the region.",
+    "basis": "evidence",
+    "evidence_ids": [
+     "EV-56997533",
+     "EV-33618605"
+    ],
+    "item_id": "SWOT-S2"
+   }
+  ],
+  "weaknesses": [
+   {
+    "statement": "Wire3 has lower brand recognition versus national incumbents in mid-size markets.",
+    "basis": "evidence",
+    "evidence_ids": [
+     "EV-4ba74fb7"
+    ],
+    "item_id": "SWOT-W1"
+   },
+   {
+    "statement": "Promo-driven pricing by incumbents can create post-promo bill shock for customers.",
+    "basis": "evidence",
+    "evidence_ids": [
+     "EV-31d73084",
+     "EV-2dfb031f"
+    ],
+    "item_id": "SWOT-W2"
+   }
+  ],
+  "opportunities": [
+   {
+    "statement": "Use streaming bundles and free-install offers to accelerate sign-ups during construction windows.",
+    "basis": "evidence",
+    "evidence_ids": [
+     "EV-fe02126f",
+     "EV-4f63202e"
+    ],
+    "item_id": "SWOT-O1"
+   },
+   {
+    "statement": "Position local support and fast on-site fixes to win small-business customers frustrated by distant call centers.",
+    "basis": "evidence",
+    "evidence_ids": [
+     "EV-beca7d7f",
+     "EV-267cec38"
+    ],
+    "item_id": "SWOT-O2"
+   }
+  ],
+  "threats": [
+   {
+    "statement": "National incumbents (Spectrum, AT&T, T-Mobile) use aggressive bundles, scale, and marketing to defend customers.",
+    "basis": "evidence",
+    "evidence_ids": [
+     "EV-acea4159",
+     "EV-bf5f8187",
+     "EV-944ad5f5"
+    ],
+    "item_id": "SWOT-T1"
+   },
+   {
+    "statement": "Local reports of installation damage or disruptions could slow adoption in target communities.",
+    "basis": "evidence",
+    "evidence_ids": [
+     "EV-72f1851e",
+     "EV-fcbb3375"
+    ],
+    "item_id": "SWOT-T2"
+   }
+  ]
+ },
+ "seven_p_analysis": {
+  "product": {
+   "market_description": {
+    "value": "The market mixes cable HFC incumbents, national fiber providers, and 5G/fixed-wireless alternatives; consumers can choose entry 100 Mbps tiers up to multi-gigabit fiber where available.",
+    "evidence_ids": [
+     "EV-31d73084",
+     "EV-26834797",
+     "EV-ab4afe18"
+    ],
+    "basis": "evidence"
+   },
+   "wire3_relevant_fact": {
+    "value": "Wire3 offers fiber plans from 250 Mbps to 10 Gbps and bundles streaming credits and eero Wi\u2011Fi devices on many plans.",
+    "evidence_ids": [
+     "EV-d1118463",
+     "EV-33d161e7",
+     "EV-fe02126f"
+    ],
+    "basis": "evidence"
+   }
+  },
+  "price": {
+   "market_description": {
+    "value": "Promotional entry pricing and bundle discounts are common; customers often face post-promo price increases and value is frequently influenced by mobile bundling.",
+    "evidence_ids": [
+     "EV-31d73084",
+     "EV-2dfb031f",
+     "EV-33618605"
+    ],
+    "basis": "evidence"
+   },
+   "wire3_relevant_fact": {
+    "value": "Wire3 is running summer/launch promotions (first month free, promo rates on 1G+ tiers and streaming offers) to accelerate adoption during rollout.",
+    "evidence_ids": [
+     "EV-4f63202e",
+     "EV-89785427",
+     "EV-951542ea"
+    ],
+    "basis": "evidence"
+   }
+  },
+  "place": {
+   "market_description": {
+    "value": "Availability is geographic: cable widely available in suburbs; fiber rollouts are staged city-by-city; 5G fixed-wireless covers gaps. Ocala includes Spectrum HFC, AT&T fiber and T-Mobile 5G options.",
+    "evidence_ids": [
+     "EV-6016b158",
+     "EV-56997533",
+     "EV-ab4afe18"
+    ],
+    "basis": "evidence"
+   },
+   "wire3_relevant_fact": {
+    "value": "Wire3 has publicly announced Marion County/Ocala expansion and construction milestones supporting claims of local availability.",
+    "evidence_ids": [
+     "EV-d94963c8",
+     "EV-bab0d975"
+    ],
+    "basis": "evidence"
+   }
+  },
+  "promotion": {
+   "market_description": {
+    "value": "Marketing commonly emphasizes 'first month free', streaming credits, trade-in rebates and mobile bundle discounts; digital activations sometimes have separate virtual prepaid card offers.",
+    "evidence_ids": [
+     "EV-fe02126f",
+     "EV-bd997613",
+     "EV-89076a03"
+    ],
+    "basis": "evidence"
+   },
+   "wire3_relevant_fact": {
+    "value": "Wire3's promotions (Summer / FREEMO sale) include one-month free, reduced monthly pricing on tiers 1G+, and complimentary streaming (YouTube TV) for new customers.",
+    "evidence_ids": [
+     "EV-4f63202e",
+     "EV-951542ea",
+     "EV-cc457b54"
+    ],
+    "basis": "evidence"
+   }
+  },
+  "people": {
+   "market_description": {
+    "value": "Incumbents provide large-scale call centers and retail footprints; regional providers highlight local technicians and community-based support as a differentiator for service quality.",
+    "evidence_ids": [
+     "EV-59451b96",
+     "EV-beca7d7f",
+     "EV-267cec38"
+    ],
+    "basis": "evidence"
+   },
+   "wire3_relevant_fact": {
+    "value": "Wire3 emphasizes local support teams in Florida and Georgia and advertises fast local response for small businesses and residential installs.",
+    "evidence_ids": [
+     "EV-beca7d7f",
+     "EV-e3110146"
+    ],
+    "basis": "evidence"
+   }
+  },
+  "process": {
+   "market_description": {
+    "value": "Providers offer both self-install and professional installation; trial periods, price locks and return policies are used to reduce purchase friction.",
+    "evidence_ids": [
+     "EV-58fa6c25",
+     "EV-4f866997",
+     "EV-89076a03"
+    ],
+    "basis": "evidence"
+   },
+   "wire3_relevant_fact": {
+    "value": "Wire3 advertises free professional installation and an online order/activation flow with promo codes and availability checks.",
+    "evidence_ids": [
+     "EV-fe02126f",
+     "EV-4f63202e"
+    ],
+    "basis": "evidence"
+   }
+  },
+  "physical_evidence": {
+   "market_description": {
+    "value": "Physical evidence includes network construction milestones, local press coverage, in-market advertising, and local retail/installer presence.",
+    "evidence_ids": [
+     "EV-bab0d975",
+     "EV-56997533",
+     "EV-9711e8d0"
+    ],
+    "basis": "evidence"
+   },
+   "wire3_relevant_fact": {
+    "value": "Wire3 publishes construction progress (e.g., 'halfway' in Palm Bay) and local press/press releases documenting build activity.",
+    "evidence_ids": [
+     "EV-bab0d975",
+     "EV-db5591b3"
+    ],
+    "basis": "evidence"
+   }
+  }
+ },
+ "assumptions_unknowns_conflicts": {
+  "assumptions": [
+   {
+    "id": "ASM-1",
+    "statement": "Wire3 does not offer a mobile bundle product as of the evidence set.",
+    "rationale": "No Wire3 evidence records in the set describe a Wire3-branded mobile bundle; company pages emphasize fiber and smart-home extras only.",
+    "evidence_ids": [
+     "EV-d94963c8",
+     "EV-33d161e7"
+    ]
+   },
+   {
+    "id": "ASM-2",
+    "statement": "Promotional offers (first-month free, streaming credits, gift-card rebates) are primary short-term customer acquisition tools across competitors.",
+    "rationale": "Multiple providers in the evidence set run time-limited promos and streaming credits simultaneously with new market activity.",
+    "evidence_ids": [
+     "EV-4f63202e",
+     "EV-31d73084",
+     "EV-89076a03"
+    ]
+   }
+  ],
+  "unknowns": [
+   {
+    "id": "UNK-1",
+    "research_question_id": "RQ2",
+    "description": "Wire3's definitive post-promo (standard) monthly price per plan across all tiers and any long-term rate guarantees.",
+    "reason_unresolved": "Wire3 evidence shows promotional pricing for launches and construction promotions but does not publish a clear, consistent post-promo standard monthly rate for every tier in the provided excerpts (only promos and example prices are shown)."
+   },
+   {
+    "id": "UNK-2",
+    "research_question_id": "RQ3",
+    "description": "Complete numeric list of early-termination fees (ETFs) and monthly equipment rental fees for AT&T, Spectrum and T-Mobile specifically in Marion County addresses.",
+    "reason_unresolved": "Supplier excerpts mention fees and contract terms at a policy level but the provided evidence does not include a comprehensive, location-specific numeric table of ETFs and equipment fees for each competitor."
+   },
+   {
+    "id": "UNK-3",
+    "research_question_id": "RQ1",
+    "description": "Street-level serviceability map (exact address-level availability polygons) for Wire3 within Marion County/Ocala.",
+    "reason_unresolved": "Wire3 confirms expansion to Marion County and provides availability checks but the provided evidence does not include a downloadable/embeddable street-level coverage polygon dataset in the excerpts."
+   }
+  ],
+  "conflicts": [
+   {
+    "id": "CONF-1",
+    "research_question_id": "RQ2",
+    "evidence_id_a": "EV-084a2ead",
+    "evidence_id_b": "EV-a89f66b2",
+    "description": "T-Mobile promotional price claims differ across sources: a T-Mobile social post claims $30/mo with AutoPay and qualifying voice line (EV-084a2ead) while other aggregators/guides list Rely at $35/mo with AutoPay and voice (EV-a89f66b2).",
+    "resolution_status": "unresolved"
+   },
+   {
+    "id": "CONF-2",
+    "research_question_id": "RQ4",
+    "evidence_id_a": "EV-72f1851e",
+    "evidence_id_b": "EV-113bb33f",
+    "description": "Local community reports allege Wire3 installation damage and disruptions (EV-72f1851e), while Wire3 marketing/testimonials claim smooth installs and high satisfaction (EV-113bb33f).",
+    "resolution_status": "both_retained_as_uncertain"
+   }
+  ]
+ }
+}
