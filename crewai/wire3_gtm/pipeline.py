@@ -32,7 +32,7 @@ from wire3_gtm.run_report import build_run_complete, format_summary
 from wire3_gtm.run_store import RunStore
 from wire3_gtm.tasks import build_tasks
 
-BRIEF_PATH = Path(__file__).parent.parent / "brief.json"
+BRIEF_PATH = Path(__file__).resolve().parents[2] / "brief.json"  # shared with n8n (scripts/run_pipeline.js)
 
 
 @dataclass

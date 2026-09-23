@@ -28,3 +28,13 @@ def test_the_comparison_states_how_the_two_record_things_differently():
     out = render(n, c)
     assert "LOWER BOUND" in out and "includes reasoning tokens" in out
     assert "approximate" in out and "3 counted" in out and "HEAD-checked" in out and "format check only" in out
+
+
+def test_compare_warns_when_the_two_runs_had_different_briefs():
+    from wire3_gtm.compare_logs import brief_warning
+
+    rc_n, rc_c = {"client_run_id": "n1"}, {"client_run_id": "c1"}
+    rec = lambda cid, b: {"event_type": "run_record", "run_id": cid, "brief_id": b}  # noqa: E731
+    assert brief_warning([rec("n1", "brief-aaa")], [rec("c1", "brief-aaa")], rc_n, rc_c) is None
+    assert "DIFFERENT briefs" in brief_warning([rec("n1", "brief-aaa")], [rec("c1", "brief-bbb")], rc_n, rc_c)
+    assert "cannot confirm" in brief_warning([], [rec("c1", "brief-bbb")], rc_n, rc_c)

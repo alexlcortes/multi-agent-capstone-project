@@ -94,7 +94,7 @@ function build(events, brief, now = new Date()) {
     .map((e) => ({ event_type: e.event_type, node: e.node ?? null, message: String(e.error || e.gate || e.status).slice(0, 500) }));
 
   const writeStatus = verify ? (verify.status === 'ok' ? 'verified' : 'failed')
-    : placeholder ? 'placeholder' : rc.document_write_status ? 'failed' : 'not_run';
+    : placeholder ? 'placeholder' : rc.document_write_status && rc.document_write_status !== 'not_run' ? 'failed' : 'not_run';
   const sources = (us.per_agent || []).map((a) => a.tokens_source);
   const cost = us.estimated_llm_cost_usd ?? null;
   const maxMin = rc.budget_max_wall_clock_minutes ?? null;
@@ -104,7 +104,7 @@ function build(events, brief, now = new Date()) {
     schema_version: 1, event_type: 'run_record', ts: now.toISOString(),
     implementation: 'n8n', run_id: rc.client_run_id, brief_id: briefId(brief), planner_run_id: rc.run_id ?? null,
     started_at: start.ts ?? null, ended_at: rc.ts, duration_ms: rc.duration_ms ?? null,
-    status: rc.status, failed_step: null, errors, issues: rc.issues || [],
+    status: rc.status, failed_step: rc.failed_step ?? null, errors, issues: rc.issues || [],
     model: rc.model ?? null, provider: rc.provider ?? null, search_provider: null,
     agents,
     tools: { planned: rc.tool_calls_planned ?? null, executed: rc.tool_calls_executed ?? null,

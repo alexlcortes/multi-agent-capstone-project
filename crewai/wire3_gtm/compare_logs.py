@@ -82,13 +82,32 @@ def render(n8n: tuple, crew: tuple) -> str:
     return "\n".join(out)
 
 
+def brief_warning(n8n_events: list[dict], crew_events: list[dict], n8n_rc: dict | None, crew_rc: dict | None) -> str | None:
+    """The two runs must share a brief to be comparable; run_record.brief_id is its content hash."""
+    def bid(events, rc):
+        return next((e["brief_id"] for e in events if e["event_type"] == "run_record"
+                     and rc and e["run_id"] == rc.get("client_run_id")), None)
+    n, c = bid(n8n_events, n8n_rc), bid(crew_events, crew_rc)
+    if n and c and n == c:
+        return None
+    if n is None or c is None:
+        return (f"WARNING: cannot confirm the two runs share a brief (brief_id n8n={n}, crewai={c}); "
+                "add run records with `node scripts/run_record.js` / `python -m wire3_gtm run-records`.")
+    return (f"WARNING: these runs were given DIFFERENT briefs (n8n {n}, crewai {c}), so they are not comparable. "
+            "Rerun n8n with `node scripts/run_pipeline.js` (posts the shared brief.json).")
+
+
 def main(argv: list[str]) -> int:
     opt = lambda flag: argv[argv.index(flag) + 1] if flag in argv else None  # noqa: E731
-    n8n = latest_run(read_events(N8N_LOG), opt("--n8n-run"))
-    crew = latest_run(read_events(CREWAI_LOG), opt("--crewai-run"))
+    n8n_events, crew_events = read_events(N8N_LOG), read_events(CREWAI_LOG)
+    n8n = latest_run(n8n_events, opt("--n8n-run"))
+    crew = latest_run(crew_events, opt("--crewai-run"))
     if not n8n[0] or not crew[0]:
         print("Missing a finished run:", "n8n" if not n8n[0] else "", "crewai" if not crew[0] else "")
     print(render(n8n, crew))
+    warning = brief_warning(n8n_events, crew_events, n8n[0], crew[0])
+    if warning:
+        print("\n" + warning)
     return 0
 
 

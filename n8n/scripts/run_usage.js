@@ -40,8 +40,9 @@ function loadExecution(id) {
   const data = sql(`select data from execution_data where executionId=${Number(id)};`).trim();
   if (!data) return null;
   const wf = sql(`select workflowData from execution_data where executionId=${Number(id)};`).trim();
-  const status = sql(`select status from execution_entity where id=${Number(id)};`).trim();
-  return { id: Number(id), status, data: parse(data), workflow: JSON.parse(wf) };
+  const [status, stoppedAt] = sql(`select status, stoppedAt from execution_entity where id=${Number(id)};`).trim().split('|');
+  return { id: Number(id), status, stoppedAt: stoppedAt ? new Date(stoppedAt.replace(' ', 'T') + 'Z').toISOString() : null,
+           data: parse(data), workflow: JSON.parse(wf) };
 }
 
 function findExecution() {
@@ -151,6 +152,33 @@ if (dryRun) {
     fs.mkdirSync(path.dirname(RUNS_LOG), { recursive: true });
     fs.appendFileSync(RUNS_LOG, JSON.stringify({ ts: new Date().toISOString(), implementation: 'n8n', ...event }) + '\n');
     console.log('Appended usage_summary to logs/runs.jsonl');
+  }
+  // A run that failed mid-workflow never reaches Finalize Run, so it wrote no run_complete. Write one here, from
+  // the stored execution, so every run -- failed ones too -- gets a run_record. (An n8n error workflow would not
+  // do: n8n does not trigger it for manual/test-webhook executions.)
+  const after = fs.readFileSync(RUNS_LOG, 'utf8');
+  const hasComplete = after.split('\n').some((l) => l.includes('"event_type":"run_complete"') && l.includes(`"client_run_id":"${event.client_run_id}"`));
+  if (!hasComplete && ['error', 'crashed', 'canceled'].includes(exec.status)) {
+    const err = exec.data.resultData.error || {};
+    const evidence = runData['Build Evidence Records'] && runData['Build Evidence Records'][0].data
+      && runData['Build Evidence Records'][0].data.main[0][0].json;
+    const budget = (plan && plan.budget) || {};
+    const startedAt = init && init._pipeline_started_at;
+    fs.appendFileSync(RUNS_LOG, JSON.stringify({
+      ts: exec.stoppedAt || new Date().toISOString(), implementation: 'n8n', event_type: 'run_complete',
+      client_run_id: event.client_run_id, run_id: event.run_id, node: 'scripts/run_usage.js', status: 'failed',
+      failed_step: exec.data.resultData.lastNodeExecuted || null, error: String(err.message || exec.status).slice(0, 500),
+      duration_ms: startedAt && exec.stoppedAt ? new Date(exec.stoppedAt) - new Date(startedAt) : null,
+      model: 'gpt-5-mini', provider: 'openai',
+      research_questions_total: plan && plan.research_questions ? plan.research_questions.length : null,
+      research_questions_answered: evidence ? new Set(evidence.evidence.map((e) => e.research_question_id).filter(Boolean)).size : null,
+      evidence_count: evidence ? evidence.evidence_count : null,
+      tool_calls_planned: evidence ? evidence.tool_calls_planned : null, tool_calls_executed: evidence ? evidence.tool_calls_executed : null,
+      document_write_status: 'not_run', document_url: null,
+      budget_max_wall_clock_minutes: budget.max_wall_clock_minutes ?? null, budget_max_search_calls: budget.max_search_calls ?? null,
+      budget_max_cost_usd: budget.max_cost_usd ?? null, issues: [],
+    }) + '\n');
+    console.log(`Execution ${exec.id} failed at ${exec.data.resultData.lastNodeExecuted}: appended run_complete (status failed)`);
   }
   // the run's comparable summary (schemas/run_record.schema.json); needs usage_summary, so it goes last
   const webhook = runData.Webhook && runData.Webhook[0].data.main[0][0].json;

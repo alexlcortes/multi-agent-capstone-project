@@ -118,7 +118,7 @@ Running log of setup decisions made outside the schema contract, for the final R
 
 ## Same-brief comparison (8 questions), n=1 run per implementation
 
-Both implementations were run on the same 8-question brief and budget (n8n via its editor's test webhook with a payload built from `crewai/brief.json`; the earlier recorded n8n runs used a different 3-question brief and are not comparable).
+Both implementations were run on the same 8-question brief and budget (n8n via its editor's test webhook with a payload derived from `crewai/brief.json` but not identical to it -- it added `wire3_facts`, research-question priorities and reworded fields, found by the run_record brief hash (`schemas/run_record.md`); since then both read the repo-root `brief.json`, n8n via `n8n/scripts/run_pipeline.js`; the earlier recorded n8n runs used a different 3-question brief and are not comparable).
 
 | | n8n (`run-9f4b2a`) | CrewAI Flow (`run-20260920-232205`) |
 |---|---|---|

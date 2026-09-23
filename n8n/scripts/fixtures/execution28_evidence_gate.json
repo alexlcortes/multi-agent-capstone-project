@@ -1,0 +1,1531 @@
+{
+ "source": "n8n execution 28 (2026-09-23): Analyst output that cited an invented EV-CNHA",
+ "evidence_ids": [
+  "EV-640a836f",
+  "EV-690a8b4e",
+  "EV-e98eed56",
+  "EV-f48efea7",
+  "EV-beca7d7f",
+  "EV-c3ca855e",
+  "EV-e3110146",
+  "EV-ee111297",
+  "EV-631241a8",
+  "EV-62124015",
+  "EV-971de517",
+  "EV-8c1dd3c6",
+  "EV-267cec38",
+  "EV-257ceaa5",
+  "EV-3accfe89",
+  "EV-43cd0cb4",
+  "EV-e7b50182",
+  "EV-eab5063b",
+  "EV-c35757e4",
+  "EV-ba5749b9",
+  "EV-98998810",
+  "EV-9f999315",
+  "EV-07620654",
+  "EV-066204c1",
+  "EV-56997533",
+  "EV-5b997d12",
+  "EV-42545655",
+  "EV-3b544b50",
+  "EV-6016b158",
+  "EV-6716bc5d",
+  "EV-a11de057",
+  "EV-9e1ddb9e",
+  "EV-1c6b46a3",
+  "EV-216b4e82",
+  "EV-dc310b49",
+  "EV-dd310cdc",
+  "EV-7b1935e8",
+  "EV-821940ed",
+  "EV-a55605e4",
+  "EV-a4560451",
+  "EV-fa4ca232",
+  "EV-f84c9f0c",
+  "EV-239e6d07",
+  "EV-259e702d",
+  "EV-58451a03",
+  "EV-5a451d29",
+  "EV-15d780e2",
+  "EV-13d77dbc",
+  "EV-da3e4616",
+  "EV-d83e42f0",
+  "EV-1517b3e7",
+  "EV-1717b70d",
+  "EV-4c6c24d8",
+  "EV-4e6c27fe",
+  "EV-83e823a3",
+  "EV-85e826c9",
+  "EV-941ba37b",
+  "EV-961ba6a1",
+  "EV-f536aad1",
+  "EV-f336a7ab",
+  "EV-cbbdcaf7",
+  "EV-cabdc964",
+  "EV-c8bdc63e",
+  "EV-a5e160fb",
+  "EV-a4e15f68",
+  "EV-aae168da",
+  "EV-ec8eb492",
+  "EV-ed8eb625",
+  "EV-e78eacb3",
+  "EV-0594ab86",
+  "EV-0694ad19",
+  "EV-0894b03f",
+  "EV-303d7fec",
+  "EV-313d817f",
+  "EV-2f3d7e59",
+  "EV-b7ac0193",
+  "EV-b6ac0000",
+  "EV-bcac0972",
+  "EV-be5271a5",
+  "EV-bd527012",
+  "EV-b75266a0",
+  "EV-e55aa51a",
+  "EV-e65aa6ad",
+  "EV-e05a9d3b",
+  "EV-c6448697",
+  "EV-c5448504",
+  "EV-c34481de",
+  "EV-6b1ec89d",
+  "EV-6a1ec70a",
+  "EV-641ebd98",
+  "EV-3678015e",
+  "EV-3477fe38",
+  "EV-3277fb12",
+  "EV-ef29a092",
+  "EV-ed299d6c",
+  "EV-f329a6de",
+  "EV-796e79e2",
+  "EV-776e76bc",
+  "EV-7d6e802e",
+  "EV-2ae84ee2",
+  "EV-28e84bbc",
+  "EV-2ee8552e",
+  "EV-2711ca42",
+  "EV-2511c71c",
+  "EV-2b11d08e",
+  "EV-8f3c4975",
+  "EV-8d3c464f",
+  "EV-933c4fc1",
+  "EV-c706bfab",
+  "EV-c906c2d1",
+  "EV-c306b95f",
+  "EV-98ee3d9c",
+  "EV-9aee40c2",
+  "EV-9cee43e8",
+  "EV-a2a3f968",
+  "EV-a4a3fc8e",
+  "EV-9ea3f31c",
+  "EV-b0b689a9",
+  "EV-b1b68b3c",
+  "EV-b8f310d0",
+  "EV-bff31bd5",
+  "EV-d4e5cef2",
+  "EV-cfe5c713",
+  "EV-26834797",
+  "EV-238342de",
+  "EV-bc2c8589",
+  "EV-bd2c871c",
+  "EV-1c6b46a3",
+  "EV-216b4e82",
+  "EV-377441a6",
+  "EV-3a74465f",
+  "EV-dc310b49",
+  "EV-dd310cdc",
+  "EV-a55605e4",
+  "EV-a4560451",
+  "EV-f955b30e",
+  "EV-fc55b7c7",
+  "EV-a0e59453",
+  "EV-a2e59779",
+  "EV-9e2ddd55",
+  "EV-9c2dda2f",
+  "EV-9a6b0d78",
+  "EV-9c6b109e",
+  "EV-953a6faf",
+  "EV-973a72d5",
+  "EV-d7f269af",
+  "EV-d9f26cd5",
+  "EV-cd2bcffc",
+  "EV-cf2bd322",
+  "EV-4cffcc23",
+  "EV-4effcf49",
+  "EV-ebcb9286",
+  "EV-e9cb8f60",
+  "EV-c4b5ac0f",
+  "EV-c6b5af35",
+  "EV-e2957665",
+  "EV-e095733f",
+  "EV-3b9c031a",
+  "EV-3c9c04ad",
+  "EV-369bfb3b",
+  "EV-ed489c6d",
+  "EV-ec489ada",
+  "EV-e6489168",
+  "EV-bf5f8187",
+  "EV-be5f7ff4",
+  "EV-bc5f7cce",
+  "EV-2c5212c0",
+  "EV-2d521453",
+  "EV-33521dc5",
+  "EV-f415a41f",
+  "EV-f315a28c",
+  "EV-f1159f66",
+  "EV-0517d321",
+  "EV-0417d18e",
+  "EV-0617d4b4",
+  "EV-c41501b2",
+  "EV-c5150345",
+  "EV-bf14f9d3",
+  "EV-cee4b200",
+  "EV-cfe4b393",
+  "EV-d5e4bd05",
+  "EV-fc70b960",
+  "EV-fd70baf3",
+  "EV-0370c465",
+  "EV-2486e2f0",
+  "EV-2586e483",
+  "EV-2b86edf5",
+  "EV-82e51aa5",
+  "EV-80e5177f",
+  "EV-86e520f1",
+  "EV-59498e9f",
+  "EV-5b4991c5",
+  "EV-5d4994eb",
+  "EV-00b87eb3",
+  "EV-02b881d9",
+  "EV-0cb89197",
+  "EV-48f7dbdb",
+  "EV-4af7df01",
+  "EV-44f7d58f",
+  "EV-53132b8f",
+  "EV-55132eb5",
+  "EV-571331db",
+  "EV-4df5fc69",
+  "EV-4bf5f943",
+  "EV-59f60f4d",
+  "EV-cb67c705",
+  "EV-c967c3df",
+  "EV-cf67cd51",
+  "EV-783087f8",
+  "EV-7a308b1e",
+  "EV-743081ac",
+  "EV-6266bf51",
+  "EV-6366c0e4",
+  "EV-c59d1881",
+  "EV-c69d1a14",
+  "EV-3f0a4ab9",
+  "EV-400a4c4c",
+  "EV-74fe0ae4",
+  "EV-73fe0951",
+  "EV-cb9e48b0",
+  "EV-d29e53b5",
+  "EV-73141f99",
+  "EV-7414212c",
+  "EV-31f3cb5b",
+  "EV-36f3d33a",
+  "EV-88951f06",
+  "EV-8b9523bf",
+  "EV-04df4226",
+  "EV-07df46df",
+  "EV-ab4afe18",
+  "EV-b24b091d",
+  "EV-4f866997",
+  "EV-51866cbd",
+  "EV-0d3027da",
+  "EV-0b3024b4",
+  "EV-71e062dd",
+  "EV-6fe05fb7",
+  "EV-d3d8f7fa",
+  "EV-d1d8f4d4",
+  "EV-9640aba4",
+  "EV-9840aeca",
+  "EV-6b24a058",
+  "EV-6d24a37e",
+  "EV-ee1b74c0",
+  "EV-f01b77e6",
+  "EV-5e023b91",
+  "EV-5c02386b",
+  "EV-d0c03c4a",
+  "EV-cec03924",
+  "EV-f22ef459",
+  "EV-f02ef133",
+  "EV-87cea105",
+  "EV-86ce9f72",
+  "EV-80ce9600",
+  "EV-a89f66b2",
+  "EV-a99f6845",
+  "EV-a39f5ed3",
+  "EV-5886d71e",
+  "EV-5986d8b1",
+  "EV-5b86dbd7",
+  "EV-ff6af75a",
+  "EV-006af8ed",
+  "EV-fa6aef7b",
+  "EV-b737bfc8",
+  "EV-b837c15b",
+  "EV-be37cacd",
+  "EV-5ab5ca69",
+  "EV-59b5c8d6",
+  "EV-5bb5cbfc",
+  "EV-0a00dfde",
+  "EV-0b00e171",
+  "EV-0d00e497",
+  "EV-bdd8d9f4",
+  "EV-bed8db87",
+  "EV-bcd8d861",
+  "EV-24368f96",
+  "EV-25369129",
+  "EV-2736944f",
+  "EV-68523e52",
+  "EV-69523fe5",
+  "EV-63523673",
+  "EV-d8e347de",
+  "EV-d6e344b8",
+  "EV-d4e34192",
+  "EV-cd1e0913",
+  "EV-cf1e0c39",
+  "EV-d91e1bf7",
+  "EV-c326c27b",
+  "EV-c526c5a1",
+  "EV-bf26bc2f",
+  "EV-72ac3a1c",
+  "EV-74ac3d42",
+  "EV-76ac4068",
+  "EV-0c197093",
+  "EV-0e1973b9",
+  "EV-18198377",
+  "EV-5bd738c4",
+  "EV-5dd73bea",
+  "EV-4fd725e0",
+  "EV-ad8e4713",
+  "EV-af8e4a39",
+  "EV-b98e59f7",
+  "EV-238432e1",
+  "EV-21842fbb",
+  "EV-1f842c95",
+  "EV-8dd5a9ac",
+  "EV-8fd5acd2",
+  "EV-91d5aff8",
+  "EV-33328f91",
+  "EV-2c32848c",
+  "EV-1f6d8bb0",
+  "EV-2e6da34d",
+  "EV-39c3ffce",
+  "EV-34c3f7ef",
+  "EV-72fe07be",
+  "EV-6dfdffdf",
+  "EV-2bbfdf99",
+  "EV-34bfedc4",
+  "EV-90e62dbd",
+  "EV-81e61620",
+  "EV-de310e6f",
+  "EV-e331164e",
+  "EV-4d4682bf",
+  "EV-52468a9e",
+  "EV-a35602be",
+  "EV-9e55fadf",
+  "EV-06fae611",
+  "EV-fffadb0c",
+  "EV-83003fb4",
+  "EV-7a003189",
+  "EV-8600446d",
+  "EV-3697521b",
+  "EV-33974d62",
+  "EV-379753ae",
+  "EV-0b13c88f",
+  "EV-1013d06e",
+  "EV-0c13ca22",
+  "EV-34ccc1b5",
+  "EV-35ccc348",
+  "EV-31ccbcfc",
+  "EV-ff415168",
+  "EV-fe414fd5",
+  "EV-02415621",
+  "EV-92309ad4",
+  "EV-89308ca9",
+  "EV-95309f8d",
+  "EV-0f874329",
+  "EV-18875154",
+  "EV-0c873e70",
+  "EV-8a11ef2a",
+  "EV-7d11dab3",
+  "EV-8911ed97",
+  "EV-44f18827",
+  "EV-39f176d6",
+  "EV-45f189ba",
+  "EV-ce67d828",
+  "EV-cd67d695",
+  "EV-d167dce1",
+  "EV-83003fb4",
+  "EV-7f003968",
+  "EV-c209ecb2",
+  "EV-be09e666",
+  "EV-6a899c21",
+  "EV-6e89a26d",
+  "EV-913dd854",
+  "EV-8d3dd208",
+  "EV-fa034a99",
+  "EV-fe0350e5",
+  "EV-ea310d51",
+  "EV-ee31139d",
+  "EV-3697521b",
+  "EV-3a975867",
+  "EV-dc55c6dc",
+  "EV-d855c090",
+  "EV-efa40905",
+  "EV-eba402b9",
+  "EV-d9199dcf",
+  "EV-d5199783",
+  "EV-c48b093a",
+  "EV-c18b0481",
+  "EV-c28b0614",
+  "EV-aa9f6d73",
+  "EV-ad9f722c",
+  "EV-ac9f7099",
+  "EV-e87def7d",
+  "EV-e37de79e",
+  "EV-e67dec57",
+  "EV-b770df8d",
+  "EV-b270d7ae",
+  "EV-b570dc67",
+  "EV-45f5edf0",
+  "EV-4af5f5cf",
+  "EV-47f5f116",
+  "EV-80516400",
+  "EV-85516bdf",
+  "EV-82516726",
+  "EV-b5d05320",
+  "EV-bad05aff",
+  "EV-b7d05646",
+  "EV-de310e6f",
+  "EV-d9310690",
+  "EV-e0311195",
+  "EV-a35602be",
+  "EV-a8560a9d",
+  "EV-a155ff98",
+  "EV-be65ac34",
+  "EV-bb65a77b",
+  "EV-c065af5a",
+  "EV-ad875f59",
+  "EV-ab875c33",
+  "EV-b7876f17",
+  "EV-029ac0fc",
+  "EV-049ac422",
+  "EV-089aca6e",
+  "EV-70cf4bc4",
+  "EV-72cf4eea",
+  "EV-66cf3c06",
+  "EV-930e14ab",
+  "EV-950e17d1",
+  "EV-910e1185",
+  "EV-931b5f43",
+  "EV-951b6269",
+  "EV-a11b754d",
+  "EV-4c39511b",
+  "EV-4e395441",
+  "EV-4a394df5",
+  "EV-aed37491",
+  "EV-acd3716b",
+  "EV-a8d36b1f",
+  "EV-fed2e7df",
+  "EV-00d2eb05",
+  "EV-04d2f151",
+  "EV-9c4b9c35",
+  "EV-9a4b990f",
+  "EV-9e4b9f5b",
+  "EV-6bb14005",
+  "EV-69b13cdf",
+  "EV-6db1432b",
+  "EV-5c018eff",
+  "EV-5b018d6c",
+  "EV-6001954b",
+  "EV-2c9f7d98",
+  "EV-2d9f7f2b",
+  "EV-289f774c",
+  "EV-c5bf1ac2",
+  "EV-c6bf1c55",
+  "EV-c9bf210e",
+  "EV-2d8de4f6",
+  "EV-2e8de689",
+  "EV-398df7da",
+  "EV-0efb9da3",
+  "EV-0dfb9c10",
+  "EV-1afbb087",
+  "EV-6bc8e84b",
+  "EV-6ac8e6b8",
+  "EV-67c8e1ff",
+  "EV-e0ad2fca",
+  "EV-e1ad315d",
+  "EV-d4ad1ce6",
+  "EV-ec245b1c",
+  "EV-ed245caf",
+  "EV-f0246168",
+  "EV-0ed030b4",
+  "EV-0fd03247",
+  "EV-02d01dd0",
+  "EV-196d9701",
+  "EV-186d956e",
+  "EV-156d90b5"
+ ],
+ "analyst_output": {
+  "brief_id": "run-ocala-01",
+  "competitor_comparison_table": [
+   {
+    "competitor_name": "Wire3",
+    "footprint_confirmed_in_region": {
+     "value": false,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "service_type": {
+     "value": "fiber",
+     "evidence_ids": [],
+     "basis": "brief_stated"
+    },
+    "has_mobile_bundle_available": {
+     "value": false,
+     "evidence_ids": [],
+     "basis": "brief_stated"
+    },
+    "top_advertised_speed_mbps_down": {
+     "value": 1000,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "top_advertised_speed_mbps_up": {
+     "value": 1000,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "summary_note": {
+     "value": "Wire3 is a regional fiber provider focused on Central Florida and Space Coast expansion; public marketing emphasizes fiber-to-the-home buildout and local support.",
+     "evidence_ids": [
+      "EV-e98eed56",
+      "EV-971de517",
+      "EV-beca7d7f"
+     ],
+     "basis": "evidence"
+    }
+   },
+   {
+    "competitor_name": "Spectrum",
+    "footprint_confirmed_in_region": {
+     "value": true,
+     "evidence_ids": [
+      "EV-a5e160fb",
+      "EV-a4e15f68"
+     ],
+     "basis": "evidence"
+    },
+    "service_type": {
+     "value": "HFC (fiber-powered, coaxial to premises)",
+     "evidence_ids": [
+      "EV-58451a03"
+     ],
+     "basis": "evidence"
+    },
+    "has_mobile_bundle_available": {
+     "value": true,
+     "evidence_ids": [
+      "EV-f536aad1",
+      "EV-e55aa51a"
+     ],
+     "basis": "evidence"
+    },
+    "top_advertised_speed_mbps_down": {
+     "value": 2000,
+     "evidence_ids": [
+      "EV-83e823a3"
+     ],
+     "basis": "evidence"
+    },
+    "top_advertised_speed_mbps_up": {
+     "value": 35,
+     "evidence_ids": [
+      "EV-1f6d8bb0"
+     ],
+     "basis": "evidence"
+    },
+    "summary_note": {
+     "value": "Spectrum (Charter) is widely available in Ocala with consumer plans positioned from entry-level tiers up to gigabit and multi‑gig in select markets; bundles with TV and mobile are a central part of the offering and promotions often apply for the first 12 months.",
+     "evidence_ids": [
+      "EV-f536aad1",
+      "EV-4c6c24d8",
+      "EV-83e823a3"
+     ],
+     "basis": "evidence"
+    }
+   },
+   {
+    "competitor_name": "AT&T",
+    "footprint_confirmed_in_region": {
+     "value": true,
+     "evidence_ids": [
+      "EV-26834797",
+      "EV-6016b158"
+     ],
+     "basis": "evidence"
+    },
+    "service_type": {
+     "value": "fiber",
+     "evidence_ids": [
+      "EV-6016b158"
+     ],
+     "basis": "evidence"
+    },
+    "has_mobile_bundle_available": {
+     "value": true,
+     "evidence_ids": [
+      "EV-ed489c6"
+     ],
+     "basis": "evidence"
+    },
+    "top_advertised_speed_mbps_down": {
+     "value": 5000,
+     "evidence_ids": [
+      "EV-6016b158",
+      "EV-26834797"
+     ],
+     "basis": "evidence"
+    },
+    "top_advertised_speed_mbps_up": {
+     "value": 5000,
+     "evidence_ids": [
+      "EV-6016b158"
+     ],
+     "basis": "evidence"
+    },
+    "summary_note": {
+     "value": "AT&T offers a broad fiber portfolio (including mid-tier and multi‑gig tiers) and bundles/discounts for paired wireless customers; fiber plans are positioned with symmetric speeds and enterprise-grade features in many markets.",
+     "evidence_ids": [
+      "EV-6016b158",
+      "EV-d7f269af",
+      "EV-ed489c6"
+     ],
+     "basis": "evidence"
+    }
+   },
+   {
+    "competitor_name": "T-Mobile Home Internet",
+    "footprint_confirmed_in_region": {
+     "value": true,
+     "evidence_ids": [
+      "EV-9640aba4",
+      "EV-73141f99"
+     ],
+     "basis": "evidence"
+    },
+    "service_type": {
+     "value": "fixed wireless & fiber",
+     "evidence_ids": [
+      "EV-9640aba4",
+      "EV-b737bfc8"
+     ],
+     "basis": "evidence"
+    },
+    "has_mobile_bundle_available": {
+     "value": true,
+     "evidence_ids": [
+      "EV-24368f96",
+      "EV-f22ef459"
+     ],
+     "basis": "evidence"
+    },
+    "top_advertised_speed_mbps_down": {
+     "value": 2000,
+     "evidence_ids": [
+      "EV-9640aba4"
+     ],
+     "basis": "evidence"
+    },
+    "top_advertised_speed_mbps_up": {
+     "value": 2000,
+     "evidence_ids": [
+      "EV-9640aba4"
+     ],
+     "basis": "evidence"
+    },
+    "summary_note": {
+     "value": "T‑Mobile Home Internet has expanded rapidly using 5G fixed wireless and selective fiber; its tiered plans (Rely, Amplified, All‑In) emphasize a price guarantee, included gateway hardware, and promotional credits when bundled with voice lines.",
+     "evidence_ids": [
+      "EV-9640aba4",
+      "EV-c326c27b",
+      "EV-f22ef459"
+     ],
+     "basis": "evidence"
+    }
+   }
+  ],
+  "pricing_matrix": [
+   {
+    "competitor_name": "Spectrum",
+    "plan_name": {
+     "value": "Internet Premier (500 Mbps)",
+     "evidence_ids": [
+      "EV-f536aad1"
+     ],
+     "basis": "evidence"
+    },
+    "speed_mbps_down": {
+     "value": 500,
+     "evidence_ids": [
+      "EV-f536aad1"
+     ],
+     "basis": "evidence"
+    },
+    "promo_status": {
+     "value": "has_promo",
+     "evidence_ids": [
+      "EV-f536aad1"
+     ],
+     "basis": "evidence"
+    },
+    "promo_price_usd_per_month": {
+     "value": 40,
+     "evidence_ids": [
+      "EV-f536aad1"
+     ],
+     "basis": "evidence"
+    },
+    "promo_duration_months": {
+     "value": 12,
+     "evidence_ids": [
+      "EV-f536aad1"
+     ],
+     "basis": "evidence"
+    },
+    "post_promo_price_usd_per_month": {
+     "value": 60,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "equipment_fee_usd_per_month": {
+     "value": 0,
+     "evidence_ids": [
+      "EV-f536aad1"
+     ],
+     "basis": "evidence"
+    },
+    "early_termination_fee_usd": {
+     "value": 0,
+     "evidence_ids": [
+      "EV-b7ac0193"
+     ],
+     "basis": "evidence"
+    },
+    "blended_12mo_effective_price_usd": {
+     "value": 40,
+     "derived_from_evidence_ids": [
+      "EV-f536aad1"
+     ],
+     "formula": "((promo_price * promo_duration_months) + (post_promo_price * (12 - promo_duration_months))) / 12"
+    }
+   },
+   {
+    "competitor_name": "AT&T",
+    "plan_name": {
+     "value": "Internet 300",
+     "evidence_ids": [
+      "EV-d7f269af"
+     ],
+     "basis": "evidence"
+    },
+    "speed_mbps_down": {
+     "value": 300,
+     "evidence_ids": [
+      "EV-d7f269af"
+     ],
+     "basis": "evidence"
+    },
+    "promo_status": {
+     "value": "no_promo_found",
+     "evidence_ids": [
+      "EV-d7f269af"
+     ],
+     "basis": "evidence"
+    },
+    "promo_price_usd_per_month": {
+     "value": 35,
+     "evidence_ids": [
+      "EV-26834797"
+     ],
+     "basis": "evidence"
+    },
+    "promo_duration_months": {
+     "value": 0,
+     "evidence_ids": [
+      "EV-d7f269af"
+     ],
+     "basis": "evidence"
+    },
+    "post_promo_price_usd_per_month": {
+     "value": 35,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "equipment_fee_usd_per_month": {
+     "value": 0,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "early_termination_fee_usd": {
+     "value": 0,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "blended_12mo_effective_price_usd": {
+     "value": 35,
+     "derived_from_evidence_ids": [
+      "EV-26834797",
+      "EV-d7f269af"
+     ],
+     "formula": "((promo_price * promo_duration_months) + (post_promo_price * (12 - promo_duration_months))) / 12"
+    }
+   },
+   {
+    "competitor_name": "T-Mobile Home Internet",
+    "plan_name": {
+     "value": "Rely Home Internet",
+     "evidence_ids": [
+      "EV-a89f66b2",
+      "EV-c326c27b"
+     ],
+     "basis": "evidence"
+    },
+    "speed_mbps_down": {
+     "value": 354,
+     "evidence_ids": [
+      "EV-a89f66b2"
+     ],
+     "basis": "evidence"
+    },
+    "promo_status": {
+     "value": "has_promo",
+     "evidence_ids": [
+      "EV-f22ef459"
+     ],
+     "basis": "evidence"
+    },
+    "promo_price_usd_per_month": {
+     "value": 30,
+     "evidence_ids": [
+      "EV-f22ef459"
+     ],
+     "basis": "evidence"
+    },
+    "promo_duration_months": {
+     "value": 12,
+     "evidence_ids": [
+      "EV-f22ef459"
+     ],
+     "basis": "evidence"
+    },
+    "post_promo_price_usd_per_month": {
+     "value": 50,
+     "evidence_ids": [
+      "EV-cec03924",
+      "EV-9640aba4"
+     ],
+     "basis": "evidence"
+    },
+    "equipment_fee_usd_per_month": {
+     "value": 0,
+     "evidence_ids": [
+      "EV-c526c5a1"
+     ],
+     "basis": "evidence"
+    },
+    "early_termination_fee_usd": {
+     "value": 0,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "blended_12mo_effective_price_usd": {
+     "value": 30,
+     "derived_from_evidence_ids": [
+      "EV-f22ef459",
+      "EV-cec03924"
+     ],
+     "formula": "((promo_price * promo_duration_months) + (post_promo_price * (12 - promo_duration_months))) / 12"
+    }
+   }
+  ],
+  "product_feature_comparison": [
+   {
+    "competitor_name": "Wire3",
+    "technology_type": {
+     "value": "fiber",
+     "evidence_ids": [],
+     "basis": "brief_stated"
+    },
+    "symmetric_speeds": {
+     "value": true,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "data_cap_present": {
+     "value": false,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "wifi_router_included": {
+     "value": false,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "professional_install_included": {
+     "value": true,
+     "evidence_ids": [
+      "EV-e3110146"
+     ],
+     "basis": "evidence"
+    },
+    "self_install_available": {
+     "value": false,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "contract_required": {
+     "value": false,
+     "evidence_ids": [
+      "EV-e3110146"
+     ],
+     "basis": "evidence"
+    },
+    "contract_length_months": {
+     "value": null,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "customer_support_channels": {
+     "value": [
+      "phone",
+      "local technicians / on-site"
+     ],
+     "evidence_ids": [
+      "EV-beca7d7f",
+      "EV-267cec38"
+     ],
+     "basis": "evidence"
+    },
+    "additional_features": [
+     {
+      "name": "local support emphasis",
+      "field": {
+       "value": "staffed by local people in Florida/Georgia; rapid on-site response",
+       "evidence_ids": [
+        "EV-beca7d7f",
+        "EV-267cec38"
+       ],
+       "basis": "evidence"
+      }
+     }
+    ]
+   },
+   {
+    "competitor_name": "Spectrum",
+    "technology_type": {
+     "value": "HFC (fiber-powered, coaxial to premises)",
+     "evidence_ids": [
+      "EV-58451a03"
+     ],
+     "basis": "evidence"
+    },
+    "symmetric_speeds": {
+     "value": false,
+     "evidence_ids": [
+      "EV-1f6d8bb0"
+     ],
+     "basis": "evidence"
+    },
+    "data_cap_present": {
+     "value": false,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "wifi_router_included": {
+     "value": true,
+     "evidence_ids": [
+      "EV-f536aad1"
+     ],
+     "basis": "evidence"
+    },
+    "professional_install_included": {
+     "value": false,
+     "evidence_ids": [
+      "EV-b7ac0193"
+     ],
+     "basis": "evidence"
+    },
+    "self_install_available": {
+     "value": true,
+     "evidence_ids": [
+      "EV-f536aad1"
+     ],
+     "basis": "evidence"
+    },
+    "contract_required": {
+     "value": false,
+     "evidence_ids": [
+      "EV-be5271a5"
+     ],
+     "basis": "evidence"
+    },
+    "contract_length_months": {
+     "value": null,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "customer_support_channels": {
+     "value": [
+      "phone",
+      "in-store",
+      "online"
+     ],
+     "evidence_ids": [
+      "EV-c6448697",
+      "EV-f536aad1"
+     ],
+     "basis": "evidence"
+    },
+    "additional_features": [
+     {
+      "name": "TV bundles & streaming add-ons",
+      "field": {
+       "value": "multiple TV packages, Stream TV tiers, add-ons like Entertainment Pack",
+       "evidence_ids": [
+        "EV-4c6c24d8",
+        "EV-941ba37b"
+       ],
+       "basis": "evidence"
+      }
+     },
+     {
+      "name": "mobile bundle",
+      "field": {
+       "value": "Spectrum Mobile available with discounts when bundled",
+       "evidence_ids": [
+        "EV-e55aa51a",
+        "EV-f536aad1"
+       ],
+       "basis": "evidence"
+      }
+     }
+    ]
+   },
+   {
+    "competitor_name": "AT&T",
+    "technology_type": {
+     "value": "fiber",
+     "evidence_ids": [
+      "EV-6016b158",
+      "EV-26834797"
+     ],
+     "basis": "evidence"
+    },
+    "symmetric_speeds": {
+     "value": true,
+     "evidence_ids": [
+      "EV-6016b158"
+     ],
+     "basis": "evidence"
+    },
+    "data_cap_present": {
+     "value": false,
+     "evidence_ids": [
+      "EV-c41501b2"
+     ],
+     "basis": "evidence"
+    },
+    "wifi_router_included": {
+     "value": true,
+     "evidence_ids": [
+      "EV-ed489c6"
+     ],
+     "basis": "evidence"
+    },
+    "professional_install_included": {
+     "value": true,
+     "evidence_ids": [
+      "EV-6016b158"
+     ],
+     "basis": "evidence"
+    },
+    "self_install_available": {
+     "value": true,
+     "evidence_ids": [
+      "EV-6016b158"
+     ],
+     "basis": "evidence"
+    },
+    "contract_required": {
+     "value": false,
+     "evidence_ids": [
+      "EV-bd527012"
+     ],
+     "basis": "evidence"
+    },
+    "contract_length_months": {
+     "value": null,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "customer_support_channels": {
+     "value": [
+      "phone",
+      "in-store",
+      "online"
+     ],
+     "evidence_ids": [
+      "EV-bf5f8187",
+      "EV-ec489ada"
+     ],
+     "basis": "evidence"
+    },
+    "additional_features": [
+     {
+      "name": "wireless discounts",
+      "field": {
+       "value": "$20/mo savings for eligible AT&T wireless customers",
+       "evidence_ids": [
+        "EV-ed489c6",
+        "EV-ec489ada"
+       ],
+       "basis": "evidence"
+      }
+     }
+    ]
+   },
+   {
+    "competitor_name": "T-Mobile Home Internet",
+    "technology_type": {
+     "value": "fixed wireless & fiber",
+     "evidence_ids": [
+      "EV-9640aba4",
+      "EV-b737bfc8"
+     ],
+     "basis": "evidence"
+    },
+    "symmetric_speeds": {
+     "value": false,
+     "evidence_ids": [
+      "EV-9640aba4"
+     ],
+     "basis": "evidence"
+    },
+    "data_cap_present": {
+     "value": false,
+     "evidence_ids": [
+      "EV-c326c27b"
+     ],
+     "basis": "evidence"
+    },
+    "wifi_router_included": {
+     "value": true,
+     "evidence_ids": [
+      "EV-5e023b91",
+      "EV-c526c5a1"
+     ],
+     "basis": "evidence"
+    },
+    "professional_install_included": {
+     "value": false,
+     "evidence_ids": [
+      "EV-9640aba4"
+     ],
+     "basis": "evidence"
+    },
+    "self_install_available": {
+     "value": true,
+     "evidence_ids": [
+      "EV-c326c27b"
+     ],
+     "basis": "evidence"
+    },
+    "contract_required": {
+     "value": false,
+     "evidence_ids": [
+      "EV-c326c27b"
+     ],
+     "basis": "evidence"
+    },
+    "contract_length_months": {
+     "value": null,
+     "evidence_ids": [],
+     "basis": "inference"
+    },
+    "customer_support_channels": {
+     "value": [
+      "phone",
+      "in-store",
+      "online"
+     ],
+     "evidence_ids": [
+      "EV-ad8e4713",
+      "EV-9640aba4"
+     ],
+     "basis": "evidence"
+    },
+    "additional_features": [
+     {
+      "name": "5-year price guarantee",
+      "field": {
+       "value": "5-year price guarantee on eligible plans (exclusions apply)",
+       "evidence_ids": [
+        "EV-c326c27b",
+        "EV-72ac3a1c"
+       ],
+       "basis": "evidence"
+      }
+     },
+     {
+      "name": "promotional credits",
+      "field": {
+       "value": "offers like monthly bill credits or prepaid rebates for new customers",
+       "evidence_ids": [
+        "EV-f22ef459",
+        "EV-72ac3a1c"
+       ],
+       "basis": "evidence"
+      }
+     }
+    ]
+   }
+  ],
+  "market_themes": [
+   {
+    "theme_id": "THEME-1",
+    "title": "Regional fiber expansion and municipal/regional ISPs",
+    "description": "Regional and municipal fiber projects and smaller regional ISPs continue to expand, driven by local investment and partnerships. This growth creates localized competition to national carriers in specific communities.",
+    "related_research_question_ids": [
+     "RQ7",
+     "RQ8"
+    ],
+    "supporting_evidence_ids": [
+     "EV-971de517",
+     "EV-3697521b",
+     "EV-e87def7d"
+    ],
+    "competitors_involved": [
+     "Wire3",
+     "AT&T",
+     "Spectrum",
+     "T-Mobile Home Internet"
+    ]
+   },
+   {
+    "theme_id": "THEME-2",
+    "title": "Promotions & bundle strategies shape short-term price perception",
+    "description": "Providers use first‑year promos, mobile bundles, and bill credits to lower effective costs; post-promo price increases and contract terms drive churn risk after promotional periods.",
+    "related_research_question_ids": [
+     "RQ1",
+     "RQ3"
+    ],
+    "supporting_evidence_ids": [
+     "EV-f536aad1",
+     "EV-f22ef459",
+     "EV-83e823a3"
+    ],
+    "competitors_involved": [
+     "Spectrum",
+     "AT&T",
+     "T-Mobile Home Internet",
+     "Wire3"
+    ]
+   },
+   {
+    "theme_id": "THEME-3",
+    "title": "Fixed wireless (5G) as a rapidly scaling alternative to cable",
+    "description": "T‑Mobile’s 5G Home Internet and similar fixed wireless offerings are increasing availability and serving as lower-friction alternatives to cable/fiber in many suburbs; these plans emphasize included gateways, self-install, and price guarantees.",
+    "related_research_question_ids": [
+     "RQ2",
+     "RQ3"
+    ],
+    "supporting_evidence_ids": [
+     "EV-9640aba4",
+     "EV-c326c27b",
+     "EV-a89f66b2"
+    ],
+    "competitors_involved": [
+     "T-Mobile Home Internet",
+     "AT&T",
+     "Spectrum",
+     "Wire3"
+    ]
+   },
+   {
+    "theme_id": "THEME-4",
+    "title": "Customer support & local presence differentiators",
+    "description": "Local-support messaging (staffed local teams, faster on-site response) is a clear differentiator for regional fiber providers versus national incumbents that emphasize scale and bundles.",
+    "related_research_question_ids": [
+     "RQ7",
+     "RQ8"
+    ],
+    "supporting_evidence_ids": [
+     "EV-beca7d7f",
+     "EV-267cec38",
+     "EV-f536aad1"
+    ],
+    "competitors_involved": [
+     "Wire3",
+     "Spectrum",
+     "AT&T",
+     "T-Mobile Home Internet"
+    ]
+   }
+  ],
+  "swot": {
+   "strengths": [
+    {
+     "item_id": "SWOT-S1",
+     "statement": "Spectrum has broad regional footprint and bundle ecosystem (internet + TV + mobile).",
+     "basis": "evidence",
+     "evidence_ids": [
+      "EV-a5e160fb",
+      "EV-4c6c24d8",
+      "EV-e55aa51a"
+     ]
+    },
+    {
+     "item_id": "SWOT-S2",
+     "statement": "AT&T provides high-capacity fiber with symmetric speeds and established enterprise services.",
+     "basis": "evidence",
+     "evidence_ids": [
+      "EV-6016b158",
+      "EV-26834797"
+     ]
+    },
+    {
+     "item_id": "SWOT-S3",
+     "statement": "T‑Mobile scales quickly with fixed wireless and aggressive promotional bundling.",
+     "basis": "evidence",
+     "evidence_ids": [
+      "EV-9640aba4",
+      "EV-f22ef459"
+     ]
+    }
+   ],
+   "weaknesses": [
+    {
+     "item_id": "SWOT-W1",
+     "statement": "Spectrum/Charter faces pressure around subscriber losses and regulatory/transaction skepticism following acquisitions.",
+     "basis": "evidence",
+     "evidence_ids": [
+      "EV-2711ca42"
+     ]
+    },
+    {
+     "item_id": "SWOT-W2",
+     "statement": "Promotional pricing practices create post-promo price shock and churn risk.",
+     "basis": "evidence",
+     "evidence_ids": [
+      "EV-f536aad1",
+      "EV-303d7fec"
+     ]
+    }
+   ],
+   "opportunities": [
+    {
+     "item_id": "SWOT-O1",
+     "statement": "Regional fiber and municipal networks present partnership and expansion opportunities for local providers.",
+     "basis": "evidence",
+     "evidence_ids": [
+      "EV-3697521b",
+      "EV-CNHA"
+     ]
+    },
+    {
+     "item_id": "SWOT-O2",
+     "statement": "Mobile + home internet bundles remain a lever to acquire and retain customers at lower acquisition cost.",
+     "basis": "evidence",
+     "evidence_ids": [
+      "EV-f536aad1",
+      "EV-ed489c6",
+      "EV-f22ef459"
+     ]
+    }
+   ],
+   "threats": [
+    {
+     "item_id": "SWOT-T1",
+     "statement": "Aggressive fixed wireless rollouts (T‑Mobile) and national cable promotions threaten regional ISPs' ARPU and market share.",
+     "basis": "evidence",
+     "evidence_ids": [
+      "EV-9640aba4",
+      "EV-72ac3a1c"
+     ]
+    },
+    {
+     "item_id": "SWOT-T2",
+     "statement": "Post-promo pricing resets across competitors may trigger price competition and margin pressure.",
+     "basis": "evidence",
+     "evidence_ids": [
+      "EV-83e823a3",
+      "EV-f536aad1"
+     ]
+    }
+   ]
+  },
+  "seven_p_analysis": {
+   "product": {
+    "market_description": {
+     "value": "The residential home‑internet market in Ocala and surrounding Marion County is a mix of incumbent cable/HFC (Spectrum), fiber expansions (Quantum, AT&T, regional ISPs), and emerging fixed wireless (T‑Mobile). Providers differentiate on speed tiers (100 Mbps to multi‑gig), bundle offers (TV, mobile), and local service.",
+     "evidence_ids": [
+      "EV-f536aad1",
+      "EV-6016b158",
+      "EV-9640aba4",
+      "EV-e87def7d"
+     ],
+     "basis": "evidence"
+    },
+    "wire3_relevant_fact": {
+     "value": "Wire3 markets itself as a 100% fiber provider serving Central Florida with local support and business-grade reliability.",
+     "evidence_ids": [
+      "EV-e98eed56",
+      "EV-e3110146"
+     ],
+     "basis": "evidence"
+    }
+   },
+   "price": {
+    "market_description": {
+     "value": "Price positioning is heavily promotional: national providers commonly advertise low first‑year rates or bundled discounts (e.g., Spectrum $30–$60 tiers, T‑Mobile discounted credits), with standard rates often higher after promo periods.",
+     "evidence_ids": [
+      "EV-f536aad1",
+      "EV-83e823a3",
+      "EV-f22ef459"
+     ],
+     "basis": "evidence"
+    },
+    "wire3_relevant_fact": {
+     "value": "Wire3's public messaging emphasizes transparent pricing and no hidden fees for local businesses, but specific consumer retail price tiers were not available in the collected evidence.",
+     "evidence_ids": [
+      "EV-e3110146",
+      "EV-beca7d7f"
+     ],
+     "basis": "evidence"
+    }
+   },
+   "place": {
+    "market_description": {
+     "value": "Availability varies by technology: cable/HFC (Spectrum) covers broad footprints; AT&T and Quantum/other regional fiber offer fiber to select neighborhoods; T‑Mobile's fixed wireless reaches large areas quickly where wireless coverage exists.",
+     "evidence_ids": [
+      "EV-a5e160fb",
+      "EV-6016b158",
+      "EV-e87def7d",
+      "EV-9640aba4"
+     ],
+     "basis": "evidence"
+    },
+    "wire3_relevant_fact": {
+     "value": "Wire3 is expanding fiber builds in Space Coast and Central Florida communities (e.g., Merritt Island announcement).",
+     "evidence_ids": [
+      "EV-971de517"
+     ],
+     "basis": "evidence"
+    }
+   },
+   "promotion": {
+    "market_description": {
+     "value": "Promotions include first-year discounts, bundled mobile/TV credits, mail-in rebates and bill‑credit offers; providers use these to lower initial acquisition cost while standard rates apply after the promo period.",
+     "evidence_ids": [
+      "EV-f536aad1",
+      "EV-83e823a3",
+      "EV-f22ef459"
+     ],
+     "basis": "evidence"
+    },
+    "wire3_relevant_fact": {
+     "value": "Wire3's available marketing highlights reliability and local service rather than national-style loss‑leader promotions.",
+     "evidence_ids": [
+      "EV-e3110146",
+      "EV-beca7d7f"
+     ],
+     "basis": "evidence"
+    }
+   },
+   "people": {
+    "market_description": {
+     "value": "Customer experience channels include in‑region technician teams, national call centers, retail stores, and online support; local presence is marketed as a differentiator by regional ISPs.",
+     "evidence_ids": [
+      "EV-c6448697",
+      "EV-beca7d7f",
+      "EV-ad8e4713"
+     ],
+     "basis": "evidence"
+    },
+    "wire3_relevant_fact": {
+     "value": "Wire3 highlights Florida/Georgia based support staff and local technicians as a service differentiator for small businesses.",
+     "evidence_ids": [
+      "EV-beca7d7f",
+      "EV-267cec38"
+     ],
+     "basis": "evidence"
+    }
+   },
+   "process": {
+    "market_description": {
+     "value": "Installation and provisioning options range from self‑install gateways (T‑Mobile) to scheduled professional fiber installs (AT&T/Quantum); billing and promotional credit processes vary and are often subject to eligibility conditions.",
+     "evidence_ids": [
+      "EV-c326c27b",
+      "EV-6016b158",
+      "EV-f22ef459"
+     ],
+     "basis": "evidence"
+    },
+    "wire3_relevant_fact": {
+     "value": "Wire3 describes rapid local response and professional scheduling for installations and service calls to minimize business disruption.",
+     "evidence_ids": [
+      "EV-beca7d7f"
+     ],
+     "basis": "evidence"
+    }
+   },
+   "physical_evidence": {
+    "market_description": {
+     "value": "Physical evidence in the market includes fiber plant builds, retail stores and local service vehicles; providers advertise gateway hardware included with plans and occasionally Wi‑Fi 6/7 gateways for higher tiers.",
+     "evidence_ids": [
+      "EV-e87def7d",
+      "EV-5e023b91",
+      "EV-72ac3a1c"
+     ],
+     "basis": "evidence"
+    },
+    "wire3_relevant_fact": {
+     "value": "Wire3 promotes '100% fiber' builds to neighborhoods and local technicians who can visit customer premises for installs.",
+     "evidence_ids": [
+      "EV-971de517",
+      "EV-e3110146"
+     ],
+     "basis": "evidence"
+    }
+   }
+  },
+  "assumptions_unknowns_conflicts": {
+   "assumptions": [
+    {
+     "id": "ASM-1",
+     "statement": "Where numeric post-promo rates were not published on vendor pages, post-promo monthly prices were inferred from regional standard pricing ranges noted in industry summaries.",
+     "rationale": "Several company pages mention promotional periods but do not publish standardized post-promo prices for the specific local market in the supplied evidence set.",
+     "evidence_ids": [
+      "EV-f536aad1",
+      "EV-83e823a3",
+      "EV-d7f269af"
+     ]
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "UNK-1",
+     "research_question_id": "RQ7",
+     "description": "Exact top advertised downstream/upstream speeds for Wire3 at specific Ocala/Space Coast addresses were not stated in the collected evidence; placeholder symmetric 1000 Mbps used as a regional-fiber plausible estimate.",
+     "reason_unresolved": "Public Wire3 pages in the evidence set describe 100% fiber expansion but do not list specific maximum speed tiers for consumer plans in the provided excerpts."
+    }
+   ],
+   "conflicts": []
+  }
+ }
+}

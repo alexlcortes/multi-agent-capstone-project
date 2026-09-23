@@ -48,7 +48,7 @@ uv run python -m wire3_gtm snapshot RUN_ID      # re-validate a run's Strategy o
 `runs/` is gitignored. A snapshot is the committed copy of one validated Strategy output: its inputs (plan, evidence, Analyst artifact), `strategy.md`, and `snapshot.json` with the checks passed and a sha256 per file. `wire3_gtm.snapshot.load_snapshot()` refuses edited files, and `tests/test_snapshot.py` builds and verifies the full document from every committed snapshot, with no Google connection.
 
 A run takes roughly 8–12 minutes and, at the pricing in `wire3_gtm/run_log.py`, costs well under the $2.50 budget
-in LLM tokens (search-provider fees are not included). The brief is `brief.json`.
+in LLM tokens (search-provider fees are not included). The brief is the repo-root `../brief.json`, shared with n8n.
 
 ## What a run leaves behind
 

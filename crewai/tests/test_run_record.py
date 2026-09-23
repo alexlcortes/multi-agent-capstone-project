@@ -52,7 +52,7 @@ def test_n8n_builder_matches_the_schema_for_every_logged_run():
 
 @needs_node
 def test_brief_id_is_the_same_in_python_and_javascript():
-    for brief in (json.loads((REPO / "crewai" / "brief.json").read_text()),
+    for brief in (json.loads((REPO / "brief.json").read_text()),
                   {"b": [1, 2.5, None, True], "a": {"z": "Ocala — FL ✓", "y": []}}):
         js = node(f"console.log(require('./scripts/run_record').briefId({json.dumps(brief)}))").strip()
         assert js == brief_id(brief)
@@ -79,3 +79,19 @@ def test_a_failed_run_keeps_its_error_and_failed_step():
     rec = build(failed, None)
     assert rec["status"] == "failed" and rec["failed_step"] and rec["errors"]
     assert rec["brief_id"] is None and errors(rec) == []
+
+
+def test_both_implementations_read_the_one_shared_brief():
+    from wire3_gtm.pipeline import BRIEF_PATH
+
+    assert BRIEF_PATH == REPO / "brief.json"
+    script = (REPO / "n8n" / "scripts" / "run_pipeline.js").read_text()
+    assert "path.resolve(__dirname, '..', '..', 'brief.json')" in script
+    assert not (REPO / "crewai" / "brief.json").exists()
+
+
+@needs_node
+def test_n8n_evidence_gate_repairs_invented_ids():
+    """Runs the deployed n8n gate code (from the workflow JSON) against execution 28's real Analyst output."""
+    r = subprocess.run(["node", "scripts/test_evidence_gate.js"], cwd=REPO / "n8n", capture_output=True, text=True)
+    assert r.returncode == 0, r.stdout + r.stderr
