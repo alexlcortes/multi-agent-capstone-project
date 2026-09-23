@@ -390,6 +390,7 @@ def _finish(store: RunStore, monitor: RunMonitor, error: BaseException | None) -
             analyst_brief_id=analyst.get("brief_id") if analyst else None, error=error)
         monitor.event("run_complete", **rc)
         usage = monitor.usage_summary(rc["status"])
+        store.save_json("06_run_record.json", monitor.run_record(_load(store, "00_brief.json")))
         store.save_json("06_run_complete.json", rc)
         store.save_text("06_run_summary.txt", format_summary(rc, usage) + "\n")
     except Exception as exc:  # noqa: BLE001 -- logging must not hide the real failure

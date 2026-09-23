@@ -11,7 +11,8 @@
 //   node scripts/run_usage.js 24           # a specific execution id
 //   node scripts/run_usage.js 24 --dry-run # print only, do not append to logs/runs.jsonl
 //
-// Appends one `usage_summary` event to logs/runs.jsonl (skipped if that execution already has one).
+// Appends one `usage_summary` event to logs/runs.jsonl (skipped if that execution already has one), then the
+// run's `run_record` (scripts/run_record.js).
 // Requires the `sqlite3` CLI (preinstalled on macOS) and n8n's own `flatted` package.
 
 const fs = require('fs');
@@ -151,4 +152,8 @@ if (dryRun) {
     fs.appendFileSync(RUNS_LOG, JSON.stringify({ ts: new Date().toISOString(), implementation: 'n8n', ...event }) + '\n');
     console.log('Appended usage_summary to logs/runs.jsonl');
   }
+  // the run's comparable summary (schemas/run_record.schema.json); needs usage_summary, so it goes last
+  const webhook = runData.Webhook && runData.Webhook[0].data.main[0][0].json;
+  const written = require('./run_record').appendFor(event.client_run_id, { briefFor: () => (webhook ? webhook.body : null) });
+  console.log(written.length ? 'Appended run_record to logs/runs.jsonl' : 'run_record already in logs/runs.jsonl -- not appended again.');
 }

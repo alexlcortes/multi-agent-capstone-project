@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wire3-capstone.local/schemas/run_record.schema.json",
+  "title": "RunRecord",
+  "description": "One comparable summary per pipeline run, appended as an event_type 'run_record' line to <implementation>/logs/runs.jsonl. Derived only from that run's own events (and, for n8n, its stored execution); the event lines stay the detailed trace. A value an implementation cannot measure is null and named in not_measured, never 0. See run_record.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "event_type", "ts", "implementation", "run_id", "brief_id", "planner_run_id",
+               "started_at", "ended_at", "duration_ms", "status", "failed_step", "errors", "issues",
+               "model", "provider", "search_provider", "agents", "tools", "retries", "tokens", "cost",
+               "research", "evidence", "links", "document", "budget", "not_measured"],
+  "$defs": {
+    "count": {"type": ["integer", "null"], "minimum": 0},
+    "usd": {"type": ["number", "null"], "minimum": 0},
+    "ts": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"}
+  },
+  "properties": {
+    "schema_version": {"const": 1},
+    "event_type": {"const": "run_record"},
+    "ts": {"$ref": "#/$defs/ts", "description": "When this record was written."},
+    "implementation": {"enum": ["n8n", "crewai"]},
+    "run_id": {"type": "string", "minLength": 1, "description": "Unique per execution: the client_run_id every event of the run carries."},
+    "brief_id": {"type": ["string", "null"], "pattern": "^brief-[0-9a-f]{12}$", "description": "'brief-' + first 12 hex of sha256 over the brief input as canonical JSON (keys sorted, no whitespace, UTF-8). Same brief, same id, in both implementations."},
+    "planner_run_id": {"type": ["string", "null"], "description": "The run_id the Head Planner wrote into its plan (and the artifacts' brief_id field). LLM-chosen, so not comparable across runs."},
+    "started_at": {"$ref": "#/$defs/ts"},
+    "ended_at": {"$ref": "#/$defs/ts"},
+    "duration_ms": {"$ref": "#/$defs/count"},
+    "status": {"enum": ["success", "degraded", "failed", "stopped_budget"]},
+    "failed_step": {"type": ["string", "null"]},
+    "errors": {
+      "type": "array",
+      "items": {"type": "object", "additionalProperties": false, "required": ["event_type", "node", "message"],
+                "properties": {"event_type": {"type": "string"}, "node": {"type": ["string", "null"]}, "message": {"type": "string"}}}
+    },
+    "issues": {"type": "array", "items": {"type": "string"}},
+    "model": {"type": ["string", "null"]},
+    "provider": {"type": ["string", "null"], "description": "LLM provider."},
+    "search_provider": {"type": ["string", "null"], "description": "Search backend behind the MCP research tools (tavily | serpapi)."},
+    "agents": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["agent", "status", "started_at", "ended_at", "duration_ms", "llm_calls", "prompt_tokens",
+                     "completion_tokens", "reasoning_tokens", "cost_usd", "retries", "error"],
+        "properties": {
+          "agent": {"enum": ["Head Planner", "Research Agent", "Analyst Agent", "Strategy Agent", "Docs Writer"]},
+          "status": {"type": ["string", "null"]},
+          "started_at": {"$ref": "#/$defs/ts"}, "ended_at": {"$ref": "#/$defs/ts"},
+          "duration_ms": {"$ref": "#/$defs/count"},
+          "llm_calls": {"$ref": "#/$defs/count"},
+          "prompt_tokens": {"$ref": "#/$defs/count"}, "completion_tokens": {"$ref": "#/$defs/count"},
+          "reasoning_tokens": {"$ref": "#/$defs/count"},
+          "cost_usd": {"$ref": "#/$defs/usd"},
+          "retries": {"$ref": "#/$defs/count"},
+          "error": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "tools": {
+      "type": "object", "additionalProperties": false,
+      "required": ["planned", "executed", "failed", "retried", "by_tool"],
+      "properties": {
+        "planned": {"$ref": "#/$defs/count"}, "executed": {"$ref": "#/$defs/count"},
+        "failed": {"$ref": "#/$defs/count"}, "retried": {"$ref": "#/$defs/count"},
+        "by_tool": {"type": "object", "description": "MCP tool name (without any n8n node prefix) -> {calls, errors}.",
+                    "additionalProperties": {"type": "object", "additionalProperties": false, "required": ["calls", "errors"],
+                                             "properties": {"calls": {"type": "integer"}, "errors": {"type": "integer"}}}}
+      }
+    },
+    "retries": {
+      "type": "object", "additionalProperties": false,
+      "required": ["total", "tool_call", "guardrail", "provider", "basis"],
+      "properties": {
+        "total": {"$ref": "#/$defs/count"},
+        "tool_call": {"$ref": "#/$defs/count"},
+        "guardrail": {"$ref": "#/$defs/count", "description": "Rejected-output re-prompts."},
+        "provider": {"$ref": "#/$defs/count", "description": "LLM API retries (e.g. HTTP 429)."},
+        "basis": {"enum": ["counted", "approximate"]}
+      }
+    },
+    "tokens": {
+      "type": "object", "additionalProperties": false,
+      "required": ["prompt", "completion", "reasoning", "cached_prompt", "source"],
+      "properties": {
+        "prompt": {"$ref": "#/$defs/count"}, "completion": {"$ref": "#/$defs/count"},
+        "reasoning": {"$ref": "#/$defs/count"}, "cached_prompt": {"$ref": "#/$defs/count"},
+        "source": {"enum": ["provider_reported", "estimated", "unavailable"]}
+      }
+    },
+    "cost": {
+      "type": "object", "additionalProperties": false,
+      "required": ["estimated_llm_usd", "is_lower_bound", "excludes"],
+      "properties": {
+        "estimated_llm_usd": {"$ref": "#/$defs/usd"},
+        "is_lower_bound": {"type": ["boolean", "null"]},
+        "excludes": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "research": {
+      "type": "object", "additionalProperties": false,
+      "required": ["questions_total", "questions_answered"],
+      "properties": {"questions_total": {"$ref": "#/$defs/count"}, "questions_answered": {"$ref": "#/$defs/count"}}
+    },
+    "evidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["records", "coverage_percent"],
+      "properties": {"records": {"$ref": "#/$defs/count"},
+                     "coverage_percent": {"type": ["number", "null"], "minimum": 0, "maximum": 100}}
+    },
+    "links": {
+      "type": "object", "additionalProperties": false,
+      "required": ["checked", "broken", "invalid", "blocked", "unverified"],
+      "properties": {
+        "checked": {"$ref": "#/$defs/count", "description": "Distinct cited URLs requested over HTTP."},
+        "broken": {"$ref": "#/$defs/count"},
+        "invalid": {"$ref": "#/$defs/count", "description": "Malformed URLs (format check only)."},
+        "blocked": {"$ref": "#/$defs/count"}, "unverified": {"$ref": "#/$defs/count"}
+      }
+    },
+    "document": {
+      "type": "object", "additionalProperties": false,
+      "required": ["write_status", "verified", "url", "sections", "sources_cited"],
+      "properties": {
+        "write_status": {"enum": ["verified", "local_only", "placeholder", "failed", "not_run"]},
+        "verified": {"type": "boolean", "description": "The post-write read-back check passed."},
+        "url": {"type": ["string", "null"]},
+        "sections": {"$ref": "#/$defs/count"},
+        "sources_cited": {"$ref": "#/$defs/count", "description": "Evidence ids listed in the document's source appendix."}
+      }
+    },
+    "budget": {
+      "type": "object", "additionalProperties": false,
+      "required": ["max_cost_usd", "max_search_calls", "max_wall_clock_minutes", "search_calls", "within_latency", "within_cost", "within_search_calls"],
+      "properties": {
+        "max_cost_usd": {"$ref": "#/$defs/usd"}, "max_search_calls": {"$ref": "#/$defs/count"},
+        "max_wall_clock_minutes": {"type": ["number", "null"]},
+        "search_calls": {"$ref": "#/$defs/count"},
+        "within_latency": {"type": ["boolean", "null"]}, "within_cost": {"type": ["boolean", "null"]},
+        "within_search_calls": {"type": ["boolean", "null"]}
+      }
+    },
+    "not_measured": {
+      "type": "object", "description": "Dotted path of every null that means 'this implementation cannot measure it' -> why.",
+      "additionalProperties": {"type": "string"}
+    }
+  }
+}

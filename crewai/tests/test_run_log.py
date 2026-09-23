@@ -196,14 +196,17 @@ def test_successful_run_writes_the_full_record(tmp_path, valid, strategy):
     go()
     ev = events_of(tmp_path)
     kinds = [e["event_type"] for e in ev]
-    assert kinds[0] == "pipeline_start" and kinds[-2:] == ["run_complete", "usage_summary"]
+    assert kinds[0] == "pipeline_start" and kinds[-3:] == ["run_complete", "usage_summary", "run_record"]
     assert {"tool_call", "validation_gate"} <= set(kinds) or "validation_gate" in kinds
     rc = next(e for e in ev if e["event_type"] == "run_complete")
     assert rc["implementation"] == "crewai" and rc["status"] == "success" and rc["error"] is None
     assert rc["research_questions_answered"] == 1 and rc["research_questions_total"] == 1
     assert rc["evidence_count"] == 1 and rc["broken_url_count"] == 0 and rc["document_write_status"] == "not_run"
     assert rc["brief_id"] == "run-1" and rc["model"] == "gpt-5-mini" and rc["latency_within_budget"] is True
-    us = ev[-1]
+    us = ev[-2]
+    rr = ev[-1]
+    assert rr["run_id"] == store.run_id and rr["status"] == "success" and rr["tokens"]["reasoning"] == 300
+    assert (store.dir / "06_run_record.json").exists()
     assert us["cost_is_lower_bound"] is False and us["per_agent"][0]["tokens_source"] == "provider_reported"
     assert (store.dir / "06_run_summary.txt").exists() and (store.dir / "06_run_complete.json").exists()
     assert "status: SUCCESS" in format_summary(rc, us)

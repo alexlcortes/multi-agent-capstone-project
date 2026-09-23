@@ -131,6 +131,18 @@ class RunMonitor:
                 f.write(json.dumps(rec, default=str) + "\n")
         return rec
 
+    def run_record(self, brief: dict | None) -> dict:
+        """The run's comparable summary (schemas/run_record.schema.json), built
+        from the events this run wrote; call after run_complete + usage_summary."""
+        from wire3_gtm.run_record import build, events_by_run
+
+        with self.lock:
+            events = events_by_run(self.log_path.read_text()).get(self.store.run_id, [])
+            rec = build(events, brief)
+            with self.log_path.open("a") as f:
+                f.write(json.dumps(rec, default=str) + "\n")
+        return rec
+
     # --- clock and budget -------------------------------------------------
     def elapsed_s(self) -> float:
         return self.clock() - self.t0

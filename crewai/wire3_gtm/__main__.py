@@ -9,6 +9,7 @@ uv run python -m wire3_gtm docs RUN_ID     # Docs Writer, local Markdown only (n
 uv run python -m wire3_gtm docs RUN_ID --google   # also create, verify and export the Google Doc
 uv run python -m wire3_gtm google-auth     # one-time Google consent (opens a browser)
 uv run python -m wire3_gtm snapshot RUN_ID  # save a validated Strategy output to snapshots/RUN_ID (no Google)
+uv run python -m wire3_gtm run-records     # add a run_record to every logged run that lacks one
 """
 
 import sys
@@ -66,6 +67,19 @@ def main() -> None:
         if not (RUNS_DIR / sys.argv[2]).is_dir():  # RunStore() would create an empty run
             raise SystemExit(f"no run {sys.argv[2]} in {RUNS_DIR}")
         print("Snapshot saved to", export_snapshot(RunStore(sys.argv[2])))
+        return
+    if sys.argv[1:2] == ["run-records"]:
+        import json
+
+        from wire3_gtm.run_log import LOG_PATH
+        from wire3_gtm.run_record import backfill
+        from wire3_gtm.run_store import RUNS_DIR
+
+        def brief_for(cid):
+            p = RUNS_DIR / cid / "00_brief.json"
+            return json.loads(p.read_text()) if p.exists() else None
+
+        print("run_record added for:", backfill(LOG_PATH, brief_for) or "none (all runs have one)")
         return
     if sys.argv[1:2] == ["docs"]:
         from wire3_gtm.pipeline import run_docs
