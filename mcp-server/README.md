@@ -86,7 +86,9 @@ uv run python -m pytest tests -q     # 77 tests, offline: the provider is mocked
 
 `tests/test_tools.py` covers the tools, the result shape and the error paths (blank input, missing key,
 unknown provider, provider failure). `tests/test_cache.py` covers hits, TTL expiry and the rule that errors
-and empty answers are not cached. `tests/test_boundaries.py` covers input edge cases.
+and empty answers are not cached. `tests/test_boundaries.py` covers what the providers send back: normalizing both
+providers' results, honouring `max_results`, empty and malformed payloads, bad dates, readable errors that never
+leak an API key, and `validate_source` reporting every status and network failure without raising.
 
 `health_check.py` is a **live** end-to-end check: it calls every tool once against the real provider
 (`max_results=1`). It uses real search credits, so run it by hand, not in CI:
