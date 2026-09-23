@@ -18,8 +18,10 @@ function runNode(name, input, nodes) {
   process.chdir(fs.mkdtempSync(path.join(os.tmpdir(), 'research-gate-'))); // the node appends to ./logs/runs.jsonl
   try {
     const $ = (n) => ({ first: () => ({ json: nodes[n] }) });
-    const $input = { first: () => ({ json: input }) };
-    return new Function('$', '$input', 'require', codeOf(name))($, $input, require)[0].json;
+    const inputs = Array.isArray(input) ? input : [input];
+    const $input = { first: () => ({ json: inputs[0] }), all: () => inputs.map((json) => ({ json })) };
+    const out = new Function('$', '$input', 'require', codeOf(name))($, $input, require);
+    return Array.isArray(input) || name === 'Split Plan by Company' ? out.map((o) => o.json) : out[0].json;
   } finally {
     process.chdir(cwd);
   }
@@ -77,6 +79,35 @@ const firstOnly = runNode('Build Evidence Records', { intermediateSteps: fx.inte
 check('evidence equals the 13 planned calls run once',
   JSON.stringify(out.evidence.map((e) => e.evidence_id)) === JSON.stringify(firstOnly.evidence.map((e) => e.evidence_id)),
   `${out.evidence.length} vs ${firstOnly.evidence.length} records`);
+
+// --- research one company at a time -----------------------------------------------------------------
+const batches = runNode('Split Plan by Company', { output: fixed, _client_run_id: 'test' }, baseNodes);
+const companies = batches.map((b) => b.output.planned_tool_calls[0].args.company_name);
+check('split: one batch per company, Wire3 first', companies[0] === 'Wire3' && new Set(companies).size === batches.length
+  && batches.length === 4, JSON.stringify(companies));
+check('split: every planned call lands in exactly one batch',
+  batches.reduce((n, b) => n + b.output.planned_tool_calls.length, 0) === fixed.planned_tool_calls.length);
+check('split: batches carry the run context', batches.every((b) => b._client_run_id === 'test' && b._research_batch.of === 4));
+
+// the agent's steps, as if it had run once per company, merged back by Collect Research Steps
+const company = (st) => String((st.action.toolInput || {}).company_name || '');
+const perCompany = [...new Set(fx.intermediate_steps.slice(0, 13).map(company))]
+  .map((c) => ({ output: `done ${c}`, intermediateSteps: fx.intermediate_steps.slice(0, 13).filter((st) => company(st) === c) }));
+const merged = runNode('Collect Research Steps', perCompany, baseNodes)[0];
+check('collect: every step of every batch is kept', merged.intermediateSteps.length === 13 && merged.research_batches === perCompany.length,
+  `${merged.intermediateSteps.length} steps from ${merged.research_batches} batches`);
+const fromBatches = runNode('Build Evidence Records', { intermediateSteps: merged.intermediateSteps }, evNodes);
+const ids = (o) => JSON.stringify(o.evidence.map((e) => e.evidence_id).sort());
+check('evidence from per-company runs equals one run of the same calls', ids(fromBatches) === ids(firstOnly),
+  `${fromBatches.evidence.length} records`);
+
+const wait = wf.nodes.find((n) => n.name === 'Pause Between Companies').parameters;
+check('pause is 15 seconds, not the node\'s default unit (hours)', wait.amount === 15 && wait.unit === 'seconds');
+const loopOut = wf.connections['Research Loop'].main;
+check('loop wiring: done -> Collect Research Steps, loop -> AI Agent',
+  loopOut[0][0].node === 'Collect Research Steps' && loopOut[1][0].node === 'AI Agent'
+  && wf.connections['AI Agent'].main[0][0].node === 'Pause Between Companies'
+  && wf.connections['Pause Between Companies'].main[0][0].node === 'Research Loop');
 
 console.log(failed ? `\n${failed} check(s) failed` : '\nAll checks passed');
 process.exit(failed ? 1 : 0);

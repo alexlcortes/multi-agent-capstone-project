@@ -89,7 +89,7 @@
         "promptType": "define",
         "text": "={{  JSON.stringify($json.output)  }}",
         "options": {
-          "systemMessage": "You are the Research Agent in a market-research pipeline. You receive a bounded research plan as JSON, containing planned_tool_calls, each with a tool name, args, and the research_question_ids it serves. Execute the plan exactly: for every entry in planned_tool_calls, call the named tool once with exactly the given args. Only call tools that appear in planned_tool_calls, with the exact arguments given. Do not skip any entry, do not add extra calls, and do not substitute a different tool. If a tool call fails, note the failure and continue with the remaining planned calls rather than stopping. After you have attempted every planned call, respond with a short plain-text confirmation only, such as the number of calls completed and any that failed. Do not attempt to summarize or reproduce the tool results yourself, that is handled downstream.",
+          "systemMessage": "You are the Research Agent in a market-research pipeline. You receive a bounded research plan as JSON, containing planned_tool_calls, each with a tool name, args, and the research_question_ids it serves. Execute the plan exactly: for every entry in planned_tool_calls, call the named tool once with exactly the given args. Only call tools that appear in planned_tool_calls, with the exact arguments given. Do not skip any entry, do not add extra calls, and do not substitute a different tool. If a tool call fails, note the failure and continue with the remaining planned calls rather than stopping. You receive one company's share of the plan at a time. Make its calls together, as parallel tool calls in your first response, rather than one call per step: every tool result is re-sent to you on each later step. After you have attempted every planned call, respond with a short plain-text confirmation only, such as the number of calls completed and any that failed. Do not attempt to summarize or reproduce the tool results yourself, that is handled downstream.",
           "maxIterations": 50,
           "returnIntermediateSteps": true
         }
@@ -501,6 +501,61 @@
       ],
       "id": "3cff5e4d-aa7e-4130-b16e-761240c7158d",
       "name": "Verify Document & Log"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Split the accepted plan into one item per company, so the Research Agent runs once per company.\n// n8n's agent keeps every tool result in the model's input: with ~16 calls x 10 results in one agent run,\n// 2026-09-23 runs hit the 500k tokens-per-minute limit (one call per step) or the model's context window\n// (all calls at once). Per company it is 4-5 calls, well inside both limits.\nconst item = $input.first().json;\nconst plan = item.output;\nconst order = [];\nconst groups = new Map();\nfor (const call of plan.planned_tool_calls) {\n  const key = String((call.args || {}).company_name || '').trim();\n  if (!groups.has(key)) { groups.set(key, []); order.push(key); }\n  groups.get(key).push(call);\n}\n// Wire3 first, then the competitors in the brief's order\norder.sort((a, b) => (a.toLowerCase() === 'wire3' ? -1 : b.toLowerCase() === 'wire3' ? 1 : 0));\nreturn order.map((company, i) => ({\n  json: { ...item, output: { ...plan, planned_tool_calls: groups.get(company) }, _research_batch: { company, index: i + 1, of: order.length } },\n}));\n"
+      },
+      "id": "c7c8e5b0-2e27-40fc-aae5-07e45ace4e91",
+      "name": "Split Plan by Company",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "89ae4531-0feb-4393-a8e0-3175fb7aaf40",
+      "name": "Research Loop",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        760,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 15,
+        "unit": "seconds"
+      },
+      "id": "e530518a-3fd3-43fd-bf68-484d04b7134a",
+      "name": "Pause Between Companies",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1000,
+        256
+      ],
+      "webhookId": "3af2f3dc-8aa7-4a9f-af5a-8d8fe392b065"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge the Research Agent's per-company runs back into one item, in the shape Build Evidence Records expects.\nconst items = $input.all().map((i) => i.json);\nreturn [{\n  json: {\n    output: items.map((j) => j.output).filter(Boolean).join('\\n'),\n    intermediateSteps: items.flatMap((j) => j.intermediateSteps || []),\n    research_batches: items.length,\n  },\n}];\n"
+      },
+      "id": "ca8367e6-0782-463f-a99a-faef54efeaa8",
+      "name": "Collect Research Steps",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        -160
+      ]
     }
   ],
   "pinData": {},
@@ -575,7 +630,7 @@
       "main": [
         [
           {
-            "node": "Build Evidence Records",
+            "node": "Pause Between Companies",
             "type": "main",
             "index": 0
           }
@@ -707,7 +762,7 @@
       "main": [
         [
           {
-            "node": "AI Agent",
+            "node": "Split Plan by Company",
             "type": "main",
             "index": 0
           }
@@ -785,6 +840,57 @@
         [
           {
             "node": "Finalize Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Plan by Company": {
+      "main": [
+        [
+          {
+            "node": "Research Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Loop": {
+      "main": [
+        [
+          {
+            "node": "Collect Research Steps",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pause Between Companies": {
+      "main": [
+        [
+          {
+            "node": "Research Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Research Steps": {
+      "main": [
+        [
+          {
+            "node": "Build Evidence Records",
             "type": "main",
             "index": 0
           }

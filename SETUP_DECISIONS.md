@@ -153,3 +153,15 @@ Both implementations were run on the same 8-question brief and budget (n8n via i
 **Decision 5: the plan is enforced in code.** The Research Agent is asked to make every planned call and sometimes does not (it skipped 2 of 15 in one run, which was then reported as success). After the agent finishes, the pipeline runs any planned call with no matching recorded call, through the same wrappers (retries with backoff, the search budget, evidence recording), and marks each one `source: "enforced"` in the tool-call log so the record still shows the agent skipped it. Matching is exact on tool and arguments (ignoring case, a null region and `max_results`); a call with different arguments does not count as the planned one. A recovered skip is listed as an issue but does not degrade the run; a skip that could not be recovered still does. **Caveat:** tested offline (10 tests); the run that followed did not need it (the agent made all 16 calls), so it has not been seen working live.
 
 **Known gaps, not yet fixed:** Strategy once needed a retry because a follow-up question listed an assumption id (`ASM-1`) where only `UNK-n` ids are allowed. With no evidence-cited post-promo price the pricing matrix can carry no post-promo prices at all, which weakens the promo-cliff comparison.
+
+## Comparison changes are logged separately (2026-09-23)
+
+**Decision:** every change made to bring n8n and CrewAI to parity, and every difference found between them,
+is recorded in `eval/COMPARISON_LOG.md` (what differed, evidence, change, reason, effect on earlier numbers,
+and whether it is a finding about the orchestrators or only about our build). This file keeps design decisions
+that are not about the comparison.
+
+**Why:** the 2026-09-23 parity work changed n8n's planner, research, evidence and document steps, and several
+changes were forced by limits of n8n's agent node (rate limit, context window). Without a log, it would not be
+clear which runs compare with which, or which differences belong in the final n8n-vs-CrewAI conclusion.
+

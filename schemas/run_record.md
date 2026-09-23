@@ -41,6 +41,11 @@ One `run_record` line per pipeline run, appended to `<implementation>/logs/runs.
 
 ## Known comparability gaps
 
-1. **The logged n8n runs were given a different brief from CrewAI's** (latest n8n `brief-accbe7aac579` vs CrewAI `brief-d516e1daddfb`). The n8n body had been typed into the editor's test webhook and added `wire3_facts` (fiber, 1000/1000 Mbps, no bundle; not traced to Wire3's public site), research-question priorities and reworded fields. **Fixed going forward:** both implementations now read the repo-root `brief.json` (CrewAI directly; n8n through `n8n/scripts/run_pipeline.js`, which posts the file unchanged), and a test checks that both point at it. A new n8n run is needed before the latest runs of each side share a `brief_id`.
+1. **Resolved 2026-09-23: both implementations now run the same brief.** Earlier n8n runs were given a
+   different brief (`brief-accbe7aac579`, typed into the editor's test webhook) from CrewAI's
+   (`brief-d516e1daddfb`). Both now read the repo-root `brief.json` (n8n through `n8n/scripts/run_pipeline.js`),
+   and every n8n run since execution 32 carries `brief-d516e1daddfb`. Runs of the earlier brief must not be
+   compared with current ones. The n8n workflow also changed substantially on 2026-09-23 (planner rules,
+   per-company research, full document layout): see `eval/COMPARISON_LOG.md` for which runs compare with which.
 2. **Retries, broken links, reasoning tokens and search provider** are measured only by CrewAI (see `not_measured` in each n8n record).
 3. **Cost:** n8n's figure is a lower bound from estimated tokens, and CrewAI's is from provider-reported usage. Neither includes search-provider fees.
