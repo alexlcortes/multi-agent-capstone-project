@@ -50,7 +50,14 @@ class SerpAPIProvider(SearchProvider):
             },
             timeout=15.0,
         )
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            # SerpAPI takes the key as a query parameter and httpx puts the full URL in the
+            # message, which reaches the calling workflow: redact it before it leaves here.
+            raise httpx.HTTPStatusError(
+                str(exc).replace(self._api_key, "***"), request=exc.request, response=exc.response
+            ) from None
         organic_results = response.json().get("organic_results", [])
         return [
             SearchResult(

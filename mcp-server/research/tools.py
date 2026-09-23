@@ -37,7 +37,14 @@ def _run(query: str, max_results: int) -> list[dict]:
     cached = cache.get(provider_name, query, max_results)
     if cached is not None:
         return cached  # original retrieval_timestamp kept; each result marked from_cache
-    provider = get_provider()
+    try:
+        provider = get_provider()
+    except KeyError as exc:
+        # A provider class reads its key in __init__; a bare KeyError would be redacted by the
+        # MCP SDK to "Error executing tool", so name the missing variable instead.
+        raise ToolError(f"search provider {provider_name!r} is not configured: {exc.args[0]} is not set") from exc
+    except ValueError as exc:  # unknown SEARCH_PROVIDER
+        raise ToolError(str(exc)) from exc
     retrieval_timestamp = _retrieval_timestamp()
     try:
         search_results = provider.search(query, max_results=max_results)

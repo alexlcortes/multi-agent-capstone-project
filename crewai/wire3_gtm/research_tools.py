@@ -38,11 +38,16 @@ class RetryPolicy:
 # ("company_name must not be empty") will fail the same way again, so it is not retried.
 _TRANSIENT = ("search provider failed", "timed out", "timeout", "connection", "temporarily",
               "rate limit", "429", "502", "503", "504")
+# A rejected or missing API key fails the same way on every attempt, even though the server
+# reports it as "search provider failed". Checked first, so it is never retried.
+_AUTH = ("401", "403", "unauthorized", "forbidden", "not configured")
 
 
 def is_transient(exc: BaseException) -> bool:
     if isinstance(exc, (ConnectionError, TimeoutError)):
         return True
+    if any(marker in str(exc).lower() for marker in _AUTH):
+        return False
     return any(marker in str(exc).lower() for marker in _TRANSIENT)
 
 

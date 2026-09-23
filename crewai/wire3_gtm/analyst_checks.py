@@ -276,9 +276,11 @@ def make_analyst_guardrail(evidence: list[EvidenceRecord], dropped_log: list | N
             pricing_log.clear()
         raw, repairs = output.raw, []
         try:
-            doc, repairs = repair_pricing(json.loads(output.raw))
-            if repairs:
-                raw = json.dumps(doc)
+            doc = json.loads(output.raw)
+            if isinstance(doc, dict):  # null or a list is not an artifact: strict_or_feedback reports it
+                doc, repairs = repair_pricing(doc)
+                if repairs:
+                    raw = json.dumps(doc)
         except (ValueError, TypeError):
             pass  # not JSON: strict_or_feedback below reports it
         artifact, feedback = strict_or_feedback(AnalystArtifact, output, raw)  # custom rules run here, not in the SDK
