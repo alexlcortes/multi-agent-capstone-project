@@ -87,7 +87,7 @@ const add = (text, style = 'P', extra = {}) => blocks.push({ text, style, ...ext
 const label = (k) => k.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());
 const cite = (f) => {
   const ids = f.supporting_ids || [];
-  const tag = ids.length ? ids.join(', ') : f.basis === 'brief_stated' ? 'brief' : f.basis || 'inference';
+  const tag = f.basis === 'inference' && ids.length ? `inference; ${ids.join(', ')}` : ids.length ? ids.join(', ') : f.basis === 'brief_stated' ? 'brief' : f.basis || 'inference';
   const v = Array.isArray(f.value) ? f.value.join(', ') : String(f.value);
   return `${v} [${tag}]`;
 };

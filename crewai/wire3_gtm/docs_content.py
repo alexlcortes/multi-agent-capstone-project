@@ -96,6 +96,8 @@ def _text(v) -> str:
 def _cite(f: dict) -> str:
     ids = f.get("supporting_ids") if "supporting_ids" in f else f.get("evidence_ids")
     tag = ", ".join(ids) if ids else ("brief" if f["basis"] == "brief_stated" else f["basis"])
+    if ids and f["basis"] == "inference":  # inferred FROM these ids, not stated by them: never show it as sourced
+        tag = f"inference; {tag}"
     return f"{_text(f['value'])} [{tag}]"
 
 

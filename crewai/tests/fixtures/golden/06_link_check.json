@@ -1,0 +1,31 @@
+{
+ "urls_total": 49,
+ "invalid_url_count": 0,
+ "malformed": [],
+ "ok": 33,
+ "blocked": 11,
+ "broken_url_count": 0,
+ "unverified": 5,
+ "unchecked": 0,
+ "unverified_urls": [
+  "https://www.businesswire.com/news/home/20260903873585/en/Wire-3-Makes-Progress-in-Palm-Bay-Reaching-Halfway-Point",
+  "https://www.spectrum.com/locations/internet-wifi-service/ocala-fl-i0926",
+  "https://www.spectrum.com/mobile/plans",
+  "https://www.spectrum.com/packages",
+  "https://www.spectrum.com/packages/best-deals"
+ ],
+ "broken": [],
+ "blocked_urls": [
+  "https://ca.investing.com/news/company-news/tmobile-adds-new-benefits-to-home-and-business-internet-plans-93CH-4140201",
+  "https://downdetector.com/status/wire3",
+  "https://finance.yahoo.com/news/look-landstar-business-model-223001238.html",
+  "https://finance.yahoo.com/sectors/technology/articles/wire-3-launches-summer-offer-130500427.html",
+  "https://ispreports.org/compare-internet-service-providers/t-mobile-home-vs-ocala-fiber",
+  "https://www.allconnect.com/providers/spectrum/spectrum-deals",
+  "https://www.att.com/internet/internet-service-plans",
+  "https://www.att.com/local/cell-phones/florida/ocala",
+  "https://www.att.com/plans/wireless",
+  "https://www.att.com/support/article/wireless/KM1182926",
+  "https://www.att.com/wireless"
+ ]
+}
