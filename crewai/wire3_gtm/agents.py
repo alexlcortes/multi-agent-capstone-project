@@ -3,7 +3,7 @@
 from pathlib import Path
 
 import yaml
-from crewai import Agent
+from crewai import LLM, Agent
 
 CONFIG_DIR = Path(__file__).parent / "config"
 
@@ -19,19 +19,26 @@ MAX_ITER = {"head_planner": 6, "research": 50, "analyst": 6, "strategy": 6}
 
 ROLE_KEYS = ("head_planner", "research", "analyst", "strategy")
 
+# Hard cap on one LLM reply (reasoning tokens included, as OpenAI counts them). The largest measured
+# reply was the Analyst's, ~15k completion tokens; 32k leaves room while bounding what a single runaway
+# call can cost (32k x $2/1M = $0.064 of output). Overridable from the brief's budget.
+DEFAULT_MAX_COMPLETION_TOKENS = 32_000
+
 
 def _load_config() -> dict:
     return yaml.safe_load((CONFIG_DIR / "agents.yaml").read_text())
 
 
-def build_agents(research_tools: list | None = None) -> dict[str, Agent]:
+def build_agents(research_tools: list | None = None,
+                 max_completion_tokens: int | None = None) -> dict[str, Agent]:
     """Return the four agents keyed by role. Only Research gets tools."""
     config = _load_config()
+    llm = LLM(model=MODEL, max_completion_tokens=max_completion_tokens or DEFAULT_MAX_COMPLETION_TOKENS)
     agents = {}
     for key in ROLE_KEYS:
         agents[key] = Agent(
             **config[key],
-            llm=MODEL,
+            llm=llm,
             tools=(research_tools or []) if key == "research" else [],
             allow_delegation=False,
             max_iter=MAX_ITER[key],

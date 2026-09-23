@@ -331,3 +331,33 @@ def test_a_thinly_supported_question_is_listed_but_does_not_degrade_the_run(tmp_
     _finish(store, RunMonitor(store, log_path=tmp_path / "runs2.jsonl"), None)
     rc = json.loads(store.load_text("06_run_complete.json"))
     assert any("thin coverage: RQ4 (2), RQ5 (1)" in i for i in rc["issues"]) and "RQ1" not in " ".join(rc["issues"])
+
+
+# --- hard caps: time/cost stop searches mid-step, token cap, test overrides -------
+
+def test_a_spent_cost_budget_refuses_the_next_search_without_calling_the_provider(tmp_path):
+    tool, collector, monitor, _, calls = setup([GOOD, GOOD], tmp_path)
+    tool.run(company_name="A")
+    monitor.budget.max_cost_usd = 0.001
+    monitor.on_llm_completed("Research Agent", {"prompt_tokens": 10_000, "completion_tokens": 1_000})  # $0.0045
+    out = tool.run(company_name="B")
+    assert "cost budget reached" in out and "Do not make further search calls" in out
+    assert len(calls) == 1 and [c.status for c in collector.calls] == ["ok", "budget_exceeded"]
+    with pytest.raises(BudgetExceeded, match="cost budget reached before the Analyst step"):
+        monitor.check_budget("before the Analyst step")  # the step boundary then stops the run
+
+
+def test_budget_override_parses_types_and_rejects_unknown_fields():
+    b = Budget()
+    assert b.override(["max_cost_usd=0.02", "max_search_calls=3"]) == {"max_cost_usd": 0.02, "max_search_calls": 3}
+    assert isinstance(b.max_search_calls, int) and b.max_cost_usd == 0.02
+    with pytest.raises(ValueError, match="unknown budget field"):
+        b.override(["max_dollars=1"])
+
+
+def test_every_agent_gets_the_completion_token_cap():
+    from wire3_gtm.agents import build_agents
+
+    agents = build_agents(max_completion_tokens=1234)
+    assert {a.llm.max_completion_tokens for a in agents.values()} == {1234}
+    assert {a.llm.max_completion_tokens for a in build_agents().values()} == {Budget().max_completion_tokens_per_call}

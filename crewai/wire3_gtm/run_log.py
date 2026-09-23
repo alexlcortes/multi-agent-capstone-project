@@ -49,9 +49,22 @@ class Budget:
     max_wall_clock_minutes: float = 12
     max_llm_calls_per_role: int = 6  # informational: see SETUP_DECISIONS (Research is exempt)
     max_cost_usd: float = 2.5
+    max_completion_tokens_per_call: int = 32_000  # hard cap on one LLM reply (agents.py)
     # Time to keep in hand after the Analyst for Strategy + link check + document. Measured:
     # Strategy 68-82 s, links ~10 s, docs ~9 s across recorded runs; rounded up.
     reserve_after_analyst_s: float = 100
+
+    def override(self, pairs: list[str]) -> dict[str, float]:
+        """Apply `name=value` overrides (from `run --budget`); returns what changed."""
+        changed = {}
+        for pair in pairs:
+            name, _, value = pair.partition("=")
+            if name not in self.__dataclass_fields__:
+                raise ValueError(f"unknown budget field {name!r}; one of {sorted(self.__dataclass_fields__)}")
+            cast = type(getattr(self, name))
+            setattr(self, name, cast(float(value)) if cast is int else cast(value))
+            changed[name] = getattr(self, name)
+        return changed
 
     @classmethod
     def from_brief(cls, brief: dict) -> "Budget":
@@ -120,6 +133,7 @@ class RunMonitor:
         self.last_attempt_s: dict[str, float] = {}
         self._starts: dict[str, tuple[datetime, Usage]] = {}
         self.role_results: dict[str, dict] = {}
+        self.budget_overrides: dict[str, float] = {}  # set by `run --budget k=v` (test runs)
 
     # --- output -----------------------------------------------------------
     def event(self, event_type: str, **fields) -> dict:
@@ -151,16 +165,22 @@ class RunMonitor:
         with self.lock:
             return sum(u.cost_usd() for u in self.usage.values())
 
-    def check_budget(self, where: str) -> None:
-        """Stop, clearly, if a budget limit is reached. Called between steps and
-        after every guardrail rejection, which is where runaway time and cost come from."""
-        limit_s = self.budget.max_wall_clock_minutes * 60
-        if self.elapsed_s() > limit_s:
-            raise BudgetExceeded(f"wall-clock budget reached {where}: {self.elapsed_s() / 60:.1f} min elapsed, "
-                                 f"limit {self.budget.max_wall_clock_minutes} min")
+    def stop_reason(self) -> str | None:
+        """Why the run must stop now (time or cost limit reached), or None."""
+        if self.elapsed_s() > self.budget.max_wall_clock_minutes * 60:
+            return (f"wall-clock budget reached: {self.elapsed_s() / 60:.1f} min elapsed, "
+                    f"limit {self.budget.max_wall_clock_minutes} min")
         if self.cost_usd() > self.budget.max_cost_usd:
-            raise BudgetExceeded(f"cost budget reached {where}: ${self.cost_usd():.3f} spent, "
-                                 f"limit ${self.budget.max_cost_usd}")
+            return f"cost budget reached: ${self.cost_usd():.3f} spent, limit ${self.budget.max_cost_usd}"
+        return None
+
+    def check_budget(self, where: str) -> None:
+        """Stop, clearly, if a budget limit is reached. Called between steps, after every
+        guardrail rejection, and (through the search wrapper) before every search call."""
+        reason = self.stop_reason()
+        if reason:
+            head, tail = reason.split(":", 1)
+            raise BudgetExceeded(f"{head} {where}:{tail}")
 
     def attempt_seconds(self, role: str) -> float:
         """Seconds since this role's previous attempt ended (or its task started), i.e. how long the

@@ -166,7 +166,8 @@ if (dryRun) {
     const startedAt = init && init._pipeline_started_at;
     fs.appendFileSync(RUNS_LOG, JSON.stringify({
       ts: exec.stoppedAt || new Date().toISOString(), implementation: 'n8n', event_type: 'run_complete',
-      client_run_id: event.client_run_id, run_id: event.run_id, node: 'scripts/run_usage.js', status: 'failed',
+      client_run_id: event.client_run_id, run_id: event.run_id, node: 'scripts/run_usage.js',
+      status: String(err.message || '').startsWith('BUDGET:') ? 'stopped_budget' : 'failed',
       failed_step: exec.data.resultData.lastNodeExecuted || null, error: String(err.message || exec.status).slice(0, 500),
       duration_ms: startedAt && exec.stoppedAt ? new Date(exec.stoppedAt) - new Date(startedAt) : null,
       model: 'gpt-5-mini', provider: 'openai',
@@ -176,9 +177,12 @@ if (dryRun) {
       tool_calls_planned: evidence ? evidence.tool_calls_planned : null, tool_calls_executed: evidence ? evidence.tool_calls_executed : null,
       document_write_status: 'not_run', document_url: null,
       budget_max_wall_clock_minutes: budget.max_wall_clock_minutes ?? null, budget_max_search_calls: budget.max_search_calls ?? null,
-      budget_max_cost_usd: budget.max_cost_usd ?? null, issues: [],
+      budget_max_cost_usd: budget.max_cost_usd ?? null,
+      // Finalize Run never ran, so add the override note it would have written: a test stop must not pass as a real one
+      issues: Object.entries((runData.Webhook && runData.Webhook[0].data.main[0][0].json.query) || {})
+        .filter(([k]) => k.startsWith('budget_')).map(([k, v]) => `budget overridden for this run: ${k.slice(7)}=${v}`),
     }) + '\n');
-    console.log(`Execution ${exec.id} failed at ${exec.data.resultData.lastNodeExecuted}: appended run_complete (status failed)`);
+    console.log(`Execution ${exec.id} ${String(err.message || '').startsWith('BUDGET:') ? 'stopped by a budget limit' : 'failed'} at ${exec.data.resultData.lastNodeExecuted}: appended run_complete`);
   }
   // the run's comparable summary (schemas/run_record.schema.json); needs usage_summary, so it goes last
   const webhook = runData.Webhook && runData.Webhook[0].data.main[0][0].json;

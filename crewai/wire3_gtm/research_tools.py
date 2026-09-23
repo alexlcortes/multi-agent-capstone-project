@@ -71,6 +71,11 @@ def _recording(inner: BaseTool, collector: EvidenceCollector, monitor=None,
             t0, errors, attempts = time.time(), [], 0
             ms = lambda: int((time.time() - t0) * 1000)  # noqa: E731
             while attempts < policy.max_attempts:
+                stop = monitor.stop_reason() if monitor is not None else None
+                if stop:  # time or cost spent: refuse, and the step boundary after Research raises
+                    collector.record(inner.name, kwargs, None, error=stop, attempts=attempts, duration_ms=ms(),
+                                     attempt_errors=errors, status="budget_exceeded")
+                    return f"TOOL ERROR: {stop}. Do not make further search calls."
                 if monitor is not None and not monitor.take_search_slot():
                     msg = f"search budget exhausted ({monitor.budget.max_search_calls} calls)"
                     collector.record(inner.name, kwargs, None, error=msg, attempts=attempts, duration_ms=ms(),

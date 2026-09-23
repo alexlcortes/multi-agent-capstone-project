@@ -62,6 +62,12 @@ def build_run_complete(monitor: RunMonitor, store: RunStore, *, plan=None, evide
     if monitor.cost_usd() > monitor.budget.max_cost_usd:
         issues.append(f"cost ${monitor.cost_usd():.3f} is over the ${monitor.budget.max_cost_usd} budget"); degraded = True
 
+    mix = (strategy_report or {}).get("basis_mix") or {}
+    if mix.get("inference"):  # allowed, but never silent: each is marked [inference] in the document too
+        issues.append(f"{mix['inference']} of {sum(mix.values())} strategy claims have no source (basis inference)")
+    if monitor.budget_overrides:  # a test run with tightened limits: never mistaken for a normal one
+        issues.append("budget overridden for this run: " + ", ".join(f"{k}={v}" for k, v in monitor.budget_overrides.items()))
+        degraded = True
     if error is None:
         status = "degraded" if degraded else "success"
     elif isinstance(error, BudgetExceeded):

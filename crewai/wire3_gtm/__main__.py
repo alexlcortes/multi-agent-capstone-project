@@ -1,6 +1,7 @@
 """uv run python -m wire3_gtm            # list agents and tasks (no LLM calls)
 uv run python -m wire3_gtm run          # full pipeline, artifacts kept in runs/<run_id>/
 uv run python -m wire3_gtm run --docs google   # ...then write and verify the Google Doc (or --docs local)
+uv run python -m wire3_gtm run --budget max_cost_usd=0.02   # test a cap: tighter limit for this run only
 uv run python -m wire3_gtm run RUN_ID   # resume: finished steps are loaded from disk
 uv run python -m wire3_gtm compare      # latest n8n vs CrewAI run, side by side
 uv run python -m wire3_gtm salvage RUN_ID  # recover a failed Analyst step from its saved drafts
@@ -23,13 +24,22 @@ def main() -> None:
         from wire3_gtm.pipeline import load_brief, run_pipeline
         from wire3_gtm.run_store import RunStore
 
+        from wire3_gtm.run_log import Budget, RunMonitor
+
         args = sys.argv[2:]
+        valued = {"--docs", "--budget"}
         docs = args[args.index("--docs") + 1] if "--docs" in args else None
-        positional = [a for i, a in enumerate(args) if not a.startswith("--") and (i == 0 or args[i - 1] != "--docs")]
+        overrides = [args[i + 1] for i, a in enumerate(args) if a == "--budget"]
+        positional = [a for i, a in enumerate(args) if not a.startswith("--") and (i == 0 or args[i - 1] not in valued)]
         store = RunStore(positional[0] if positional else None)
+        brief = load_brief()
+        monitor = RunMonitor(store, Budget.from_brief(brief))
+        monitor.budget_overrides = monitor.budget.override(overrides)
+        if monitor.budget_overrides:
+            print("Budget overridden for this run:", monitor.budget_overrides)
         print(f"Run {store.run_id}: artifacts are saved as each step finishes in {store.dir}")
         try:
-            result = run_pipeline(load_brief(), store=store, docs=docs)
+            result = run_pipeline(brief, store=store, docs=docs, monitor=monitor)
         except BaseException:
             print(f"\nRun failed; finished steps are kept. Resume with:\n"
                   f"  uv run python -m wire3_gtm run {store.run_id}" + (f" --docs {docs}" if docs else ""), file=sys.stderr)

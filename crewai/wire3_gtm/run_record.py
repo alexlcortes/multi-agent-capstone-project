@@ -69,6 +69,11 @@ def build(events: list[dict], brief: dict | None, now: datetime | None = None) -
 
     errors = [{"event_type": e["event_type"], "node": e.get("node"), "message": str(e.get("error") or e.get("gate") or e["status"])[:500]}
               for e in events if e.get("status") in ("error", "failed") and e["event_type"] != "usage_summary"]
+    if rc.get("error") and not any(x["event_type"] == "run_complete" for x in errors):  # e.g. a budget stop
+        errors.append({"event_type": "run_complete", "node": rc.get("node"), "message": str(rc["error"])[:500]})
+    grounding = _one(events, "validation_gate", gate="strategy_grounding") or {}
+    mix = grounding.get("basis_mix") or {}
+    total = sum(mix.values())
     links_ran = rc.get("broken_url_count") is not None
     doc = _one(events, "document_write") or {}
     write_status = DOC_STATUS.get(rc.get("document_write_status"), "failed")
@@ -88,7 +93,10 @@ def build(events: list[dict], brief: dict | None, now: datetime | None = None) -
         "model": rc.get("model"), "provider": rc.get("provider"), "search_provider": preflight.get("active_provider"),
         "agents": agents,
         "tools": {"planned": rc.get("tool_calls_planned"), "executed": rc.get("tool_calls_executed"),
-                  "failed": rc.get("tool_calls_failed"), "retried": rc.get("tool_calls_retried"), "by_tool": by_tool},
+                  "failed": rc.get("tool_calls_failed"), "retried": rc.get("tool_calls_retried"),
+                  "cache_hits": sum(1 for e in events if e["event_type"] == "tool_call" and e.get("from_cache"))
+                  if any("from_cache" in e for e in events if e["event_type"] == "tool_call") else None,
+                  "by_tool": by_tool},
         "retries": {"total": retries.get("total"), "tool_call": retries.get("tool_call_retries"),
                     "guardrail": _sum((retries.get("guardrail_retries") or {}).values()) or 0,
                     "provider": retries.get("provider_retries"), "basis": "counted"},
@@ -112,6 +120,9 @@ def build(events: list[dict], brief: dict | None, now: datetime | None = None) -
                    "within_latency": duration <= max_min * 60_000 if duration is not None and max_min else None,
                    "within_cost": cost <= rc["budget_max_cost_usd"] if cost is not None and rc.get("budget_max_cost_usd") else None,
                    "within_search_calls": search <= max_search if search is not None and max_search else None},
+        "claims": {"evidence": mix.get("evidence") if mix else None, "brief_stated": mix.get("brief_stated") if mix else None,
+                   "inference": mix.get("inference") if mix else None,
+                   "uncited_share": round(mix.get("inference", 0) / total, 3) if total else None},
         "not_measured": {},
     }
 

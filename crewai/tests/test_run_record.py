@@ -95,3 +95,19 @@ def test_n8n_evidence_gate_repairs_invented_ids():
     """Runs the deployed n8n gate code (from the workflow JSON) against execution 28's real Analyst output."""
     r = subprocess.run(["node", "scripts/test_evidence_gate.js"], cwd=REPO / "n8n", capture_output=True, text=True)
     assert r.returncode == 0, r.stdout + r.stderr
+
+
+@needs_node
+def test_n8n_budget_guard_stops_and_every_model_is_token_capped():
+    r = subprocess.run(["node", "scripts/test_budget_guard.js"], cwd=REPO / "n8n", capture_output=True, text=True)
+    assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_a_budget_stop_keeps_its_reason_in_the_record():
+    events = [{"event_type": "pipeline_start", "ts": "2026-09-23T02:56:40.000Z", "client_run_id": "r"},
+              {"event_type": "run_complete", "ts": "2026-09-23T02:58:01.000Z", "client_run_id": "r", "node": "Pipeline",
+               "status": "stopped_budget", "error": "BudgetExceeded: cost budget reached before the Analyst step"}]
+    rec = build(events, None)
+    assert rec["status"] == "stopped_budget" and errors(rec) == []
+    assert rec["errors"] == [{"event_type": "run_complete", "node": "Pipeline",
+                              "message": "BudgetExceeded: cost budget reached before the Analyst step"}]

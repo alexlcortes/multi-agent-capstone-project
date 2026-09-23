@@ -22,6 +22,7 @@ const NOT_MEASURED = {
   'agents[].reasoning_tokens': 'n8n token counts are character estimates of visible text; hidden reasoning tokens are not exposed',
   'agents[].retries': 'n8n stores no per-node attempt counter',
   'tools.retried': 'n8n stores no per-node attempt counter',
+  'tools.cache_hits': "the workflow's tool_call events do not record the MCP server's from_cache flag",
   'retries.total': 'no true retry count; retries.provider is the HTTP 429 count from the server log (approximate)',
   'retries.tool_call': 'n8n stores no per-node attempt counter',
   'retries.guardrail': 'the Structured Output Parser re-prompts internally without logging it',
@@ -88,10 +89,16 @@ function build(events, brief, now = new Date()) {
     byTool[k].errors += t.status !== 'ok' ? 1 : 0;
   }
   const research = last(events, 'agent_end', { agent: 'Research Agent' }) || {};
+  const grounding = last(events, 'validation_gate', { gate: 'strategy_grounding' }) || {};
+  const mix = grounding.basis_distribution || null;
+  const claimTotal = mix ? (mix.evidence || 0) + (mix.brief_stated || 0) + (mix.inference || 0) : 0;
 
   const errors = events
     .filter((e) => ['error', 'failed'].includes(e.status) && e.event_type !== 'usage_summary')
     .map((e) => ({ event_type: e.event_type, node: e.node ?? null, message: String(e.error || e.gate || e.status).slice(0, 500) }));
+  if (rc.error && !errors.some((x) => x.event_type === 'run_complete')) {  // e.g. a budget stop
+    errors.push({ event_type: 'run_complete', node: rc.node ?? null, message: String(rc.error).slice(0, 500) });
+  }
 
   const writeStatus = verify ? (verify.status === 'ok' ? 'verified' : 'failed')
     : placeholder ? 'placeholder' : rc.document_write_status && rc.document_write_status !== 'not_run' ? 'failed' : 'not_run';
@@ -108,7 +115,7 @@ function build(events, brief, now = new Date()) {
     model: rc.model ?? null, provider: rc.provider ?? null, search_provider: null,
     agents,
     tools: { planned: rc.tool_calls_planned ?? null, executed: rc.tool_calls_executed ?? null,
-             failed: research.tool_calls_failed ?? null, retried: null, by_tool: byTool },
+             failed: research.tool_calls_failed ?? null, retried: null, cache_hits: null, by_tool: byTool },
     retries: { total: null, tool_call: null, guardrail: null, provider: rc.rate_limit_errors_logged ?? null, basis: 'approximate' },
     tokens: { prompt: us.total_prompt_tokens ?? null, completion: us.total_completion_tokens ?? null, reasoning: null, cached_prompt: null,
               source: !sources.length ? 'unavailable' : sources.every((s) => s === 'reported') ? 'provider_reported' : 'estimated' },
@@ -123,6 +130,9 @@ function build(events, brief, now = new Date()) {
               within_latency: rc.duration_ms != null && maxMin ? rc.duration_ms <= maxMin * 60000 : null,
               within_cost: cost != null && rc.budget_max_cost_usd ? cost <= rc.budget_max_cost_usd : null,
               within_search_calls: maxSearch ? toolCalls.length <= maxSearch : null },
+    claims: { evidence: mix ? mix.evidence ?? 0 : null, brief_stated: mix ? mix.brief_stated ?? 0 : null,
+              inference: mix ? mix.inference ?? 0 : null,
+              uncited_share: claimTotal ? Math.round(((mix.inference || 0) / claimTotal) * 1000) / 1000 : null },
     not_measured: NOT_MEASURED,
   };
 }

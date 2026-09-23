@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import os
 from datetime import datetime, timezone
 
 import httpx
 from mcp.server.mcpserver.exceptions import ToolError
 
+from . import cache
 from .factory import get_provider
 
 
@@ -31,6 +33,10 @@ def _require(value: str, field_name: str) -> str:
 def _run(query: str, max_results: int) -> list[dict]:
     """Shared call path for all five tools. Only this function touches a
     SearchProvider -- swapping providers never changes any tool below."""
+    provider_name = (os.environ.get("SEARCH_PROVIDER") or "tavily").lower()
+    cached = cache.get(provider_name, query, max_results)
+    if cached is not None:
+        return cached  # original retrieval_timestamp kept; each result marked from_cache
     provider = get_provider()
     retrieval_timestamp = _retrieval_timestamp()
     try:
@@ -41,7 +47,7 @@ def _run(query: str, max_results: int) -> list[dict]:
         # reason to decide whether retrying makes sense -- same ToolError
         # rationale as _require above.
         raise ToolError(f"search provider failed: {exc}") from exc
-    return [
+    results = [
         {
             "source_title": result.title,
             "source_url": result.url,
@@ -51,6 +57,8 @@ def _run(query: str, max_results: int) -> list[dict]:
         }
         for result in search_results
     ]
+    cache.put(provider_name, query, max_results, results, retrieval_timestamp)
+    return [{**r, "from_cache": False} for r in results]
 
 
 def company_overview(company_name: str, max_results: int = 10) -> list[dict]:

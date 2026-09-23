@@ -62,6 +62,7 @@
       "properties": {
         "planned": {"$ref": "#/$defs/count"}, "executed": {"$ref": "#/$defs/count"},
         "failed": {"$ref": "#/$defs/count"}, "retried": {"$ref": "#/$defs/count"},
+        "cache_hits": {"$ref": "#/$defs/count", "description": "Tool calls answered from the MCP server's research cache (original retrieval_timestamp kept)."},
         "by_tool": {"type": "object", "description": "MCP tool name (without any n8n node prefix) -> {calls, errors}.",
                     "additionalProperties": {"type": "object", "additionalProperties": false, "required": ["calls", "errors"],
                                              "properties": {"calls": {"type": "integer"}, "errors": {"type": "integer"}}}}
@@ -137,6 +138,16 @@
         "search_calls": {"$ref": "#/$defs/count"},
         "within_latency": {"type": ["boolean", "null"]}, "within_cost": {"type": ["boolean", "null"]},
         "within_search_calls": {"type": ["boolean", "null"]}
+      }
+    },
+    "claims": {
+      "type": "object", "additionalProperties": false,
+      "description": "Strategy claims by basis. Uncited (inference) claims are allowed but flagged, never silently accepted. Optional: records written before it existed lack it.",
+      "required": ["evidence", "brief_stated", "inference", "uncited_share"],
+      "properties": {
+        "evidence": {"$ref": "#/$defs/count"}, "brief_stated": {"$ref": "#/$defs/count"},
+        "inference": {"$ref": "#/$defs/count"},
+        "uncited_share": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
       }
     },
     "not_measured": {

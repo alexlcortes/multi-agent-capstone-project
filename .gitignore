@@ -31,3 +31,6 @@ crewai/runs/
 
 # Google OAuth client secret + token for the CrewAI Docs Writer (never commit)
 crewai/.google/
+
+# MCP research-result cache (mcp-server/research/cache.py)
+mcp-server/.cache/

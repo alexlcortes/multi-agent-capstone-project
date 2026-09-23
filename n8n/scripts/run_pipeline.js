@@ -6,6 +6,7 @@
 // Usage (from the n8n/ directory, with n8n running):
 //   node scripts/run_pipeline.js          # production webhook: the workflow must be Active
 //   node scripts/run_pipeline.js --test   # test webhook: click "Execute workflow" in the editor first
+//   node scripts/run_pipeline.js --test --budget max_wall_clock_minutes=1   # test a budget stop
 // Then, as before: node scripts/run_usage.js   (usage_summary + run_record)
 //
 // The webhook answers when the last node finishes (responseMode lastNode), so this waits for the whole run.
@@ -20,7 +21,12 @@ const PATH = 'wire3-gtm-brief'; // the Webhook node's path in workflows/wire3_gt
 (async () => {
   const body = fs.readFileSync(BRIEF, 'utf8');
   JSON.parse(body); // fail here, not inside n8n, if the file is not valid JSON
-  const url = `${BASE}/${process.argv.includes('--test') ? 'webhook-test' : 'webhook'}/${PATH}`;
+  // --budget name=value (repeatable) tightens one limit for this run, e.g. --budget max_wall_clock_minutes=1;
+  // sent as a query parameter so the brief body, and so the brief_id, stay the same
+  const args = process.argv.slice(2);
+  const overrides = args.map((a, i) => (a === '--budget' ? args[i + 1] : null)).filter(Boolean)
+    .map((kv) => { const [k, v] = kv.split('='); return `budget_${encodeURIComponent(k)}=${encodeURIComponent(v)}`; });
+  const url = `${BASE}/${args.includes('--test') ? 'webhook-test' : 'webhook'}/${PATH}${overrides.length ? '?' + overrides.join('&') : ''}`;
   console.log(`POST ${path.relative(process.cwd(), BRIEF)} -> ${url}\n(waits for the whole run, about 4-8 minutes)`);
   const t0 = Date.now();
   // plain http, not fetch: fetch gives up after 5 minutes without response headers, and this webhook

@@ -75,12 +75,16 @@ def log_preflight(monitor: RunMonitor, info: dict) -> None:
                       f"{info.get('active_provider')}_configured"), tools=info.get("tools"), server_status=info.get("status"))
 
 
+def _token_cap(monitor: RunMonitor | None) -> int | None:
+    return monitor.budget.max_completion_tokens_per_call if monitor is not None else None
+
+
 def run_planning_and_research(brief: dict, store: RunStore | None = None, monitor: RunMonitor | None = None) -> PhaseResult:
     if monitor is not None:  # fail fast, and record which search provider this run will use
         log_preflight(monitor, mcp_preflight())
     collector = EvidenceCollector(sink=store.path("02_tool_calls.jsonl") if store else None)
     with research_tools(collector, monitor=monitor) as tools:
-        agents = build_agents(research_tools=tools)
+        agents = build_agents(research_tools=tools, max_completion_tokens=_token_cap(monitor))
         tasks = build_tasks(agents)
         phase = {k: tasks[k] for k in ("plan_research", "execute_research")}
         if store:  # persist the plan the moment the Head Planner finishes, before research starts
@@ -120,7 +124,7 @@ def run_analyst(plan: ResearchPlan, evidence: list[EvidenceRecord], store: RunSt
     """Analyst step. The evidence goes in as an EvidenceSet JSON document and
     comes out as a validated AnalystArtifact; no free text in between."""
     evidence_set = EvidenceSet(run_id=plan.run_id, evidence=order_by_rq(evidence))
-    agents = build_agents()
+    agents = build_agents(max_completion_tokens=_token_cap(monitor))
     dropped_log: list[dict] = []
     gaps_log: list[str] = []
     pricing_log: list[dict] = []
@@ -170,7 +174,7 @@ def run_strategy(analyst: AnalystArtifact, store: RunStore | None = None,
     """Strategy step. The Analyst's tables, themes and ids go in as its own JSON
     contract (dump_contract, so it matches analyst_artifact.schema.json exactly)
     and come out as a validated StrategyArtifact."""
-    agents = build_agents()
+    agents = build_agents(max_completion_tokens=_token_cap(monitor))
     tasks = build_tasks(agents, guardrails={"build_strategy": _recording_guardrail(
             store, "04_strategy", make_strategy_guardrail(analyst), monitor, "Strategy Agent")})
     task = tasks["build_strategy"]
@@ -249,6 +253,7 @@ def step_research(ctx: RunContext) -> tuple[ResearchPlan, list[EvidenceRecord]]:
                           status=call.status, attempts=call.attempts, duration_ms=call.duration_ms,
                           matched_planned_call=bool(rqs), research_question_ids=rqs,
                           evidence_produced=len(call.results), error=call.error,
+                          from_cache=bool(call.results) and all(r.get("from_cache") for r in call.results),
                           attempt_errors=call.attempt_errors or None)
         monitor.event("validation_gate", node="Research Agent", gate="research_coverage",
                       status="ok" if not coverage["failed"] else "degraded", evidence_count=len(evidence),
@@ -363,7 +368,7 @@ def run_pipeline(
         monitor.event("pipeline_start", node="Pipeline", status="ok", docs_backend=docs, orchestrator="crewai.Flow",
                       resuming=[n for n in ("01_plan.json", "02_evidence_set.json", "03_analyst_artifact.json",
                                             "04_strategy_artifact.json") if store.exists(n)],
-                      budget=monitor.budget.__dict__)
+                      budget=monitor.budget.__dict__, budget_overrides=monitor.budget_overrides or None)
         flow = Wire3Flow(ctx)
         flow.kickoff()
         s = flow.state

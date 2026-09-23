@@ -29,6 +29,8 @@ One `run_record` line per pipeline run, appended to `<implementation>/logs/runs.
 | Broken-link count | `links.broken` (+ `checked`, `invalid`, `blocked`, `unverified`) | HTTP-checked | **not measured**: n8n checks URL format only (`links.invalid`) |
 | Doc write status | `document.write_status`, `verified`, `url`, `sections` | ✓ | ✓ |
 | Budget | `budget.*`, `within_latency/cost/search_calls` | ✓ | ✓ |
+| Cache hits | `tools.cache_hits` | ✓ | not recorded yet (null) |
+| Uncited claims | `claims.{evidence,brief_stated,inference,uncited_share}` | ✓ (Strategy) | ✓ (Strategy) |
 
 ## Rules
 
