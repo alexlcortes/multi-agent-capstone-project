@@ -85,4 +85,9 @@ def plan_guardrail(output):
             f"company_name must be Wire3 or one of {plan.competitors}; got {bad}. "
             "Map topic-level research questions onto those companies."
         )
+    # Same rule as n8n's plan gate: the plan must research Wire3 itself. An n8n run planned only competitor
+    # and topic calls, and its analysis had no Wire3 evidence at all.
+    if not any(c.args.company_name.strip().lower() == "wire3" for c in plan.planned_tool_calls):
+        return False, ("The plan has no Wire3 research calls. Research Wire3 itself too: add company_overview, "
+                       "product_portfolio_mapping, pricing_research and recent_news calls with company_name Wire3.")
     return True, output

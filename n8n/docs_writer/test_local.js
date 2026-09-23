@@ -4,11 +4,15 @@
 // batchUpdate requests, then runs negative cases (orphan citation, tampered doc, non-accepted input).
 const fs = require('fs');
 const path = require('path');
-const dir = process.argv[2];
+const os = require('os');
+const dir = path.resolve(process.argv[2]);
+// The node code appends to ./logs/runs.jsonl; run from a scratch directory so tests never touch n8n's real log.
+process.chdir(fs.mkdtempSync(path.join(os.tmpdir(), 'n8n-docs-test-')));
 const load = (f) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
 const docsInput = load('docs_input.json');
 const analystItem = load('analyst_item.json');
 const evidence = load('evidence.json');
+const planner = fs.existsSync(path.join(dir, 'planner.json')) ? load('planner.json') : { output: {} };
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 const src = (f) => fs.readFileSync(path.join(__dirname, f), 'utf8');
@@ -39,7 +43,7 @@ function mockDoc(title, requests) {
 
 let failed = 0;
 const check = (name, cond, detail = '') => { console.log(`${cond ? 'PASS' : 'FAIL'}  ${name}${detail ? '  -- ' + detail : ''}`); if (!cond) failed++; };
-const nodes = { 'Validate Evidence Coverage': analystItem, 'Build Evidence Records': { evidence } };
+const nodes = { 'Validate Evidence Coverage': analystItem, 'Build Evidence Records': { evidence }, 'Head Planner': planner };
 const accepted = { status: 'accepted', brief_id: docsInput.artifact.brief_id, artifact: docsInput.artifact, _client_run_id: 'test-client', _run_id: 'test-run', _t_docs_writer_start: new Date().toISOString() };
 
 (async () => {
@@ -48,7 +52,9 @@ const accepted = { status: 'accepted', brief_id: docsInput.artifact.brief_id, ar
   const doc = mockDoc(built.title, built.requests);
   const text = doc.body.content[0].paragraph.elements.map((e) => e.textRun.content).join('');
   check('build: produced requests', built.requests.length > 10, `${built.requests.length} requests`);
-  check('build: all 10 sections', built.expected.section_headings.length === 10);
+  check('build: all 19 sections (same layout as CrewAI)', built.expected.section_headings.length === 19, built.expected.section_headings.join(' | ').slice(0, 120));
+  check('build: analysis sections rendered', /3\. Competitor comparison/.test(text) && /5\. Pricing matrix/.test(text));
+  check('build: pricing plan-name citations shown', /Plan name: .+\[EV-/.test(text));
   check('build: sources cited', built.expected.source_ids.length > 0, `${built.expected.source_ids.length} sources, ${built.expected.link_urls.length} links`);
   check('build: no undefined/[object Object] in text', !/undefined|\[object Object\]/.test(text));
   check('build: every request index in range', built.requests.every((r) => { const g = r.updateParagraphStyle || r.updateTextStyle || r.createParagraphBullets; return !g || (g.range.startIndex >= 1 && g.range.endIndex <= text.length + 1); }));
@@ -58,7 +64,7 @@ const accepted = { status: 'accepted', brief_id: docsInput.artifact.brief_id, ar
 
   // 2. Negative: tampered doc (drop a section heading + an inserted orphan id)
   const bad = JSON.parse(JSON.stringify(doc));
-  bad.body.content[0].paragraph.elements[0].textRun.content = bad.body.content[0].paragraph.elements[0].textRun.content.replace('8. Success metrics', '8. X').concat(' [EV-deadbeef]');
+  bad.body.content[0].paragraph.elements[0].textRun.content = bad.body.content[0].paragraph.elements[0].textRun.content.replace('16. Success metrics', '16. X').concat(' [EV-deadbeef]');
   let err = null;
   try { await run('verify_document.js', bad, { ...nodes, 'Build Docs Content': built, 'Docs: Create Document': { documentId: 'DOC123' } }); } catch (e) { err = e; }
   check('verify: rejects missing heading + orphan id', err && /Missing section heading/.test(err.message) && /Orphaned/.test(err.message));

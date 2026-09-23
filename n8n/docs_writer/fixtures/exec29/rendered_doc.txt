@@ -1,0 +1,399 @@
+Wire3 Go-To-Market Plan
+Run: test-run | Brief: run_1a2b3c | Generated: 2026-09-23 14:39 UTC | Sources cited: 46
+How to read citations: bracketed IDs such as [THEME-3] are analyst findings, listed in Appendix A with the evidence behind them; every source is in Appendix B as a clickable link. [inference] marks strategist judgment not directly supported by a source; [brief] marks a fact stated in the project brief.
+1. Executive summary
+Target: Residential price/value switchers currently on a competitor in Ocala, FL / Marion County, FL.
+Value proposition: Local fiber with transparent pricing, symmetric speeds, and responsive hometown support. [inference; THEME-2, THEME-1, SWOT-O1]
+Positioning: Wire3 is the local fiber-first alternative to national bundled providers: delivering symmetric speeds, transparent billing, and faster local service for Ocala neighborhoods newly reached by fiber. [inference; THEME-2, THEME-4]
+The plan recommends 5 channels (Local SEO & address-level landing pages, Targeted paid social & search promotions, Community events & local sponsorships, Partnerships with local employers / anchor businesses, Customer referral program), 3 launch phases and 4 success metrics, and lists 3 risks and 1 follow-up research questions.
+2. Research scope and evidence
+13 planned research calls returned 400 evidence records retrieved 2026-09-23. Research questions:
+RQ1: What is each competitor's actual serviceable footprint and advertised speed tiers in Ocala/Marion County specifically?
+RQ2: What are current standalone and bundled pricing tiers, promo rates, and post-promo rates for each competitor?
+RQ3: What early-termination fees, equipment/rental fees, and other recurring surcharges does each competitor charge?
+RQ4: What documented triggers cause residential customers to switch ISPs (promo-cliff bill shock, reliability, customer service, moving)?
+RQ5: How much does a bundled mobile plan influence purchase decisions for price/value switchers specifically?
+RQ6: What do verified customer reviews/complaints say about each competitor's pain points, prioritizing Ocala/central-FL sources?
+RQ7: How have other regional fiber ISPs without a mobile bundle positioned and priced against national cable/wireless incumbents?
+RQ8: What marketing channels are effective and cost-appropriate for a low-brand-recognition regional ISP in a mid-size FL market?
+3. Competitor comparison
+Wire3
+Footprint confirmed in region: No [inference]
+Service type: fiber [brief]
+Has mobile bundle available: No [brief]
+Top advertised speed mbps down: 1000 [inference]
+Top advertised speed mbps up: 1000 [inference]
+Summary note: No evidence in this set referenced Wire3; service and speeds for Wire3 are placeholders consistent with a regional fiber ISP and should be validated. [inference]
+Spectrum
+Footprint confirmed in region: Yes [EV-7bb4d4f6, EV-1128a5b9]
+Service type: HFC (fiber-powered to node) [EV-de8fd14b, EV-6016b158]
+Has mobile bundle available: Yes [EV-fa4ca232, EV-f536aad1]
+Top advertised speed mbps down: 2000 [EV-340a6c81, EV-6016b158]
+Top advertised speed mbps up: 35 [EV-6016b158]
+Summary note: Spectrum is a major incumbent in Ocala offering HFC/fiber-powered tiers (including gigabit-class products) and a mobile offering (Spectrum Mobile) that bundles with Internet. [EV-7bb4d4f6, EV-f536aad1, EV-fa4ca232]
+AT&T
+Footprint confirmed in region: Yes [EV-e4f7266f, EV-26834797]
+Service type: fiber [EV-6016b158, EV-a5dd794e]
+Has mobile bundle available: Yes [EV-3ccb3abd, EV-bcdd2ebe]
+Top advertised speed mbps down: 5000 [EV-6016b158, EV-26834797]
+Top advertised speed mbps up: 4700 [EV-aa3dbe31, EV-6016b158]
+Summary note: AT&T offers fiber products in Ocala (including multi-gig tiers reported in local provider comparisons) and provides wireless plans and bundle discounts for customers. [EV-6016b158, EV-e4f7266f, EV-3ccb3abd]
+T-Mobile Home Internet
+Footprint confirmed in region: Yes [EV-39604030, EV-c240e7bf]
+Service type: fixed wireless and fiber [EV-39604030, EV-c240e7bf]
+Has mobile bundle available: Yes [EV-35db3d14, EV-48852bfb]
+Top advertised speed mbps down: 498 [inference]
+Top advertised speed mbps up: 55 [EV-298d8880]
+Summary note: T-Mobile Home Internet competes via fixed wireless (and T-Mobile Fiber where available) with tiered plans (Rely, Amplified, All-In) and bundle discounts when paired with voice lines. [EV-c2d3295b, EV-35db3d14]
+4. Product and feature comparison
+Wire3
+Technology type: fiber [brief]
+Symmetric speeds: Yes [inference]
+Data cap present: No [inference]
+Wifi router included: Yes [inference]
+Professional install included: Yes [inference]
+Self install available: No [inference]
+Contract required: No [inference]
+Contract length months: n/a [inference]
+Customer support channels: phone, email, local office [inference]
+Additional features:
+Name: local-technical-support
+Field: 100% U.S.-based local technicians (expected for regional fiber) [inference]
+Spectrum
+Technology type: HFC (fiber-powered to node) [EV-de8fd14b, EV-1128a5b9]
+Symmetric speeds: No [EV-6016b158]
+Data cap present: No [EV-1e60b107, EV-5b12fe25]
+Wifi router included: Yes [EV-f536aad1]
+Professional install included: Yes [EV-ece1ca50]
+Self install available: Yes [EV-340a6c81]
+Contract required: No [EV-5b12fe25]
+Contract length months: n/a [EV-5b12fe25]
+Customer support channels: phone, online chat, local stores [EV-7bb4d4f6, EV-1128a5b9]
+Additional features:
+Name: streaming-packs
+Field: premium streaming add-on packs (Entertainment Pack +, etc.) [EV-941ba37b, EV-4c6c24d8]
+AT&T
+Technology type: fiber [EV-6016b158, EV-bac9bbd2]
+Symmetric speeds: Yes [EV-aadd812d, EV-bac9bbd2]
+Data cap present: No [EV-3ccb3abd]
+Wifi router included: Yes [EV-bac9bbd2]
+Professional install included: Yes [EV-bac9bbd2]
+Self install available: No [EV-bac9bbd2]
+Contract required: No [EV-3ccb3abd]
+Contract length months: n/a [EV-3ccb3abd]
+Customer support channels: phone, online chat, retail stores [EV-e4f7266f, EV-bcdd2ebe]
+Additional features:
+Name: bundle-discount
+Field: discounts when bundling wireless with fiber (e.g., $20/mo savings noted in local AT&T pages) [EV-ed489c6d, EV-ec489ada]
+T-Mobile Home Internet
+Technology type: fixed wireless and fiber [EV-39604030, EV-c240e7bf]
+Symmetric speeds: No [EV-c240e7bf, EV-632ca12d]
+Data cap present: No [EV-6bc34067]
+Wifi router included: Yes [EV-6e011fda, EV-2c8d8d39]
+Professional install included: No [EV-5b22235e]
+Self install available: Yes [EV-5b22235e]
+Contract required: No [EV-5b22235e]
+Contract length months: n/a [EV-5b22235e]
+Customer support channels: phone, online chat, in-app support [EV-35db3d14, EV-6bc34067]
+Additional features:
+Name: price-lock
+Field: 5-year price guarantee on eligible plans [EV-5b22235e, EV-35db3d14]
+5. Pricing matrix
+Spectrum: Internet Premier (500 Mbps)
+Plan name: Internet Premier (500 Mbps) [EV-f536aad1, EV-f236a618]
+Speed mbps down: 500 [EV-f536aad1, EV-1e60b107]
+Promo status: has_promo [EV-f536aad1]
+Promo price usd per month: 40 [EV-f536aad1]
+Promo duration months: 12 [EV-f536aad1]
+Post promo price usd per month: 60 [EV-1128a5b9]
+Equipment fee usd per month: 0 [EV-f536aad1]
+Early termination fee usd: 0 [EV-59451b96]
+Blended 12mo effective price usd: 40 [EV-f536aad1, EV-1128a5b9] (computed: ((promo_price * promo_duration_months) + (post_promo_price * (12 - promo_duration_months))) / 12)
+AT&T: AT&T Fiber 300
+Plan name: AT&T Fiber 300 [EV-aadd812d, EV-bac9bbd2]
+Speed mbps down: 300 [EV-aadd812d]
+Promo status: has_promo [EV-bac9bbd2]
+Promo price usd per month: 35 [EV-bac9bbd2, EV-b7c9b719]
+Promo duration months: 12 [EV-bac9bbd2]
+Post promo price usd per month: 55 [EV-c41501b2]
+Equipment fee usd per month: 0 [EV-bac9bbd2]
+Early termination fee usd: 0 [EV-bcdd2ebe]
+Blended 12mo effective price usd: 35 [EV-bac9bbd2, EV-c41501b2] (computed: ((promo_price * promo_duration_months) + (post_promo_price * (12 - promo_duration_months))) / 12)
+T-Mobile Home Internet: Rely Home Internet (bundled rate w/ voice)
+Plan name: Rely Home Internet (bundled rate w/ voice) [EV-632ca12d]
+Speed mbps down: 245 [EV-2c8d8d39]
+Promo status: has_promo [EV-35db3d14, EV-298d8880]
+Promo price usd per month: 35 [EV-632ca12d]
+Promo duration months: 12 [EV-35db3d14]
+Post promo price usd per month: 50 [EV-39604030]
+Equipment fee usd per month: 0 [EV-5b22235e]
+Early termination fee usd: 0 [EV-5b22235e]
+Blended 12mo effective price usd: 35 [EV-39604030] (computed: ((promo_price * promo_duration_months) + (post_promo_price * (12 - promo_duration_months))) / 12)
+6. Market themes
+THEME-1: Promotions and first-year pricing shape consumer choices
+Description: Promotional pricing (12-month offers) from Spectrum, AT&T, and T-Mobile is widespread and materially affects first-year effective cost for households.
+Related research questions: RQ1, RQ2
+Competitors involved: Spectrum, AT&T, T-Mobile Home Internet
+Evidence: EV-f536aad1, EV-bac9bbd2
+THEME-2: Network expansion / rural buildout continues to drive availability
+Description: Spectrum and T-Mobile both advertise expansion into previously unserved or rural Marion County locations; public & company communications highlight ongoing buildouts.
+Related research questions: RQ1, RQ6
+Competitors involved: Spectrum, T-Mobile Home Internet
+Evidence: EV-052576ce, EV-617b9b95, EV-7bb4d4f6
+THEME-3: Convergence of mobile + home bundles increases switching incentives
+Description: Carriers increasingly bundle mobile and home internet (Spectrum Mobile, AT&T bundle offers, T-Mobile discounts) to lock in customers and lower effective monthly costs.
+Related research questions: RQ1, RQ2, RQ6
+Competitors involved: Spectrum, AT&T, T-Mobile Home Internet
+Evidence: EV-fa4ca232, EV-3ccb3abd, EV-35db3d14
+THEME-4: Fixed wireless (T-Mobile) and fiber (AT&T/Spectrum) are both competitive options
+Description: T-Mobile's tiered fixed wireless and fiber offerings (Rely, Amplified, All-In) compete on price and simplicity against incumbent fiber/HFC offerings from AT&T and Spectrum.
+Related research questions: RQ2, RQ6
+Competitors involved: T-Mobile Home Internet, AT&T, Spectrum
+Evidence: EV-c2d3295b, EV-6016b158
+7. SWOT analysis
+Strengths
+SWOT-S1: Spectrum has broad incumbent network presence in Ocala with gigabit-capable tiers and local marketing. [EV-7bb4d4f6, EV-340a6c81, EV-052576ce]
+Weaknesses
+SWOT-W1: Customer sensitivity to price increases and promotional roll-offs (local complaints and forum discussion about rising bills). [EV-a11de057, EV-27d21435]
+Opportunities
+SWOT-O1: Rural and unserved address buildouts (federal/state programs and carrier investments) create acquisition opportunities for regional fiber ISPs. [EV-617b9b95, EV-d0b19efa]
+Threats
+SWOT-T1: Aggressive fixed-wireless pricing and bundled benefits from T-Mobile can undercut regional fiber entrants on price and simplicity. [EV-35db3d14, EV-c2d3295b]
+8. 7P market analysis
+Product
+Market description: The local Ocala market offers a mix of fiber, HFC/cable, fixed wireless, and satellite; consumers choose based on speed needs, price sensitivity, and installation realities. [EV-6016b158, EV-39604030, EV-ed940df4]
+Wire3 relevant fact: Wire3 is a fiber product in the brief (fiber service), but public evidence for Wire3 was not provided in this set. [inference]
+Price
+Market description: Promotional first-year pricing (12-month offers) is common; post-promo rates and bundling significantly change effective annual cost. [EV-f536aad1, EV-bac9bbd2]
+Wire3 relevant fact: Wire3 pricing was not supplied in the brief; pricing for Wire3 must be researched separately. [inference]
+Place
+Market description: Availability varies by neighborhood; Spectrum, AT&T, and T-Mobile advertise service in Ocala while other providers have limited footprints. [EV-7bb4d4f6, EV-e4f7266f, EV-39604030]
+Wire3 relevant fact: No evidence confirming Wire3 coverage in Ocala was provided; local coverage unknown. [inference]
+Promotion
+Market description: Carriers use device trade-ins, virtual cards, and bundle discounts (mobile+internet) as promotional levers; offers vary by address. [EV-35db3d14, EV-fa4ca232, EV-bac9bbd2]
+Wire3 relevant fact: No promotional evidence for Wire3 was included in the dataset. [inference]
+People
+Market description: Customers value local tech support and clear pricing; regional ISPs often emphasize local service while national brands emphasize scale and bundled perks. [EV-052576ce, EV-7bb4d4f6, EV-bac9bbd2]
+Wire3 relevant fact: Wire3 staffing, local support, and customer-service model were not described in the brief or evidence set. [inference]
+Process
+Market description: Installation realities differ: fixed wireless self-install is common; fiber often requires a drop and scheduled install. Buyers must price the first year including equipment and post-promo rates. [EV-2c5212c0, EV-2774910c, EV-3818c482]
+Wire3 relevant fact: Wire3 installation process was not documented in the evidence set. [inference]
+Physical evidence
+Market description: Carriers advertise gateways (Wi-Fi 6/7), included modems, and streaming packs; physical equipment and local technicians are part of the value proposition. [EV-6e011fda, EV-941ba37b, EV-5b22235e]
+Wire3 relevant fact: No product images, equipment lists, or physical-install details for Wire3 were provided. [inference]
+9. Ideal customer profiles
+ICP-1: Value-seeking households (price-sensitive)
+Description: Households who prioritize lowest effective monthly cost and respond strongly to promotional pricing and bundle offers. [THEME-1, SWOT-W1]
+Current provider: Spectrum, AT&T, T-Mobile Home Internet [THEME-1, THEME-3]
+Demographic signals:
+High sensitivity to first-year promotions and post-promo bill shock [THEME-1, SWOT-W1]
+Likely multi-provider consideration set (cable, fiber, fixed wireless) [THEME-4]
+ICP-2: Rural / newly served households
+Description: Addresses recently reached by carrier expansions or federal/state-funded buildouts, often underserviced historically and motivated by availability and reliability. [THEME-2, SWOT-O1]
+Current provider: T-Mobile Home Internet, Spectrum [THEME-2]
+Demographic signals:
+Higher conversion potential where fiber is newly available [SWOT-O1, THEME-2]
+ICP-3: Small businesses and home offices
+Description: Small businesses and remote workers that value symmetrical speeds, reliable SLA-like service, and local technical support. [THEME-4]
+Current provider: AT&T, Spectrum [THEME-4]
+Demographic signals:
+Preference for symmetric speeds and low downtime; willing to pay a premium for reliability [inference; THEME-4]
+10. Customer pains and desired outcomes
+PAIN-1
+Pain statement: Households face lower advertised promo rates that jump materially after 12 months, causing bill shock. [THEME-1, SWOT-W1]
+Desired outcome: Transparent, predictable pricing with a clear first-year and post-promo price communicated up front. [inference; THEME-1]
+Related icp ids: ICP-1, ICP-2
+Severity: high [THEME-1, SWOT-W1]
+PAIN-2
+Pain statement: Rural or newly served addresses are uncertain about true local availability and installation timelines. [THEME-2, SWOT-O1]
+Desired outcome: Clear coverage maps, realistic install windows, and prioritized scheduling for newly lit neighborhoods. [inference; THEME-2]
+Related icp ids: ICP-2
+Severity: medium [THEME-2]
+PAIN-3
+Pain statement: Bundled mobile+home discounts from national carriers make switching less attractive despite local service benefits. [THEME-3, SWOT-T1]
+Desired outcome: Competitive effective monthly pricing through targeted promotions and partnership discounts that close the bundle gap. [inference; THEME-3]
+Related icp ids: ICP-1, ICP-3
+Severity: high [THEME-3, SWOT-T1]
+11. Value proposition
+Headline: Local fiber with transparent pricing, symmetric speeds, and responsive hometown support. [inference; THEME-2, THEME-1, SWOT-O1]
+Supporting points:
+Predictable pricing with clear post-promo expectations to avoid bill shock. [THEME-1]
+Symmetric gigabit-class fiber where available, prioritized for newly served neighborhoods. [THEME-2, SWOT-O1]
+Local, U.S.-based technicians and faster issue resolution versus national call centers. [inference; THEME-2]
+No bundle gap response: Offer targeted bill credits or partner discounts for customers switching from bundled national providers and create a simple 'bring-your-phone' credit option to narrow effective monthly cost differences. [brief]
+Low brand recognition response: Invest early in visible local sponsorships, referral bonuses, and targeted address-level direct mail highlighting local install success stories to build trust quickly. [inference]
+12. Positioning and differentiation
+Positioning statement: Wire3 is the local fiber-first alternative to national bundled providers: delivering symmetric speeds, transparent billing, and faster local service for Ocala neighborhoods newly reached by fiber. [inference; THEME-2, THEME-4]
+Differentiators:
+Local-first operations: local technicians and neighborhood-focused install scheduling. [inference; THEME-2, SWOT-O1]
+Transparent pricing with upfront post-promo disclosures to reduce bill shock. [inference; THEME-1, SWOT-W1]
+Fiber symmetric speeds and no data caps where deployed. [inference; THEME-4]
+Competitive frame: Spectrum, AT&T, T-Mobile Home Internet
+13. Message pillars
+PILLAR-1: Transparent, predictable pricing
+Supporting message: Show full-year effective pricing, post-promo rates, and no hidden fees so customers can compare apples-to-apples with national promos. [THEME-1, SWOT-W1]
+Target icp ids: ICP-1
+PILLAR-2: Local reliability & support
+Supporting message: Local technicians, faster onsite response, and neighborhood install focus to minimize downtime and support friction. [inference; THEME-2]
+Target icp ids: ICP-2, ICP-3
+PILLAR-3: Symmetric fiber performance
+Supporting message: Promote symmetric upload/download speeds and no data caps as a value differentiator for remote work and small business needs. [inference; THEME-4]
+Target icp ids: ICP-3, ICP-1
+14. Recommended channels
+CHANNEL-1: Local SEO & address-level landing pages
+Channel category: digital_organic
+Budget tier: low
+Rationale: High intent searches for availability can be captured with low-cost neighborhood landing pages; supports transparency on coverage and pricing. [inference; THEME-2, THEME-1]
+Target icp ids: ICP-1, ICP-2
+CHANNEL-2: Targeted paid social & search promotions
+Channel category: digital_paid
+Budget tier: medium
+Rationale: Address-targeted promos (first-year price messaging) convert cost-sensitive households and drive initial trial signups. [THEME-1]
+Target icp ids: ICP-1, ICP-2
+CHANNEL-3: Community events & local sponsorships
+Channel category: local_offline
+Budget tier: low
+Rationale: Sponsoring local events and civic groups raises awareness for a low-recognition regional brand and builds trust quickly. [inference; THEME-2]
+Target icp ids: ICP-2, ICP-1
+CHANNEL-4: Partnerships with local employers / anchor businesses
+Channel category: partnership
+Budget tier: medium
+Rationale: Partnership discounts and co-marketing with local employers help close the bundle gap and reach small-business/home-office users. [inference; THEME-3, SWOT-O1]
+Target icp ids: ICP-3, ICP-1
+CHANNEL-5: Customer referral program
+Channel category: referral
+Budget tier: low
+Rationale: Referral bonuses amplify word-of-mouth in newly served neighborhoods at low cost and address low brand recognition. [inference; THEME-2]
+Target icp ids: ICP-2, ICP-1
+15. Launch phases and activities
+PHASE-1: Validate & Local Awareness
+Sequence order: 1
+Timeframe: Months 0-2
+Activities:
+Confirm Wire3 advertised speeds, pricing, and exact coverage per address (resolve UNK-1). [UNK-1, ASM-1]
+Publish address-level landing pages and local FAQ about installations and pricing. [inference; THEME-2, THEME-1]
+Begin targeted paid search for newly lit neighborhoods. [inference; THEME-2]
+Exit criteria: Verified coverage/pricing for target neighborhoods and 50+ signups on waitlist/interest forms.
+PHASE-2: Launch & Acquire
+Sequence order: 2
+Timeframe: Months 3-8
+Activities:
+Execute promo offers (clear 12-month promo + post-promo disclosure) and local install blitz. [inference; THEME-1]
+Deploy referral incentives and employer partnership discounts. [inference; THEME-3]
+Exit criteria: Achieve initial subscription target and maintain installation SLA for >80% installs in promised window.
+PHASE-3: Scale & Retain
+Sequence order: 3
+Timeframe: Months 9-24
+Activities:
+Expand community sponsorships, optimize paid channels, and roll out loyalty/price-lock options for multi-year retention. [inference; THEME-1, THEME-2]
+Monitor competitor bundle moves and adjust targeted credits/offers to protect retention. [inference; THEME-3, SWOT-T1]
+Exit criteria: Sustained month-over-month net adds and churn below target thresholds.
+16. Success metrics
+METRIC-1: New subscribers (12 months)
+Definition: Total new active paying subscribers acquired in first 12 months after launch in targeted neighborhoods.
+Target value: 1200 [inference]
+Measurement cadence: monthly
+METRIC-2: Churn rate (annualized)
+Definition: Percent of customers who cancel service within 12 months.
+Target value: 5 [inference; THEME-1]
+Measurement cadence: monthly
+METRIC-3: First-year promo conversion to full-price retention
+Definition: Share of customers who remain active 3 months after promo expiration.
+Target value: 60 [inference; THEME-1]
+Measurement cadence: quarterly
+METRIC-4: Address-level activation rate
+Definition: Percent of addresses that complete installation within promised SLA after being advertised as serviceable.
+Target value: 80 [inference; THEME-2]
+Measurement cadence: monthly
+17. Risks
+RISK-1
+Statement: National carriers use bundled mobile+home discounts to retain customers and undercut regional pricing. [THEME-3, SWOT-T1]
+Likelihood: high [THEME-3]
+Impact: high [SWOT-T1]
+Mitigation: Targeted partnership discounts, competitive effective-rate offers, and employer-based deals to narrow bundle gap. [inference; THEME-3]
+RISK-2
+Statement: Customer dissatisfaction from promotional roll-off and perceived hidden costs. [THEME-1, SWOT-W1]
+Likelihood: medium [THEME-1]
+Impact: medium [SWOT-W1]
+Mitigation: Publish clear blended-12mo pricing, provide grace offers at promo end, and emphasize total cost of ownership vs. competitors. [inference; THEME-1]
+RISK-3
+Statement: Delays in buildout or installation logistics slow activation and damage local reputation. [THEME-2, SWOT-O1]
+Likelihood: medium [THEME-2]
+Impact: high [inference; THEME-2]
+Mitigation: Set realistic install windows, over-communicate status to customers, and reserve install crews for prioritized neighborhoods. [inference; THEME-2, ASM-1]
+18. Assumptions, unknowns and conflicts
+Assumptions
+ASM-1
+Statement: Wire3 top advertised speeds (down/up) are set to 1000/1000 Mbps as plausible placeholders for a regional fiber ISP.
+Rationale: The brief stated Wire3 is fiber but provided no numeric speed claims; placeholders are necessary for comparison and must be verified.
+Evidence ids: 
+Unknowns
+UNK-1
+Research question id: RQ1
+Description: No evidence in the set confirms Wire3's advertised speeds, pricing, or local footprint for Ocala; these remain unresearched.
+Reason unresolved: The provided evidence set contains no records referencing Wire3; all Wire3-specific facts must be researched externally.
+Conflicts
+None recorded.
+19. Follow-up research questions
+FRQ-1
+Question: Confirm Wire3's actual advertised speeds, published pricing (promo and post-promo), equipment fees, and address-level coverage in Ocala.
+Rationale: The evidence set contains no records referencing Wire3; key inputs (speeds, pricing, coverage) must be validated before launching offers or publishing address-level availability.
+Related unknown ids: UNK-1
+Priority: high
+Appendix A: Analyst findings referenced
+[ASM-1] Wire3 top advertised speeds (down/up) are set to 1000/1000 Mbps as plausible placeholders for a regional fiber ISP. -- no direct source evidence (assumption or open unknown)
+[SWOT-O1] Rural and unserved address buildouts (federal/state programs and carrier investments) create acquisition opportunities for regional fiber ISPs. -- [EV-617b9b95] [EV-d0b19efa]
+[SWOT-T1] Aggressive fixed-wireless pricing and bundled benefits from T-Mobile can undercut regional fiber entrants on price and simplicity. -- [EV-35db3d14] [EV-c2d3295b]
+[SWOT-W1] Customer sensitivity to price increases and promotional roll-offs (local complaints and forum discussion about rising bills). -- [EV-a11de057] [EV-27d21435]
+[THEME-1] Promotions and first-year pricing shape consumer choices -- [EV-f536aad1] [EV-bac9bbd2]
+[THEME-2] Network expansion / rural buildout continues to drive availability -- [EV-052576ce] [EV-617b9b95] [EV-7bb4d4f6]
+[THEME-3] Convergence of mobile + home bundles increases switching incentives -- [EV-fa4ca232] [EV-3ccb3abd] [EV-35db3d14]
+[THEME-4] Fixed wireless (T-Mobile) and fiber (AT&T/Spectrum) are both competitive options -- [EV-c2d3295b] [EV-6016b158]
+[UNK-1] No evidence in the set confirms Wire3's advertised speeds, pricing, or local footprint for Ocala; these remain unresearched. -- no direct source evidence (assumption or open unknown)
+Appendix B: Sources
+[EV-1e60b107] Fiber Powered Home Internet & WiFi Service Provider - Spectrum (company)
+[EV-2c8d8d39] T-Mobile Internet and Mobile Bundles: 2026 Pricing & Plans (community)
+[EV-2c5212c0] AT&T Pricing 2026: Plans, Hidden Fees & True Costs (community)
+[EV-3ccb3abd] Wireless Plans: Our Most Affordable Cell Phone Plans (company)
+[EV-4c6c24d8] Shop Cable TV & Streaming Packages | Spectrum TV Plans (company)
+[EV-5b12fe25] Spectrum Cable Internet Plans & Prices (community)
+[EV-5b22235e] T-Mobile Home Internet | Reliable 5G Wireless Home WiFi (company)
+[EV-6bc34067] T-Mobile 5G Home Internet Plans and Deals 2026 (community)
+[EV-6e011fda] Fiber Internet in Ocala, FL (company)
+[EV-7bb4d4f6] 100% Fiber Internet & WiFi in Ocala, FL | Spectrum (company)
+[EV-27d21435] Affordable and good Wifi and mobile services in ocala. (community)
+[EV-35db3d14] 5G Home Internet Plans (company)
+[EV-298d8880] T-Mobile Internet and Mobile Bundles: 2026 Pricing & Plans (community)
+[EV-340a6c81] Compare Internet Providers in 34481 - Ocala, FL | Find the Best Plans (community)
+[EV-617b9b95] Spectrum expands high-speed internet access to over 6,700 rural locations in Marion County - 352today (community)
+[EV-632ca12d] T-Mobile 5G Home Internet Plans, Speeds and Availability (community)
+[EV-941ba37b] Compare Spectrum Tv Streaming Plans (company)
+[EV-1128a5b9] Spectrum Internet, TV & Mobile Packages (company)
+[EV-3818c482] AT&T Cell Phone Plans and Deals (community)
+[EV-6016b158] Top 10 Internet Providers in Ocala, FL (2026) (community)
+[EV-48852bfb] T-Mobile Internet and Mobile Bundles: 2026 Pricing & Plans (community)
+[EV-052576ce] Spectrum Launches Gigabit Broadband in Marion County ... (community)
+[EV-59451b96] Spectrum Internet, TV & Mobile Packages (company)
+[EV-2774910c] Ocala, FL Business Internet Phone & TV Services (company)
+[EV-26834797] Top 10 Internet Providers in Ocala, FL (2026) (community)
+[EV-39604030] T-Mobile Home Internet vs. Ocala Fiber (community)
+[EV-a5dd794e] T-Mobile Fiber Plans 2026: Expert Guide to Internet (community)
+[EV-a11de057] Affordable and good Wifi and mobile services in ocala. (community)
+[EV-aa3dbe31] Find the Best Internet Providers Near You (community)
+[EV-aadd812d] T-Mobile Fiber Plans 2026: Expert Guide to Internet (community)
+[EV-b7c9b719] Fast Home Internet Plans Starting at Just $34/mo | AT&T (company)
+[EV-bac9bbd2] Fast Home Internet Plans Starting at Just $34/mo | AT&T (company)
+[EV-bcdd2ebe] Unlimited Data Cell Phone Plans & Hotspot Data (company)
+[EV-c2d3295b] T-Mobile revamps 5G Home Internet with new tiers, faster Wi-Fi and streaming perks (community)
+[EV-c240e7bf] T-Mobile 5G Home Internet Plans and Deals: Updated September 2026 (analyst)
+[EV-c41501b2] AT&T Wireless Plans in 2026: Cost, Deals, and Phones (community)
+[EV-d0b19efa] Spectrum Launches Gigabit Broadband in Marion County ... (community)
+[EV-de8fd14b] 100% Fiber Internet & WiFi in Ocala, FL (company)
+[EV-e4f7266f] AT&T vs. Ocala Fiber - Internet Provider Comparisons (community)
+[EV-ec489ada] AT&T Ocala, FL | Home Services, Plans & Availability (company)
+[EV-ece1ca50] 100% Fiber Internet & WiFi in Ocala, FL (company)
+[EV-ed489c6d] AT&T Ocala, FL | Home Services, Plans & Availability (company)
+[EV-ed940df4] Ocala, FL Internet Providers (community)
+[EV-f236a618] Fiber Powered Home Internet & WiFi Service Provider - Spectrum (company)
+[EV-f536aad1] Fiber Powered Home Internet & WiFi Service Provider - Spectrum (company)
+[EV-fa4ca232] Unlimited Cell Phone Plans from $30/mo (company)

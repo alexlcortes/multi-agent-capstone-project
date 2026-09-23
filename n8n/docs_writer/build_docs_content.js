@@ -1,5 +1,6 @@
 // n8n Code node: "Build Docs Content" (Docs Writer, step 1 of 5)
-// Renders the accepted Strategy artifact into Google Docs batchUpdate requests.
+// Renders the Analyst and Strategy artifacts into Google Docs batchUpdate requests, in the same section
+// layout as the CrewAI Docs Writer (schemas/gtm_document_template.md, rule 4: n8n parity).
 // Source of truth for the node body -- paste into the Code node's JS field.
 const fs = require('fs');
 const LOG_DIR = './logs';
@@ -52,7 +53,10 @@ for (const group of ['assumptions', 'unknowns', 'conflicts']) {
 }
 
 // ---- 2. Collect every supporting_ids reference in the Strategy artifact ----
-const isCited = (v) => v && typeof v === 'object' && !Array.isArray(v) && Array.isArray(v.supporting_ids) && 'value' in v;
+// A cited field: Strategy fields carry supporting_ids, Analyst fields carry evidence_ids.
+const isCited = (v) => v && typeof v === 'object' && !Array.isArray(v) && 'value' in v && 'basis' in v
+  && (Array.isArray(v.supporting_ids) || Array.isArray(v.evidence_ids));
+const isDerived = (v) => v && typeof v === 'object' && !Array.isArray(v) && Array.isArray(v.derived_from_evidence_ids);
 const citedIds = new Set();
 (function walk(o) {
   if (Array.isArray(o)) return o.forEach(walk);
@@ -86,12 +90,12 @@ const blocks = [];
 const add = (text, style = 'P', extra = {}) => blocks.push({ text, style, ...extra });
 const label = (k) => k.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());
 const cite = (f) => {
-  const ids = f.supporting_ids || [];
+  const ids = f.supporting_ids || f.evidence_ids || [];
   const tag = f.basis === 'inference' && ids.length ? `inference; ${ids.join(', ')}` : ids.length ? ids.join(', ') : f.basis === 'brief_stated' ? 'brief' : f.basis || 'inference';
-  const v = Array.isArray(f.value) ? f.value.join(', ') : String(f.value);
-  return `${v} [${tag}]`;
+  return `${primitive(f.value)} [${tag}]`;
 };
-const primitive = (v) => (Array.isArray(v) ? v.join(', ') : String(v));
+const primitive = (v) => (v === null || v === undefined ? 'n/a' : typeof v === 'boolean' ? (v ? 'Yes' : 'No')
+  : Array.isArray(v) ? v.map(primitive).join(', ') : String(v));
 const labelled = (k, text, style = 'BULLET') => {
   const lead = `${label(k)}: `;
   add(lead + text, style, { boldLen: lead.length });
@@ -101,6 +105,7 @@ function renderObject(obj, skip = []) {
   for (const [k, v] of Object.entries(obj)) {
     if (skip.includes(k) || v === null || v === undefined) continue;
     if (isCited(v)) labelled(k, cite(v));
+    else if (isDerived(v)) labelled(k, `${primitive(v.value)} [${v.derived_from_evidence_ids.join(', ')}] (computed: ${v.formula})`);
     else if (Array.isArray(v) && v.length && v.every(isCited)) {
       add(`${label(k)}:`, 'BULLET', { boldLen: label(k).length + 1 });
       v.forEach((c) => add(cite(c), 'BULLET2'));
@@ -127,7 +132,8 @@ const dateStr = new Date().toISOString().slice(0, 16).replace('T', ' ');
 const title = `Wire3 GTM Plan - ${artifact.brief_id} - ${dateStr} UTC`;
 
 add('Wire3 Go-To-Market Plan', 'TITLE');
-add(`Brief: ${artifact.brief_id} | Generated: ${dateStr} UTC | Sources cited: ${sources.length}`, 'P');
+const headerAt = blocks.length;
+add('', 'P'); // header line, filled in once the source count is known
 add(
   'How to read citations: bracketed IDs such as [THEME-3] are analyst findings, listed in Appendix A with the evidence behind them; every source is in Appendix B as a clickable link. [inference] marks strategist judgment not directly supported by a source; [brief] marks a fact stated in the project brief.',
   'P',
@@ -135,7 +141,57 @@ add(
 
 const sections = [];
 const section = (name, fn) => { sections.push(name); add(`${sections.length}. ${name}`, 'H2'); fn(); };
+let plan = {};
+try { plan = $('Head Planner').first().json.output || {}; } catch (e) { plan = {}; }
 
+section('Executive summary', () => {
+  const vp = artifact.value_proposition || {}, pos = artifact.positioning || {};
+  if (plan.segment || plan.region) add(`Target: ${plan.segment || 'n/a'} in ${plan.region || 'n/a'}.`, 'P');
+  if (vp.headline) labelled('value_proposition', cite(vp.headline), 'P');
+  if (pos.positioning_statement) labelled('positioning', cite(pos.positioning_statement), 'P');
+  const ch = artifact.channels || [];
+  add(`The plan recommends ${ch.length} channels (${ch.map((c) => c.channel_name).join(', ')}), `
+    + `${(artifact.launch_phases || []).length} launch phases and ${(artifact.success_metrics || []).length} success metrics, and lists `
+    + `${(artifact.risks || []).length} risks and ${(artifact.follow_up_research_questions || []).length} follow-up research questions.`, 'P');
+});
+section('Research scope and evidence', () => {
+  const dates = evidenceSet.map((e) => String(e.retrieval_timestamp || '').slice(0, 10)).filter(Boolean).sort();
+  const range = dates.length ? ` retrieved ${dates[0]}${dates[dates.length - 1] !== dates[0] ? ' to ' + dates[dates.length - 1] : ''}` : '';
+  add(`${(plan.planned_tool_calls || []).length} planned research calls returned ${evidenceSet.length} evidence records${range}. Research questions:`, 'P');
+  for (const q of plan.research_questions || []) {
+    const lead = `${q.id}: `;
+    add(lead + q.question, 'BULLET', { boldLen: lead.length });
+  }
+});
+section('Competitor comparison', () => (analyst.competitor_comparison_table || []).forEach((r) => {
+  add(r.competitor_name, 'H3'); renderObject(r, ['competitor_name']);
+}));
+section('Product and feature comparison', () => (analyst.product_feature_comparison || []).forEach((r) => {
+  add(r.competitor_name, 'H3'); renderObject(r, ['competitor_name']);
+}));
+section('Pricing matrix', () => (analyst.pricing_matrix || []).forEach((r) => {
+  add(`${r.competitor_name}: ${isCited(r.plan_name) ? r.plan_name.value : r.plan_name}`, 'H3');
+  renderObject(r, ['competitor_name']); // plan_name stays in the body so its citations are shown
+}));
+section('Market themes', () => (analyst.market_themes || []).forEach((t) => {
+  add(`${t.theme_id}: ${t.title}`, 'H3');
+  renderObject({ description: t.description, related_research_questions: t.related_research_question_ids || [],
+    competitors_involved: t.competitors_involved || [], evidence: t.supporting_evidence_ids || [] });
+}));
+section('SWOT analysis', () => {
+  for (const group of ['strengths', 'weaknesses', 'opportunities', 'threats']) {
+    add(label(group), 'H3');
+    for (const x of swot[group] || []) {
+      const ids = x.evidence_ids || [];
+      const tag = ids.length ? ids.join(', ') : x.basis === 'brief_stated' ? 'brief' : x.basis || 'inference';
+      const lead = `${x.item_id}: `;
+      add(`${lead}${x.statement} [${tag}]`, 'BULLET', { boldLen: lead.length });
+    }
+  }
+});
+section('7P market analysis', () => Object.entries(analyst.seven_p_analysis || {}).forEach(([k, v]) => {
+  add(label(k), 'H3'); renderObject(v || {});
+}));
 section('Ideal customer profiles', () => renderItems(artifact.icps, 'icp_id', 'name'));
 section('Customer pains and desired outcomes', () => renderItems(artifact.pains_and_outcomes, 'pain_id'));
 section('Value proposition', () => renderObject(artifact.value_proposition));
@@ -148,6 +204,17 @@ section('Launch phases and activities', () => {
 });
 section('Success metrics', () => renderItems(artifact.success_metrics, 'metric_id', 'name'));
 section('Risks', () => renderItems(artifact.risks, 'risk_id'));
+section('Assumptions, unknowns and conflicts', () => {
+  for (const [title, key] of [['Assumptions', 'assumptions'], ['Unknowns', 'unknowns'], ['Conflicts', 'conflicts']]) {
+    add(title, 'H3');
+    if (!(auc[key] || []).length) add('None recorded.', 'P');
+    for (const x of auc[key] || []) {
+      add(x.id, 'P', { boldLen: String(x.id).length });
+      const { id, ...rest } = x;
+      renderObject(rest);
+    }
+  }
+});
 section('Follow-up research questions', () => renderItems(artifact.follow_up_research_questions, 'frq_id'));
 
 add('Appendix A: Analyst findings referenced', 'H2');
@@ -156,6 +223,13 @@ for (const f of citedFindings) {
   const evs = f.evidence_ids.length ? f.evidence_ids.map((e) => `[${e}]`).join(' ') : 'no direct source evidence (assumption or open unknown)';
   add(`${lead}${f.label} -- ${evs}`, 'BULLET', { boldLen: lead.length });
 }
+
+const EV_IN_TEXT = /\bEV-[0-9a-f]{8}\b/g;
+for (const b of blocks) for (const m of b.text.match(EV_IN_TEXT) || []) sourceIds.add(m);
+const orphanedInText = [...sourceIds].filter((id) => !evById.has(id));
+if (orphanedInText.length) fail(`Orphaned citation(s) -- evidence_id not in the evidence set: ${orphanedInText.join(', ')}`);
+sources.splice(0, sources.length, ...[...sourceIds].sort(natural).map((id) => evById.get(id)));
+blocks[headerAt].text = `Run: ${runId} | Brief: ${artifact.brief_id} | Generated: ${dateStr} UTC | Sources cited: ${sources.length}`;
 
 add('Appendix B: Sources', 'H2');
 const HTTP_URL_RE = /^https?:\/\/\S+$/i;

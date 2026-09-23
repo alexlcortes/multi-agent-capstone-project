@@ -79,15 +79,31 @@ def test_strategy_guardrail_turns_a_dangling_reference_into_feedback(valid, stra
     assert guardrail(out)[0] is True and isinstance(out.pydantic, StrategyArtifact)
 
 
+def plan_with_wire3() -> dict:
+    """The shared PLAN fixture researches competitors only; the guardrail also requires Wire3 research."""
+    plan = json.loads(PLAN.model_dump_json())
+    plan["planned_tool_calls"].append({**plan["planned_tool_calls"][0],
+                                       "args": {**plan["planned_tool_calls"][0]["args"], "company_name": "Wire3"}})
+    return plan
+
+
 def test_plan_guardrail_rejects_an_unbounded_plan_with_feedback():
-    over = json.loads(PLAN.model_dump_json())
+    over = plan_with_wire3()
     over["budget"]["max_search_calls"] = 0  # one planned call now exceeds the budget
     ok, feedback = plan_guardrail(as_output(over))
     assert ok is False and "exceeds budget.max_search_calls" in feedback
-    ok, out = plan_guardrail(as_output(json.loads(PLAN.model_dump_json())))
+    ok, out = plan_guardrail(as_output(plan_with_wire3()))
     assert ok is True and isinstance(out.pydantic, ResearchPlan)
 
 
 def test_a_reply_that_is_not_json_is_feedback_too(valid):
     ok, feedback = make_analyst_guardrail(EVIDENCE)(SimpleNamespace(raw="Sorry, here is my analysis:", pydantic=None))
     assert ok is False and "not valid JSON" in feedback or "not a valid AnalystArtifact" in feedback
+
+
+def test_plan_guardrail_requires_wire3_research_as_n8n_does():
+    plan = plan_with_wire3()
+    assert plan_guardrail(as_output(plan))[0] is True
+    plan["planned_tool_calls"] = [c for c in plan["planned_tool_calls"] if c["args"]["company_name"].lower() != "wire3"]
+    ok, feedback = plan_guardrail(as_output(plan))
+    assert ok is False and "no Wire3 research calls" in feedback
