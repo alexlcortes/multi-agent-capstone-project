@@ -92,6 +92,7 @@ CrewAI's are in `crewai/wire3_gtm/config/agents.yaml` and `tasks.yaml`. Both use
 ## 4. MCP tools and search provider
 
 `mcp-server/` is one MCP server that **both** implementations call, so search is identical by design.
+Setup, tool arguments, result shape and cache details: [`mcp-server/README.md`](mcp-server/README.md).
 
 | Tool | Purpose |
 |---|---|
@@ -100,7 +101,7 @@ CrewAI's are in `crewai/wire3_gtm/config/agents.yaml` and `tasks.yaml`. Both use
 | `product_portfolio_mapping(company_name)` | Plans, speeds, products |
 | `pricing_research(company_name, region)` | Prices, promos, fees |
 | `recent_news(company_name)` | News and announcements |
-| `validate_source(url)` | HEAD/GET link check: `ok`, `broken` (404/410/DNS), `blocked` (403/429), `unverified` (timeouts, 5xx) |
+| `validate_source(url)` | HEAD request returning the status code; the caller classifies it as `ok`, `broken` (404/410/DNS), `blocked` (403/429) or `unverified` (timeouts, 5xx) (`crewai/wire3_gtm/links.py`) |
 
 **Search provider: Tavily or SerpAPI, behind one adapter** (`mcp-server/research/providers/`,
 selected by `SEARCH_PROVIDER`; it falls back to `tavily` if unset and raises on an unknown name, never
