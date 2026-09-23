@@ -4,6 +4,7 @@ run_pipeline() writes each step's result to a RunStore before the next step
 starts, and can resume a failed run from the last step that finished."""
 
 import json
+from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
@@ -497,8 +498,18 @@ def _run_docs(store: RunStore, backend: str = "local", client=None) -> dict:
         local_errors = docs_google.verify(doc_plan.expected, docs_google.simulate_docs(doc_plan, requests))
         if local_errors:
             raise DocsContentError("document failed the local check: " + " | ".join(local_errors[:5]))
+        links = docs_google.link_report(doc_plan.expected["link_urls"], _load(store, "06_link_check.json"))
+        checks = {"checked_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                  "local": {"errors": local_errors, "section_headings": len(doc_plan.expected["section_headings"]),
+                            "tables": {h: len(r) for h, r in doc_plan.expected["tables"].items()},
+                            "source_ids": len(doc_plan.expected["source_ids"])},
+                  "links": links}
+        store.save_json("05_verification.json", checks)
+        if links["errors"]:
+            raise DocsContentError("document links failed the link check: " + " | ".join(links["errors"][:5]))
         result = {"backend": backend, "title": doc_plan.title, "sections": len(doc_plan.sections),
-                  "sources": len(doc_plan.sources), "status": "local_verified", "document_url": None}
+                  "sources": len(doc_plan.sources), "status": "local_verified", "document_url": None,
+                  "link_warnings": len(links["warnings"])}
 
         if backend == "google":
             client = client or docs_google.GoogleDocs()
@@ -513,11 +524,17 @@ def _run_docs(store: RunStore, backend: str = "local", client=None) -> dict:
                                                      "document_url": docs_google.url_for(doc_id)})
             doc = client.read(doc_id)
             errors = docs_google.verify(doc_plan.expected, doc)
+            checks["google"] = {"document_id": doc_id, "errors": errors}
+            store.save_json("05_verification.json", checks)
             if errors:
                 raise DocsContentError(
                     f"Google Doc {docs_google.url_for(doc_id)} failed the post-write check: " + " | ".join(errors[:8]))
             pdf = client.export_pdf(doc_id)
             store.path("05_document.pdf").write_bytes(pdf)
+            checks["pdf"] = {"bytes": len(pdf), "errors": docs_google.verify_pdf(pdf, doc_plan.expected)}
+            store.save_json("05_verification.json", checks)
+            if checks["pdf"]["errors"]:
+                raise DocsContentError("PDF export failed its check: " + " | ".join(checks["pdf"]["errors"][:5]))
             result.update(status="verified", document_id=doc_id, document_url=docs_google.url_for(doc_id),
                           pdf_bytes=len(pdf))
         store.save_json("05_document.json", result)

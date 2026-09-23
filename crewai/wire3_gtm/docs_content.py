@@ -348,8 +348,22 @@ def build_document(
     b.blocks[header_at].text = (
         f"Run: {run_id} | Brief: {strategy.brief_id} | Generated: {when} UTC | Sources cited: {len(sources)}"
     )
+    # table sections: each row is an H3 under the section's H2 (tables render as
+    # labelled lists for now); the verifier checks every row survived the write
+    table_sections = {"Competitor comparison", "Product and feature comparison", "Pricing matrix",
+                      "SWOT analysis", "7P market analysis"}
+    tables, current = {}, None
+    for blk in b.blocks:
+        if blk.style == "H2":
+            name = blk.text.split(". ", 1)[-1]
+            current = blk.text if name in table_sections else None
+            if current:
+                tables[current] = []
+        elif blk.style == "H3" and current:
+            tables[current].append(blk.text)
     expected = {
         "title": title,
+        "tables": tables,
         "section_headings": [f"{i + 1}. {s}" for i, s in enumerate(b.sections)],
         "source_ids": [e.evidence_id for e in sources],
         "link_urls": [e.source_url for e in sources if HTTP_URL_RE.match(e.source_url or "")],

@@ -1,0 +1,37 @@
+{
+ "run_id": "run-20260921-121832",
+ "brief_id": "R001-Wire3-Ocala-0921",
+ "generated_utc": "2026-09-21T16:26:00Z",
+ "evidence_retrieved": {
+  "first": "2026-09-21",
+  "last": "2026-09-21"
+ },
+ "implementation": "crewai",
+ "google_doc_title": "Wire3 GTM Plan - run-20260921-121832 - 2026-09-21 16:26 UTC",
+ "verification": {
+  "checked_utc": "2026-09-23T02:11:45Z",
+  "headings": 19,
+  "tables": {
+   "3. Competitor comparison": 4,
+   "4. Product and feature comparison": 4,
+   "5. Pricing matrix": 3,
+   "7. SWOT analysis": 4,
+   "8. 7P market analysis": 7
+  },
+  "sources_cited": 61,
+  "local_errors": [],
+  "pdf_errors": [],
+  "links": {
+   "distinct": 49,
+   "confirmed_ok": 33,
+   "broken": 0,
+   "not_confirmed": 16
+  }
+ },
+ "source_snapshot": "snapshots/run-20260921-121832",
+ "sha256": {
+  "wire3-gtm-plan_run-20260921-121832_retrieved-2026-09-21.md": "fdb34d0a6efb1b176048b54b3889067c0d8e94c8f5c15b5350a46e2fab21bd0b",
+  "wire3-gtm-plan_run-20260921-121832_retrieved-2026-09-21.pdf": "15a7f09a78ae29aff1a8bb742d92303692ad63bebfe9f324140478ede142c8b7"
+ },
+ "note": "Academic strategy exercise; illustrative, not Wire3's actual go-to-market plan."
+}

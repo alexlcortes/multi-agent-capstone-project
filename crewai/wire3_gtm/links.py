@@ -64,6 +64,8 @@ def check_links(urls: list[str], validate: Callable[[str], dict], workers: int =
         "ok": len(by_class["ok"]), "blocked": len(by_class["blocked"]),
         "broken_url_count": len(by_class["broken"]), "unverified": len(by_class["unverified"]),
         "unchecked": len(by_class["unchecked"]),
+        "ok_urls": by_class["ok"],
+        "unchecked_urls": by_class["unchecked"],
         "unverified_urls": by_class["unverified"],
         "broken": [{"url": u, **results[u]} for u in by_class["broken"]],
         "blocked_urls": by_class["blocked"],

@@ -124,9 +124,73 @@ def verify(expected: dict, doc: dict) -> list[str]:
     for url in expected["link_urls"]:
         if url not in links:
             errors.append(f"Missing hyperlink for source URL: {url}")
+    errors += table_errors(expected.get("tables", {}), paragraphs)
     orphaned = sorted(set(EV_RE.findall(text)) - set(expected["allowed_evidence_ids"]))
     if orphaned:
         errors.append(f"Orphaned evidence_id(s) in document: {orphaned}")
+    return errors
+
+
+def table_errors(tables: dict[str, list[str]], paragraphs: list[tuple[str, str]]) -> list[str]:
+    """Every expected row of each table section is a HEADING_3 inside that section."""
+    errors, section, rows = [], None, {}
+    for text, style in paragraphs:
+        if style == "HEADING_2":
+            section = text
+        elif style == "HEADING_3" and section in tables:
+            rows.setdefault(section, []).append(text)
+    for heading, want in tables.items():
+        if not want:
+            errors.append(f"Table section has no rows: {heading}")
+        missing = [r for r in want if r not in rows.get(heading, [])]
+        if missing:
+            errors.append(f"Table {heading!r} is missing {len(missing)} row(s): {missing[:3]}")
+    return errors
+
+
+def link_report(link_urls: list[str], link_check: dict | None) -> dict:
+    """Match the document's hyperlinks against the run's link check. Broken or
+    malformed links fail; blocked (the site refuses automated requests) and
+    unverified links are warnings, since they may well work in a browser."""
+    errors, warnings = [], []
+    link_urls = list(dict.fromkeys(link_urls))  # one url can back several sources
+    if not link_check or link_check.get("status") == "unchecked":
+        return {"errors": [], "warnings": ["links were not checked in this run (06_link_check.json missing or failed)"],
+                "checked": 0, "total": len(link_urls)}
+    broken = {b["url"] for b in link_check.get("broken", [])}
+    malformed = set(link_check.get("malformed", []))
+    soft = set(link_check.get("blocked_urls", [])) | set(link_check.get("unverified_urls", []))
+    unchecked = set(link_check.get("unchecked_urls", []))
+    ok = set(link_check["ok_urls"]) if "ok_urls" in link_check else None  # older runs list only the non-ok urls
+    for url in link_urls:
+        if url in broken or url in malformed:
+            errors.append(f"Broken link in document: {url}")
+        elif url in soft:
+            warnings.append(f"Link not confirmed (site blocks checks or gave no clear answer): {url}")
+        elif url in unchecked or (ok is not None and url not in ok):
+            warnings.append(f"Link was not checked: {url}")
+    return {"errors": errors, "warnings": warnings, "total": len(link_urls),
+            "confirmed_ok": len(link_urls) - len(errors) - len(warnings)}
+
+
+def verify_pdf(pdf: bytes, expected: dict) -> list[str]:
+    """The export is a real, complete PDF that contains the title's run id and every section heading."""
+    import io
+
+    from pypdf import PdfReader
+
+    if not pdf.startswith(b"%PDF-") or b"%%EOF" not in pdf[-1024:]:
+        return ["PDF export is not a complete PDF file"]
+    try:
+        reader = PdfReader(io.BytesIO(pdf))
+        text = " ".join(" ".join((p.extract_text() or "").split()) for p in reader.pages)
+    except Exception as exc:  # noqa: BLE001
+        return [f"PDF export could not be read: {type(exc).__name__}: {exc}"[:200]]
+    squash = lambda s: " ".join(s.split())  # noqa: E731
+    errors = [f"PDF is missing section heading: {h}" for h in expected["section_headings"] if squash(h) not in text]
+    run_id = expected["title"].split(" - ")[1] if " - " in expected["title"] else None
+    if run_id and run_id not in text:
+        errors.append(f"PDF does not contain the run id {run_id}")
     return errors
 
 

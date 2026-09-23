@@ -187,7 +187,28 @@ class FakeGoogle:
 
     def export_pdf(self, document_id):
         self.calls["export"] += 1
-        return b"%PDF-1.7 fake"
+        d = self.server[document_id]
+        return tiny_pdf([d["title"]] + [p for p, _ in flatten(simulate_requests(d["title"], d["requests"]))[2]])
+
+
+def tiny_pdf(lines: list[str]) -> bytes:
+    """A small but real PDF with one line of text per entry, readable by pypdf."""
+    esc = lambda t: t.encode("latin-1", "replace").replace(b"\\", b"\\\\").replace(b"(", b"\\(").replace(b")", b"\\)")  # noqa: E731
+    body = b"BT /F1 8 Tf 20 800 Td 10 TL " + b"".join(b"(" + esc(t) + b") Tj T* " for t in lines) + b"ET"
+    objs = [b"<< /Type /Catalog /Pages 2 0 R >>",
+            b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+            b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 20000] /Contents 4 0 R "
+            b"/Resources << /Font << /F1 5 0 R >> >> >>",
+            b"<< /Length %d >>stream\n" % len(body) + body + b"\nendstream",
+            b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"]
+    out, offsets = b"%PDF-1.4\n", []
+    for i, o in enumerate(objs, 1):
+        offsets.append(len(out))
+        out += b"%d 0 obj\n" % i + o + b"\nendobj\n"
+    xref = len(out)
+    out += b"xref\n0 %d\n0000000000 65535 f \n" % (len(objs) + 1)
+    out += b"".join(b"%010d 00000 n \n" % off for off in offsets)
+    return out + b"trailer\n<< /Size %d /Root 1 0 R >>\nstartxref\n%d\n%%%%EOF\n" % (len(objs) + 1, xref)
 
 
 def seed_run(tmp_path, valid, strategy):
@@ -270,3 +291,51 @@ def test_only_the_research_agent_is_given_the_research_tools():
 
     agents = build_agents(research_tools=[T()])
     assert [a for a, ag in agents.items() if ag.tools] == ["research"]
+
+
+def test_verify_catches_a_missing_table_row(valid, strategy):
+    plan = make(valid, strategy)
+    doc = simulate_docs(plan)
+    row = next(iter(plan.expected["tables"].values()))[0]
+    for el in doc["body"]["content"]:
+        para = el.get("paragraph")
+        if para and "".join(r["textRun"]["content"] for r in para["elements"]).rstrip("\n") == row:
+            para["paragraphStyle"]["namedStyleType"] = "NORMAL_TEXT"
+    assert any("missing 1 row" in e for e in verify(plan.expected, doc))
+
+
+def test_expected_tables_cover_the_analyst_tables(valid, strategy):
+    tables = make(valid, strategy).expected["tables"]
+    names = {h.split(". ", 1)[1] for h in tables}
+    assert names == {"Competitor comparison", "Product and feature comparison", "Pricing matrix",
+                     "SWOT analysis", "7P market analysis"}
+    assert all(tables.values())
+
+
+def test_link_report_fails_broken_warns_blocked_and_unchecked():
+    from wire3_gtm.docs_google import link_report
+    check = {"ok_urls": ["https://a"], "broken": [{"url": "https://b"}], "blocked_urls": ["https://c"],
+             "unverified_urls": [], "malformed": []}
+    r = link_report(["https://a", "https://b", "https://c", "https://d"], check)
+    assert r["errors"] == ["Broken link in document: https://b"]
+    assert len(r["warnings"]) == 2 and r["confirmed_ok"] == 1
+    assert link_report(["https://a"], None)["warnings"]
+
+
+def test_broken_link_stops_the_document(tmp_path, valid, strategy):
+    store = seed_run(tmp_path, valid, strategy)
+    url = EVIDENCE[0].source_url
+    store.save_json("06_link_check.json", {"broken": [{"url": url}], "ok_urls": []})
+    with pytest.raises(DocsContentError, match="Broken link"):
+        run_docs(store, "local")
+    assert json.loads(store.load_text("05_verification.json"))["links"]["errors"]
+
+
+def test_pdf_check(valid, strategy):
+    from wire3_gtm.docs_google import verify_pdf
+    plan = make(valid, strategy)
+    good = tiny_pdf([plan.title] + plan.expected["section_headings"])
+    assert verify_pdf(good, plan.expected) == []
+    assert verify_pdf(b"%PDF-1.7 fake", plan.expected) == ["PDF export is not a complete PDF file"]
+    short = tiny_pdf([plan.title] + plan.expected["section_headings"][:-1])
+    assert verify_pdf(short, plan.expected) == [f"PDF is missing section heading: {plan.expected['section_headings'][-1]}"]

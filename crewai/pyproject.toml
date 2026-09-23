@@ -9,6 +9,7 @@ dependencies = [
     "crewai-tools[mcp]>=1.15.21",
     "google-api-python-client>=2.200.0",
     "google-auth-oauthlib>=1.4.1",
+    "pypdf>=6.19.0",
     "python-dotenv>=1.2.3",
     "pyyaml>=6.0.3",
 ]
