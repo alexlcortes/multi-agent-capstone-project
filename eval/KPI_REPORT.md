@@ -1,38 +1,46 @@
 # Capstone KPIs: n8n vs CrewAI
 
-Measured 2026-09-23 for brief `brief-d516e1daddfb` (the current `brief.json`). Every number comes from saved
-run data and is recomputed by one command:
+Measured 2026-09-23 for brief `brief-d516e1daddfb` (the current `brief.json`), with **both implementations on
+their current code**: 3 fresh CrewAI full runs, and every run of n8n's final workflow (per-company research,
+published 2026-09-23). Every number is recomputed by one command:
 
 ```
 cd crewai && uv run python -m wire3_gtm kpi --recheck-links
 ```
 
-That writes `eval/kpi/results.json` (all figures below) and `eval/kpi/evidence_tiers.csv` (every evidence
-record with its source tier and the rule that assigned it). The calculation is `crewai/wire3_gtm/kpi.py`;
-its counting rules are pinned by `crewai/tests/test_kpi.py`.
+It writes `eval/kpi/results.json` (all figures below) and `eval/kpi/evidence_tiers.csv` (every evidence
+record, its tier, and the rule that assigned it). The calculation is `crewai/wire3_gtm/kpi.py` (counting
+rules pinned by `crewai/tests/test_kpi.py`); which runs count is `eval/kpi/runs.yaml`; n8n runs are exported
+from n8n's database by `n8n/scripts/export_run.js`. Why the n8n workflow changed during the day, and which
+differences are about the orchestrators themselves, is in `eval/COMPARISON_LOG.md`.
 
 ## Summary
 
-| KPI | Target | CrewAI | n8n |
+| KPI | Target | CrewAI (3 runs) | n8n (3 of 4 runs completed) |
 |---|---|---|---|
-| 1. Research coverage | ≥ 90% | **100%** in all 4 full runs: met | **50%** (1 run): not met |
-| 2a. Source quality: top-tier share | ≥ 80% | **66–73%**: not met | **82%** (1 run, 11 sources): met, on a small base |
-| 2b. Broken links | 0% | **0%**: met | **0%** (re-checked today only): met |
-| 3. Latency | < 15 min | **7.1–11.6 min**: met | **7.7 min** (1 run): met |
-| 4. Strategy quality | ≥ 4 / 5 | **not measured yet** (model first pass 3.3) | **not measured yet** (model first pass 2.3) |
-| 5. Reproducibility | ≥ 80% | **88%** end to end; 92% with fixed evidence: met | **cannot be measured** (1 completed run) |
-| 6. Cost within budget | ≤ $2.50/run | **$0.11–0.20**: met | **≥ $0.35** (lower bound): met |
+| 1. Research coverage | ≥ 90% | **100%** in every run: met | **100%** in every run: met |
+| 2a. Top-tier sources | ≥ 80% | **58–69%**: not met | **68–73%**: not met |
+| 2b. Broken links | 0% | **0%**: met | **0%** (checked today only): met |
+| 3. Latency | < 15 min | **6.0–9.3 min**: met | **7.2–8.8 min**: met |
+| 4. Strategy quality | ≥ 4 / 5 | **not measured**: needs a blind human review | **not measured**: same |
+| 5. Reproducibility | ≥ 80% | **92%**: met | **78%**: not met (≈90% if wording is normalized, see KPI 5) |
+| 6. Cost within budget | ≤ $2.50 / run | **$0.12–0.18**: met | **≥ $0.10–0.11** (lower bound): met |
+| Reliability (context) | | **3 of 3** completed | **3 of 4** completed; all 3 had invented ids removed |
 
-The comparison is uneven. CrewAI has 4 completed full runs of the current brief, n8n has 1, and that one
-finished degraded. n8n's other runs of this brief failed (2) or were deliberate budget-cap tests. Its
-successful runs were of earlier brief versions and are not counted. **To finish the comparison, n8n needs
-at least 3 completed runs of this brief (for KPI 5), and both implementations need a blind human rubric
-review (for KPI 4).**
+**In one paragraph:** on current code the two implementations are close on coverage, latency and cost, and
+neither reaches the 80% top-tier-source target. CrewAI is more reliable (3 of 3 runs, against 3 of 4) and more
+consistent from run to run (92% against 78%). n8n's completed runs cite a slightly better mix of sources.
+Strategy quality, the KPI that matters most for the plan's users, still needs a blind human review.
 
-Which runs count everywhere below: completed runs of the current brief with their artifacts saved.
-Budget-cap tests (runs with a deliberately lowered budget) are excluded; failed runs count only towards
-reliability. The 6 A/B runs (`eval/ab/analyst-sources/`) reuse the golden run's research, so they are used
-only for "fixed evidence" figures, never mixed with full runs.
+**Which runs count** (`eval/kpi/runs.yaml`):
+- **CrewAI:** full runs of the current brief started on or after 2026-09-23 17:06 UTC:
+  `run-20260923-130640`, `-131659`, `-132404`. The 4 runs of 2026-09-20/21 predate the day's fixes and are not
+  counted. The 6 A/B runs reuse one run's research, so they are used only for the "fixed evidence"
+  reproducibility figure.
+- **n8n:** runs of the final workflow, started on or after 2026-09-23 16:23 UTC: executions 35, 37 and 38
+  completed, execution 36 failed. Earlier executions (29, 33) ran older workflow versions and are listed as
+  superseded, never counted.
+- Budget-cap tests (runs with a deliberately lowered budget) are excluded everywhere.
 
 ---
 
@@ -48,33 +56,23 @@ The capstone guide defines three tiers:
   anonymous or user-generated content (forums, social posts, video uploads, reviews), directories, job
   boards, vendor and agency blogs, and index or tag pages that carry no claim.
 
-**How:** the rules are in `eval/kpi/source_tiers.yaml`, one line per domain (132 domains), with a reason on
-each. Domains that host several kinds of page get rules per URL prefix. For example, Yahoo Finance hosts
-syndicated press releases, which are primary, and algorithmic articles, which are weak. Official company
-accounts on X, Facebook and Instagram are primary, while other social posts are weak. A source with no rule
-is an error, not a default, so nothing is classified by accident. Where a source could fairly sit in two
-tiers, the lower one is used.
+**How:** `eval/kpi/source_tiers.yaml` has a rule for every domain seen, each with its reason. Domains that host
+several kinds of page get rules per URL prefix. For example, Yahoo Finance hosts syndicated press releases,
+which are primary, and algorithmic articles, which are weak. Official company social accounts are primary;
+other social posts are weak. A source with no rule is an error, not a default. Where a source could fairly
+sit in two tiers, the lower one is used. **The tier describes the kind of source, not whether it supports the
+claim:** a government page about the wrong company is still primary. Relevance is judged by the rubric.
 
-**Result:** 5,369 evidence records across 11 runs, from 306 distinct URLs, all classified:
-
-| | Distinct URLs | primary | top_secondary | weak |
-|---|---|---|---|---|
-| All research, both implementations | 306 | 102 (33%) | 28 (9%) | 176 (58%) |
-| CrewAI research (4 full runs) | 230 | 93 | 11 | 126 |
-| n8n research (1 run) | 153 | 36 | 22 | 95 |
-
-Most of what the searches return is weak. The final documents cite a better mix than that (see KPI 2), so
-the Analyst is selecting upward, but it can only choose from what research found.
+**Result:** 5,421 evidence records from the counted runs, 203 distinct URLs, all classified. Across the
+research as a whole, most sources are weak; the Analyst in each implementation cites a better mix than it was
+given (see KPI 2).
 
 **Judgment calls worth reviewing** (each is one line in the YAML):
-
-- BroadbandNow, BBB and Reddit are on the brief's preferred list but are classified weak. BroadbandNow
-  pages are marketing summaries of FCC data, not the data. BBB and Reddit are unverified individual reports.
-  They are still the right evidence for customer pain points (RQ6), and the tiers penalize them anyway.
-- Deal guides on Business Insider, The Hollywood Reporter and Rolling Stone are affiliate content, so weak,
-  even though these are otherwise reputable publishers.
-- Spectrum News is classified top_secondary (bylined news), but Charter owns it, which is a conflict of
-  interest when it reports on Spectrum.
+- BroadbandNow, BBB and Reddit are on the brief's preferred list but are classified weak. BroadbandNow pages
+  are marketing summaries of FCC data, not the data. BBB and Reddit are unverified individual reports. They
+  are still the right evidence for customer pain points (RQ6), and the tiers penalize them anyway.
+- Deal guides on Business Insider, The Hollywood Reporter and Rolling Stone are affiliate content, so weak.
+- Spectrum News is classified top_secondary (bylined news), but Charter owns it.
 
 ---
 
@@ -83,30 +81,19 @@ the Analyst is selecting upward, but it can only choose from what research found
 **Definition.** The share of the brief's 8 research questions for which the final document cites at least
 one source that was retrieved for that question.
 
-**Data collected.** For each run: the evidence set (every record carries the research question it was
-retrieved for) and the delivered document (`05_document.md` for CrewAI; for n8n, the Google Doc as n8n read
-it back after writing, `eval/inputs/n8n_client-mudhx5in-ji99rx.md`).
+**Data collected.** Each run's evidence set (every record carries the research question it was retrieved for)
+and its delivered document: CrewAI's `05_document.md`, and for n8n the Google Doc as n8n read it back after
+writing (exported to `eval/kpi/data/n8n_<run>.md`).
 
-**Calculation.** Collect the evidence IDs cited in the document. Map each one to the research questions its
-search result served. One result is stored once per question it served, each copy with its own ID, so
-citing any copy counts for all of those questions. Coverage = covered questions ÷ 8.
+**Calculation.** Collect the evidence ids cited in the document. Map each to the research questions its search
+result served: one result is stored once per question, each copy with its own id, so citing any copy counts
+for all. Coverage = covered questions ÷ 8.
 
-**Result.**
+**Result.** 100% in every counted run of both implementations (and in all 6 A/B runs).
 
-| | Runs | Coverage | Uncovered |
-|---|---|---|---|
-| CrewAI, full runs | 4 | 100% in every run | none |
-| CrewAI, fixed-evidence A/B runs | 6 | 100% in every run | none |
-| n8n | 1 | 50% | RQ3 (fees), RQ4 (switching triggers), RQ5 (bundle influence), RQ8 (channels) |
-
-**Limitations.**
-- n8n's document shows only the Strategy sections (a known renderer gap, `schemas/gtm_document_template.md`
-  rule 4). Its Analyst artifact cites more evidence, which the document never shows. Coverage of the
-  *analysis* would be higher; coverage of the *delivered document* is 50%.
-- 130 of n8n's 400 evidence records have no research question attached, so they cannot count towards any
-  question.
-- "Covered" means at least one source. It does not mean the question was answered well. The rubric covers
-  that.
+**Limitations.** "Covered" means at least one cited source, not that the question was answered well; the rubric
+judges that. Before the day's fixes, n8n scored 50% (execution 29), because its document showed only the
+Strategy sections and 130 of its evidence records had no research question (`COMPARISON_LOG.md` #5, #6).
 
 ---
 
@@ -115,82 +102,73 @@ citing any copy counts for all of those questions. Coverage = covered questions 
 **Definition.**
 - *Top-tier share:* the share of distinct sources cited in the final document that are primary or
   top_secondary.
-- *Broken links:* the share of distinct cited sources whose link is broken (HTTP 404 or 410, or a host
-  that doesn't resolve). This is a hard requirement of 0%.
+- *Broken links:* the share of distinct cited sources whose link is broken (HTTP 404 or 410, or a host that
+  doesn't resolve). This is a hard requirement of 0%.
 
-**Counting rule.** The unit is the **distinct URL cited in the final document**. A page stored as several
-evidence records (one per research question) counts once; otherwise one page could inflate the share. The
-per-record share, which is the guide's example rule, is reported alongside and is usually within a few
-points. Evidence that was collected but not cited does not count: the KPI is about what the reader is
-shown.
+**Counting rule.** The unit is the **distinct URL cited in the final document**, so a page stored as several
+evidence records counts once. The per-record share (the guide's example rule) is reported alongside.
+Collected but uncited evidence does not count.
 
-**Data collected.** Cited evidence IDs from each document; each URL's tier from `source_tiers.yaml`; the
-run-time link check (CrewAI's `06_link_check.json`); and a re-check of every cited URL today with the same
-rules as the pipeline (HEAD request, retried as GET on 403 or 405).
+**Data collected.** Cited ids from each document; each URL's tier; CrewAI's run-time link check
+(`06_link_check.json`); and a re-check of every cited URL on 2026-09-23 using the pipeline's own rules (HEAD
+request, retried as GET on 403/405).
 
-**Calculation.** Top-tier share = (primary + top_secondary) ÷ distinct cited URLs. Broken share = broken
-÷ distinct cited URLs. "Blocked" (403, 429 and similar: the site refuses automated checks) and
-"unverified" (timeouts, 5xx errors) are reported separately and **not** counted as broken, because neither
-shows the page is gone.
+**Calculation.** Top-tier share = (primary + top_secondary) ÷ distinct cited URLs. Broken share = broken ÷
+distinct cited URLs. "Blocked" (403, 429 and similar: the site refuses automated checks) and "unverified"
+(timeouts, 5xx) are reported but **not** counted as broken, because neither shows the page is gone.
 
 **Result.**
 
-| Run | Cited URLs | Top-tier (by URL) | Top-tier (by record) | Broken at run time | Broken today | Blocked / unverified today |
+| Run | Cited URLs | Top-tier (by URL) | Top-tier (by record) | Broken, run time | Broken, today | Blocked / unverified today |
 |---|---|---|---|---|---|---|
-| CrewAI run-20260920-223513 | 46 | 67% | 67% | 0 | 0 | 6 / 5 |
-| CrewAI run-20260920-232205 | 30 | 73% | 74% | 0 | 0 | 2 / 4 |
-| CrewAI run-20260921-102023 | 32 | 66% | 67% | 0 | 0 | 9 / 5 |
-| CrewAI run-20260921-121832 (golden) | 49 | 69% | 74% | 0 | 0 | 6 / 5 |
-| n8n client-mudhx5in-ji99rx | 11 | 82% | 77% | not checked | 0 | 1 / 2 |
+| CrewAI run-20260923-130640 | 43 | 58% | 62% | 0 | 0 | 11 / 5 |
+| CrewAI run-20260923-131659 | 40 | 65% | 66% | 0 | 0 | 10 / 5 |
+| CrewAI run-20260923-132404 | 35 | 69% | 69% | 0 | 0 | 7 / 4 |
+| n8n execution 35 | 33 | 73% | 74% | not checked | 0 | 6 / 5 |
+| n8n execution 37 | 39 | 72% | 78% | not checked | 0 | 7 / 5 |
+| n8n execution 38 | 41 | 68% | 72% | not checked | 0 | 7 / 4 |
 
-The fixed-evidence A/B runs cite 58–75% top-tier sources: control 58–65%, strict-sources 61–75%.
-
-CrewAI: top-tier share **not met** (66–73%); broken links **met** (0%). n8n: top-tier share **met on a
-small base** (9 of 11 sources); broken links **0% today**, but not checked at run time.
+Top-tier share: **not met by either** (CrewAI 58–69%, n8n 68–73%). Broken links: **met by both** (0%). The 6
+CrewAI A/B runs, on one fixed evidence set, cite 58–75% top-tier sources.
 
 **Limitations.**
-- **The tier describes the source, not whether it supports the claim.** CrewAI's golden run cites primary
-  pages for the wrong market (a Michigan MapQuest listing, Port St. Lucie and Palm Bay pages for Ocala
-  claims). These count as primary or weak by type. Relevance is judged in the rubric, not here.
-- **n8n's 82% rests on 11 sources.** One more weak source would drop it to 75%. Also, it has no evidence
-  from Wire3 at all, so the share is high partly because it cites little.
-- **The classification is judgment,** applied as rules. Changing a borderline rule, such as treating
-  BroadbandNow as top_secondary, moves CrewAI by about 2 points per URL affected. The CSV makes each call
-  auditable.
-- **Links can die later.** "Broken today" is a 2026-09-23 snapshot. n8n's run-time link check did not run:
-  its one `validate_source` call failed.
-- **About 20–30% of cited links are blocked or unverified,** not confirmed working. The pages probably
-  exist, since sites refuse automated checks, but a person should click them before the document is shared.
+- **The tier is the kind of source, not its relevance.** Earlier reviews found primary pages cited for the
+  wrong market (a Michigan MapQuest listing, Port St. Lucie pages for Ocala claims). The rubric catches that;
+  this KPI does not.
+- **The limit is the research, not the Analyst.** Most retrieved sources are weak, and the Analyst can only
+  choose among them. The A/B test of a stricter source-selection prompt (`eval/ab/analyst-sources/`) did not
+  move the share much (control 50%, challenger 54%, medians). Reaching 80% likely needs searches aimed at
+  official sites.
+- **The classification is judgment,** applied as rules. Moving a borderline domain, such as BroadbandNow, to
+  top_secondary would shift a run by about 2–3 points per URL affected. The CSV makes every call auditable.
+- **Links can die later.** "Broken today" is a 2026-09-23 snapshot. n8n has no run-time check (its workflow
+  does not run `validate_source` on the document's sources).
+- **About 25–35% of cited links are blocked or unverified**, not confirmed working. The pages probably exist,
+  but a person should click them before sharing the document.
 
 ---
 
 ## KPI 3: Latency (target < 15 minutes)
 
-**Definition.** Wall-clock time from pipeline start to the verified document, for one run of the brief.
+**Definition.** Wall-clock time from pipeline start to the verified Google Doc, for one run of the brief.
 
-**Data collected.** `duration_ms` from each run's `run_record` (`crewai/logs/runs.jsonl`,
-`n8n/logs/runs.jsonl`), written by the pipeline itself.
+**Data collected.** `duration_ms` in each run's `run_record`, written by the pipeline itself. Both
+implementations wrote and verified a Google Doc in every counted run, so the comparison is like for like.
 
-**Calculation.** Per completed full run; the target is met when every completed run is under 15 minutes.
-The maximum and the median are reported.
+**Calculation.** Per completed run; met when every completed run is under 15 minutes. Max and median reported.
 
 **Result.**
 
 | | Completed runs | Minutes | Max | Median |
 |---|---|---|---|---|
-| CrewAI | 4 | 10.4, 11.6, 7.1, 8.4 | 11.6 | 9.4 |
-| n8n | 1 | 7.7 | 7.7 | 7.7 |
+| CrewAI | 3 | 9.3, 6.0, 7.6 | 9.3 | 7.6 |
+| n8n | 3 | 7.2, 8.8, 7.6 | 8.8 | 7.6 |
 
-Both **met**. Both are also inside the brief's own, stricter budget of 12 minutes.
+Both **met**, and both are inside the brief's own, stricter budget of 12 minutes.
 
-**Limitations.**
-- **CrewAI's full runs predate today's code changes.** Those added stricter grounding checks, which can
-  add Analyst retries. The A/B runs on current code took 3.8–11.1 minutes for the Analyst and Strategy steps
-  alone. The spread comes from the number of Analyst drafts (1 to 4), so a current full run could approach
-  15 minutes.
-- **Failed runs are excluded from latency:** CrewAI's failed run took 11.3 minutes; n8n's took 6.4 and 1.8.
-  Reliability is reported below.
-- **n8n has one data point.**
+**Limitations.** Three runs each. n8n's research step includes three 15-second pauses between companies
+(`COMPARISON_LOG.md` #9), about 45 seconds of each run. Most of the spread comes from how many attempts the
+Analyst needs. Failed runs are excluded from latency (n8n's execution 36 took 7.7 minutes before failing).
 
 ---
 
@@ -198,21 +176,20 @@ Both **met**. Both are also inside the brief's own, stricter budget of 12 minute
 
 **Definition.** The mean of the six rubric criteria in `eval/rubric.md` (clarity, feasibility,
 differentiation, evidence quality, citation completeness, usefulness), each scored 1–5 against written
-anchors. Met at a mean of 4.0 or more (24 or more out of 30).
+anchors. Met at a mean of 4.0 or more (24/30).
 
-**Data collected.** Review files in `eval/reviews/`. Each score needs one line of evidence.
+**Data collected.** Review files in `eval/reviews/`, one line of evidence per score.
 
-**Calculation.** The mean of the six scores per document, then the median across reviewers and runs. Only
-**human, blind** reviews count towards the KPI. Model reviews are listed but never counted.
+**Calculation.** Mean of the six scores per document, then the median across reviewers and runs. Only human,
+blind reviews count. Model reviews are listed but never counted.
 
-**Result.** **Not measured yet: there is no human review.** The first pass by a model (not blind, one run
-each) gives CrewAI 3.33 (20/30) and n8n 2.33 (14/30). If a human review agrees, neither would meet the
-target.
+**Result.** **Not measured: there is no human review of the current documents.** The only review so far is a
+model first pass of the *earlier* documents (CrewAI 3.33, n8n 2.33), before n8n's fixes. It does not
+describe the current n8n documents, which now include the analysis sections that review found missing.
 
-**Limitations.** A model scoring model output is biased and not blind. One run per implementation. Rubric
-scores vary by reviewer; the rubric asks for two reviewers and a discussion when they differ by 2 or more.
-The 6 blinded A/B documents (`eval/ab/analyst-sources/packets/`) can be scored with the same rubric and
-would give CrewAI a 6-run KPI 4 figure.
+**What to do.** Blind-review one document per implementation from the counted runs (or all six), using
+`eval/reviews/TEMPLATE.json`. The 6 blinded CrewAI A/B documents in `eval/ab/analyst-sources/packets/` can be
+scored the same way.
 
 ---
 
@@ -227,30 +204,31 @@ wrong thing.
 - for each of the 3 competitors: the set of priced plans as (promo price, post-promo price) (3 items);
 - the set of recommended channel categories, and the number of ideal customer profiles (2 items).
 
-**Calculation.** For each item, the share of runs that give the most common answer. Consistency is the mean
-across the 17 items: 100% means every run agrees on everything. It needs at least 3 runs. Two figures are
-reported:
-- *End to end:* full runs, so research varies too.
-- *Fixed evidence:* the A/B control runs, which share one evidence set and the committed prompts. This
-  isolates the Analyst and Strategy steps.
+**Calculation.** For each item, the share of runs that give the most common answer; consistency is the mean
+over the 17 items. 100% means every run agrees on everything. It needs at least 3 runs.
 
 **Result.**
 
 | | Runs | Consistency | Least consistent items |
 |---|---|---|---|
-| CrewAI, end to end | 4 | **88%** | T-Mobile plans (25%), Spectrum plans (50%), AT&T plans (50%), channel categories (75%) |
-| CrewAI, fixed evidence | 3 | **92%** | Spectrum plans (33%), AT&T plans (67%), number of ICPs (67%) |
-| n8n | 1 | cannot be measured | |
+| CrewAI, end to end | 3 | **92%** | T-Mobile plans (33%), Spectrum plans (67%), AT&T plans (67%) |
+| CrewAI, fixed evidence (A/B control) | 3 | **92%** | Spectrum plans (33%), AT&T plans (67%), number of ICPs (67%) |
+| n8n, end to end | 3 | **78%** | service type for Spectrum, AT&T and T-Mobile (33% each), Spectrum and T-Mobile plans (33%), channel categories (67%) |
 
-CrewAI **met**. The company facts are fully consistent. The **pricing matrix is the unstable part**: runs
-pick different plans and price points, even from the same evidence.
+CrewAI **met**; n8n **not met**.
 
-**Limitations.**
-- The item list is a choice. More pricing items would lower the score; more company facts would raise it.
-- Exact-match pricing is strict: a $60 and a $59.99 promo count as disagreement.
-- 3–4 runs is a small sample.
-- CrewAI's end-to-end runs span two days of code changes.
-- n8n needs at least 3 completed runs.
+**Why n8n's service type disagrees:** n8n's analysis schema allows free text for service type, so its runs
+describe the same thing in different words ("cable (fiber-powered / HFC)", "hybrid (fiber & HFC)", "hybrid
+(HFC/fiber)"). CrewAI's schema allows only cable, fiber, dsl or fixed_wireless. If n8n's wording is mapped
+to those categories, its three service-type items agree fully and consistency is **about 90%**. That is
+reported as a sensitivity check, not the result: the metric was fixed before the runs. The cause is a schema
+choice in our n8n build, not a limit of n8n (`COMPARISON_LOG.md` #12).
+
+**Both implementations are least consistent on pricing:** runs pick different plans and price points.
+
+**Limitations.** The item list is a choice: more pricing items would lower both scores, more company facts
+would raise them. Exact-match pricing is strict ($60 and $59.99 disagree). Three runs is a small sample. n8n
+has no fixed-evidence figure (no seeded runs).
 
 ---
 
@@ -258,10 +236,9 @@ pick different plans and price points, even from the same evidence.
 
 **Definition.** Estimated LLM cost of one full run, against the brief's `max_cost_usd` of $2.50.
 
-**Data collected.** `cost.estimated_llm_usd` from each run record.
-- CrewAI: calculated from provider-reported token counts per call, at the gpt-5-mini prices in
-  `crewai/wire3_gtm/run_log.py` (checked 2026-09-19).
-- n8n: estimated from the token counts n8n shows.
+**Data collected.** `cost.estimated_llm_usd` in each run record. CrewAI's is calculated from provider-reported
+token counts per call. n8n's is estimated from the token counts n8n shows. Both use the gpt-5-mini prices
+checked on 2026-09-19.
 
 **Calculation.** Per completed run; met when every run is at or under $2.50.
 
@@ -269,34 +246,37 @@ pick different plans and price points, even from the same evidence.
 
 | | Completed runs | Cost per run | Max | Share of budget |
 |---|---|---|---|---|
-| CrewAI | 4 | $0.11, $0.20, $0.13, $0.15 | $0.20 | 8% |
-| n8n | 1 | ≥ $0.35 | ≥ $0.35 | ≥ 14% |
+| CrewAI | 3 | $0.18, $0.12, $0.14 | $0.18 | 7% |
+| n8n | 3 | ≥ $0.10, ≥ $0.11, ≥ $0.11 | ≥ $0.11 | ≥ 4.5% |
 
 Both **met**, by a wide margin.
 
 **Limitations.**
-- **n8n's figure is a lower bound.** n8n cannot see gpt-5-mini's hidden reasoning tokens, which are billed
-  as output. CrewAI's figure includes them.
-- **Neither figure includes search-provider fees** (Tavily). CrewAI's 4 runs made 13–18 search calls each, n8n's
-  run 26 (plus 1 link check). The per-call fee depends on the Tavily plan and isn't recorded.
-- **Prices change.** The prices are a dated snapshot.
-- **Failed runs cost money too:** CrewAI's failed run cost $0.09, n8n's failed runs $0.10 and $0.19.
+- **n8n's figure is a lower bound.** n8n cannot see gpt-5-mini's hidden reasoning tokens, which are billed as
+  output; CrewAI's figure includes them. The two are therefore **not** directly comparable, and n8n's true cost
+  is likely similar to or above CrewAI's.
+- **Neither includes search-provider fees** (Tavily). CrewAI's counted runs made 15–18 searches each, n8n's 16–20.
+- **Failed runs cost money too:** n8n's execution 36 cost at least $0.12 and produced no document.
+- **Prices are a dated snapshot.**
 
 ---
 
 ## Reliability (context for all six)
 
-| | Attempted | Completed | Failed | Notes |
-|---|---|---|---|---|
-| CrewAI | 5 | 4 | 1 | the failure was an invented evidence ID, since fixed; budget-cap tests excluded |
-| n8n | 3 | 1 (degraded) | 2 | the completed run had 11 invented IDs removed |
+| | Attempted on counted version | Completed | Notes |
+|---|---|---|---|
+| CrewAI | 3 | 3 | its own checks flagged unsupported numbers (4–9 per run) and 1 invented id, all handled in-run |
+| n8n | 4 | 3 (all "degraded") | 15, 2 and 17 invented evidence ids removed; execution 36 failed on one self-referencing citation |
+
+The difference is mostly an orchestrator finding: CrewAI re-prompts the model inside the task when a check
+fails; n8n checks after the model step and can only remove the bad citation or stop the run
+(`COMPARISON_LOG.md` #10, #11).
 
 ## What would complete the comparison
 
-1. **3 or more completed n8n runs of the current brief.** This makes KPI 5 measurable and gives KPIs 1–3
-   and 6 more than one data point. Roughly $0.35 or more and 8 minutes per run.
-2. **A blind human rubric review of both documents** (KPI 4), and of the 6 A/B packets for CrewAI.
-3. **The n8n renderer fix** (template rule 4). It would change n8n's KPI 1 result the most, since the
-   document would then show its analysis sections.
-4. **For CrewAI's KPI 2:** research that retrieves more primary sources. The Analyst can't cite what the
-   search didn't return, and 55% of the distinct sources CrewAI's research returned were weak.
+1. **A blind human rubric review** of both implementations' current documents (KPI 4). This is the only KPI
+   still unmeasured, and the one closest to the plan's real value.
+2. **More runs** would firm up reproducibility and reliability: three is the minimum, not a robust sample.
+3. **Top-tier sources (both):** research aimed at official sites. The Analyst prompt alone did not move it
+   (A/B test).
+4. **n8n reproducibility:** a fixed set of values for service type in its analysis schema, as CrewAI has.

@@ -31,9 +31,11 @@ TOP = ("primary", "top_secondary")
 TARGETS = {"coverage": 0.90, "top_tier_share": 0.80, "broken_link_share": 0.0, "latency_minutes": 15.0,
            "strategy_quality": 4.0, "reproducibility": 0.80}
 
-# n8n: the one completed run of the current brief whose artifacts survive (execution 29)
-N8N_RUNS = {"client-mudhx5in-ji99rx": {"data": KPI_DIR / "data" / "n8n_client-mudhx5in-ji99rx.json",
-                                        "document": REPO / "eval" / "inputs" / "n8n_client-mudhx5in-ji99rx.md"}}
+
+
+def run_selection(path: Path | None = None) -> dict:
+    """eval/kpi/runs.yaml: which runs count (see the comments there)."""
+    return yaml.safe_load((path or KPI_DIR / "runs.yaml").read_text())
 
 
 # --- source tiers ----------------------------------------------------------------------------------
@@ -99,10 +101,10 @@ def load_crewai(run_id: str, records: dict) -> Run:
 
 
 def load_n8n(run_id: str, records: dict) -> Run:
-    src = N8N_RUNS[run_id]
-    data = json.loads(src["data"].read_text())
-    return Run("n8n", run_id, data["evidence"], data["analyst"], data["strategy"], src["document"].read_text(),
-               None, records.get(run_id))
+    """An n8n run exported by n8n/scripts/export_run.js."""
+    data = json.loads((KPI_DIR / "data" / f"n8n_{run_id}.json").read_text())
+    doc = (KPI_DIR / "data" / f"n8n_{run_id}.md").read_text()
+    return Run("n8n", run_id, data["evidence"], data["analyst"], data["strategy"], doc, None, records.get(run_id))
 
 
 def completed_runs() -> tuple[list[Run], list[dict]]:
@@ -111,12 +113,13 @@ def completed_runs() -> tuple[list[Run], list[dict]]:
     bid = current_brief_id()
     crew_recs, n8n_recs = run_records(CREW_LOG), run_records(N8N_LOG)
     runs = []
+    crew_since = run_selection()["crewai"].get("since", "")
     for rid, r in crew_recs.items():
-        seeded_ok = not rid.startswith("ab-") or rid in ab_runs()
+        seeded_ok = rid in ab_runs() if rid.startswith("ab-") else (r.get("started_at") or "") >= crew_since
         if r.get("brief_id") == bid and r["status"] in ("success", "degraded") and seeded_ok \
                 and (CREW_RUNS / rid / "05_document.md").exists():
             runs.append(load_crewai(rid, crew_recs))
-    for rid in N8N_RUNS:
+    for rid in run_selection()["n8n"]["runs"]:
         runs.append(load_n8n(rid, n8n_recs))
     all_recs = [{**r, "impl": "crewai"} for r in crew_recs.values()] + [{**r, "impl": "n8n"} for r in n8n_recs.values()]
     return runs, all_recs
@@ -204,9 +207,10 @@ def recheck_links(urls: list[str]) -> dict[str, dict]:
 
 # --- KPI 3 and 6: latency and cost (from run records, all runs of the current brief) -------------------
 
-def latency_and_cost(records: list[dict], impl: str, budget_usd: float) -> dict:
+def latency_and_cost(records: list[dict], impl: str, budget_usd: float, since: str = "") -> dict:
+    """All runs of the current brief started at or after `since` (the implementation's counted version)."""
     bid = current_brief_id()
-    mine = [r for r in records if r["impl"] == impl and r.get("brief_id") == bid
+    mine = [r for r in records if r["impl"] == impl and r.get("brief_id") == bid and (r.get("started_at") or "") >= since
             and not r["run_id"].startswith("ab-") and not (r.get("issues") and any("budget overridden" in i for i in r["issues"]))]
     done = [r for r in mine if r["status"] in ("success", "degraded")]
     mins = [r["duration_ms"] / 60000 for r in done]
@@ -315,7 +319,8 @@ def measure(recheck: bool = False) -> dict:
         full = [r for r in runs if r.impl == impl and r.kind == "full"]
         seeded_control = [r for r in runs if r.impl == impl and r.run_id in ab_control_runs()]
         out[impl] = {
-            "latency_and_cost": latency_and_cost(records, impl, brief["budget"]["max_cost_usd"]),
+            "latency_and_cost": latency_and_cost(records, impl, brief["budget"]["max_cost_usd"],
+                                                 run_selection()[impl].get("since", "")),
             "reproducibility_end_to_end": reproducibility(full),
             "reproducibility_fixed_evidence": reproducibility(seeded_control),
             "full_runs_measured": [r.run_id for r in full],

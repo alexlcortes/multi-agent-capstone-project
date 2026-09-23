@@ -48,12 +48,14 @@ domains:
   cox.com: {tier: primary, why: "Cox's official site (now Spectrum in Ocala)"}
   xfinity.com: {tier: primary, why: "Comcast's official site"}
   boostmobile.com: {tier: primary, why: "Boost Mobile's official site"}
+  quantumfiber.com: {tier: primary, why: "Quantum Fiber's official site"}
   businesswire.com: {tier: primary, why: "company-issued press release"}
   prnewswire.com: {tier: primary, why: "company-issued press release"}
   prweb.com: {tier: primary, why: "company-issued press release"}
   # --- primary: government ----------------------------------------------------------------------
   marionfl.org: {tier: primary, why: "Marion County government"}
   ocalafl.gov: {tier: primary, why: "City of Ocala government"}
+  find-and-update.company-information.service.gov.uk: {tier: primary, why: "UK government company register (the cited entry is an unrelated firm: primary by type, irrelevant by content)"}
 
   # --- top_secondary: news and trade press with named authors ----------------------------------
   cnet.com: {tier: top_secondary, why: "bylined tech press"}
@@ -63,11 +65,14 @@ domains:
   mobileworldlive.com: {tier: top_secondary, why: "GSMA telecom trade press"}
   wirelessestimator.com: {tier: top_secondary, why: "bylined wireless-infrastructure trade press"}
   thedesk.net: {tier: top_secondary, why: "bylined TV/streaming trade press"}
+  broadbandbreakfast.com: {tier: top_secondary, why: "bylined broadband trade press"}
   investors.com: {tier: top_secondary, why: "Investor's Business Daily, bylined"}
   ocala.com: {tier: top_secondary, why: "Ocala Star-Banner (brief's preferred source)"}
   wftv.com: {tier: top_secondary, why: "local TV news"}
   352today.com: {tier: top_secondary, why: "local news outlet"}
   # --- top_secondary: analyst firms, industry bodies, academic and institutional research ---------
+  phonearena.com: {tier: top_secondary, why: "bylined mobile trade press"}
+  datausa.io: {tier: top_secondary, why: "Census and ACS data, republished by Deloitte/Datawheel"}
   stlpartners.com: {tier: top_secondary, why: "telecom analyst firm"}
   globaldata.com: {tier: top_secondary, why: "analyst firm company profile"}
   pitchbook.com: {tier: top_secondary, why: "financial data provider"}
@@ -144,6 +149,7 @@ domains:
   en.wikipedia.org: {tier: weak, why: "tertiary, anonymous authorship"}
   # --- weak: content farms, vendor and agency blogs, report resellers ---------------------------------
   businessmodelanalyst.com: {tier: weak, why: "content farm"}
+  thestrategystory.com: {tier: weak, why: "content farm"}
   pitchgrade.com: {tier: weak, why: "AI-generated company summaries"}
   prometai.app: {tier: weak, why: "AI-generated content"}
   coherentmarketinsights.com: {tier: weak, why: "market-report content farm"}
@@ -179,3 +185,8 @@ domains:
   deluxe.com: {tier: weak, why: "vendor marketing"}
   wasteconnections.com: {tier: weak, why: "unrelated business"}
   southernnevadamodeltclub.org: {tier: weak, why: "unrelated club site"}
+  flhealthguide.com: {tier: weak, why: "unrelated insurance marketing"}
+  nextdoor.com: {tier: weak, why: "user-generated neighbourhood posts"}
+  practo.com: {tier: weak, why: "unrelated clinic directory"}
+  vizologi.com: {tier: weak, why: "AI-generated business-model summaries"}
+  zillow.com: {tier: weak, why: "property listings"}

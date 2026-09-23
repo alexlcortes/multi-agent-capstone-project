@@ -9,235 +9,6 @@
   "reproducibility": 0.8
  },
  "per_run": {
-  "run-20260920-223513": {
-   "impl": "crewai",
-   "kind": "full",
-   "coverage": {
-    "value": 1.0,
-    "per_rq": {
-     "RQ1": true,
-     "RQ2": true,
-     "RQ3": true,
-     "RQ4": true,
-     "RQ5": true,
-     "RQ6": true,
-     "RQ7": true,
-     "RQ8": true
-    }
-   },
-   "source_quality": {
-    "cited_urls": 46,
-    "cited_records": 55,
-    "by_tier": {
-     "weak": 15,
-     "primary": 30,
-     "top_secondary": 1
-    },
-    "top_tier_share": 0.6739130434782609,
-    "top_tier_share_by_record": 0.6727272727272727,
-    "weak_urls": [
-     "https://ca.investing.com/news/company-news/tmobile-adds-new-benefits-to-home-and-business-internet-plans-93CH-4140201",
-     "https://finance.yahoo.com/quote/T/profile",
-     "https://ispreports.org/compare-internet-service-providers/t-mobile-home-vs-ocala-fiber",
-     "https://umbrex.com/resources/company-profiles/att",
-     "https://www.broadbandsearch.net/provider/spectrum",
-     "https://www.cabletv.com/att/wireless",
-     "https://www.cabletv.com/spectrum/cable-tv",
-     "https://www.compareinternet.com/fl/ocala",
-     "https://www.facebook.com/groups/1505517603098972/posts/4103114976672542",
-     "https://www.highspeedinternet.com/fl/ocala",
-     "https://www.highspeedinternet.com/providers/t-mobile-home-internet",
-     "https://www.highspeedinternet.com/providers/t-mobile-home-internet/internet",
-     "https://www.investing.com/news/company-news/tmobile-adds-new-benefits-to-home-and-business-internet-plans-93CH-4173502",
-     "https://www.rvmobileinternet.com/gear/t-mobile-home-internet",
-     "https://www.youtube.com/watch?v=LgtXwIxn_D8&vl=en-US"
-    ],
-    "run_time_link_check": {
-     "broken": 0,
-     "broken_share": 0.0,
-     "blocked_or_unverified": 17
-    },
-    "recheck": {
-     "broken": 0,
-     "broken_share": 0.0,
-     "by_class": {
-      "blocked": 6,
-      "ok": 35,
-      "unverified": 5
-     },
-     "broken_urls": []
-    }
-   }
-  },
-  "run-20260920-232205": {
-   "impl": "crewai",
-   "kind": "full",
-   "coverage": {
-    "value": 1.0,
-    "per_rq": {
-     "RQ1": true,
-     "RQ2": true,
-     "RQ3": true,
-     "RQ4": true,
-     "RQ5": true,
-     "RQ6": true,
-     "RQ7": true,
-     "RQ8": true
-    }
-   },
-   "source_quality": {
-    "cited_urls": 30,
-    "cited_records": 42,
-    "by_tier": {
-     "weak": 8,
-     "primary": 20,
-     "top_secondary": 2
-    },
-    "top_tier_share": 0.7333333333333333,
-    "top_tier_share_by_record": 0.7380952380952381,
-    "weak_urls": [
-     "https://broadbandmap.com/internet-providers/ocala-fl",
-     "https://broadbandnow.com/t-mobile-home-internet-deals",
-     "https://ca.investing.com/news/company-news/tmobile-adds-new-benefits-to-home-and-business-internet-plans-93CH-4140201",
-     "https://en.wikipedia.org/wiki/Charter_Communications",
-     "https://www.cabletv.com/att/wireless",
-     "https://www.compareinternet.com/fl/ocala",
-     "https://www.highspeedinternet.com/fl/ocala",
-     "https://www.highspeedinternet.com/providers/t-mobile-home-internet/internet"
-    ],
-    "run_time_link_check": {
-     "broken": 0,
-     "broken_share": 0.0,
-     "blocked_or_unverified": 9
-    },
-    "recheck": {
-     "broken": 0,
-     "broken_share": 0.0,
-     "by_class": {
-      "ok": 24,
-      "blocked": 2,
-      "unverified": 4
-     },
-     "broken_urls": []
-    }
-   }
-  },
-  "run-20260921-102023": {
-   "impl": "crewai",
-   "kind": "full",
-   "coverage": {
-    "value": 1.0,
-    "per_rq": {
-     "RQ1": true,
-     "RQ2": true,
-     "RQ3": true,
-     "RQ4": true,
-     "RQ5": true,
-     "RQ6": true,
-     "RQ7": true,
-     "RQ8": true
-    }
-   },
-   "source_quality": {
-    "cited_urls": 32,
-    "cited_records": 39,
-    "by_tier": {
-     "primary": 20,
-     "weak": 11,
-     "top_secondary": 1
-    },
-    "top_tier_share": 0.65625,
-    "top_tier_share_by_record": 0.6666666666666666,
-    "weak_urls": [
-     "https://broadbandmap.com/internet-providers/ocala-fl",
-     "https://broadbandnow.com/Florida/Ocala",
-     "https://ca.investing.com/news/company-news/tmobile-adds-new-benefits-to-home-and-business-internet-plans-93CH-4140201",
-     "https://ispreports.org/compare-internet-service-providers/att-vs-ocala-fiber",
-     "https://ispreports.org/compare-internet-service-providers/t-mobile-home-vs-ocala-fiber",
-     "https://www.allconnect.com/internet",
-     "https://www.allconnect.com/local/fl/ocala/zip-34481",
-     "https://www.allconnect.com/providers/t-mobile",
-     "https://www.compareinternet.com/fl/ocala",
-     "https://www.highspeedinternet.com/providers/t-mobile-home-internet",
-     "https://www.whistleout.com/Internet/Providers/Charter-Spectrum/United-States/Florida"
-    ],
-    "run_time_link_check": {
-     "broken": 0,
-     "broken_share": 0.0,
-     "blocked_or_unverified": 17
-    },
-    "recheck": {
-     "broken": 0,
-     "broken_share": 0.0,
-     "by_class": {
-      "blocked": 9,
-      "ok": 18,
-      "unverified": 5
-     },
-     "broken_urls": []
-    }
-   }
-  },
-  "run-20260921-121832": {
-   "impl": "crewai",
-   "kind": "full",
-   "coverage": {
-    "value": 1.0,
-    "per_rq": {
-     "RQ1": true,
-     "RQ2": true,
-     "RQ3": true,
-     "RQ4": true,
-     "RQ5": true,
-     "RQ6": true,
-     "RQ7": true,
-     "RQ8": true
-    }
-   },
-   "source_quality": {
-    "cited_urls": 49,
-    "cited_records": 61,
-    "by_tier": {
-     "weak": 15,
-     "primary": 33,
-     "top_secondary": 1
-    },
-    "top_tier_share": 0.6938775510204082,
-    "top_tier_share_by_record": 0.7377049180327869,
-    "weak_urls": [
-     "https://broadbandmap.com/internet-providers/ocala-fl",
-     "https://ca.investing.com/news/company-news/tmobile-adds-new-benefits-to-home-and-business-internet-plans-93CH-4140201",
-     "https://checkthat.ai/brands/at-t/pricing",
-     "https://downdetector.com/status/wire3",
-     "https://finance.yahoo.com/news/look-landstar-business-model-223001238.html",
-     "https://ispreports.org/compare-internet-service-providers/t-mobile-home-vs-ocala-fiber",
-     "https://www.allconnect.com/providers/spectrum/spectrum-deals",
-     "https://www.bundleinternet.com/spectrum-internet-complete-guide",
-     "https://www.businessinsider.com/guides/deals/metro-tmobile-plans-phone-deals",
-     "https://www.cabletv.com/spectrum/plans",
-     "https://www.compareinternet.com/fl/ocala",
-     "https://www.facebook.com/groups/1505517603098972/posts/4103114976672542",
-     "https://www.highspeedinternet.com/providers/t-mobile-home-internet",
-     "https://www.hollywoodreporter.com/lifestyle/shopping/t-mobile-internet-deals-home-internet-plans-sign-up-1236430357",
-     "https://www.mapquest.com/us/michigan/charter-spectrum-411880824"
-    ],
-    "run_time_link_check": {
-     "broken": 0,
-     "broken_share": 0.0,
-     "blocked_or_unverified": 16
-    },
-    "recheck": {
-     "broken": 0,
-     "broken_share": 0.0,
-     "by_class": {
-      "ok": 38,
-      "blocked": 6,
-      "unverified": 5
-     },
-     "broken_urls": []
-    }
-   }
-  },
   "ab-analyst-sources-A0-20260923-132506": {
    "impl": "crewai",
    "kind": "seeded",
@@ -596,44 +367,332 @@
     }
    }
   },
-  "client-mudhx5in-ji99rx": {
-   "impl": "n8n",
+  "run-20260923-130640": {
+   "impl": "crewai",
    "kind": "full",
    "coverage": {
-    "value": 0.5,
+    "value": 1.0,
     "per_rq": {
      "RQ1": true,
      "RQ2": true,
-     "RQ3": false,
-     "RQ4": false,
-     "RQ5": false,
+     "RQ3": true,
+     "RQ4": true,
+     "RQ5": true,
      "RQ6": true,
      "RQ7": true,
-     "RQ8": false
+     "RQ8": true
     }
    },
    "source_quality": {
-    "cited_urls": 11,
-    "cited_records": 13,
+    "cited_urls": 43,
+    "cited_records": 55,
     "by_tier": {
-     "top_secondary": 2,
-     "primary": 7,
-     "weak": 2
+     "weak": 18,
+     "primary": 25
     },
-    "top_tier_share": 0.8181818181818182,
-    "top_tier_share_by_record": 0.7692307692307693,
+    "top_tier_share": 0.5813953488372093,
+    "top_tier_share_by_record": 0.6181818181818182,
     "weak_urls": [
+     "https://ca.investing.com/news/company-news/tmobile-adds-new-benefits-to-home-and-business-internet-plans-93CH-4140201",
+     "https://finance.yahoo.com/news/wire-3-brings-100-fiber-130000400.html",
+     "https://ispreports.org/compare-internet-service-providers/t-mobile-home-vs-ocala-fiber",
+     "https://www.allconnect.com/internet",
+     "https://www.allconnect.com/local/fl/ocala/zip-34481",
      "https://www.compareinternet.com/fl/ocala",
-     "https://www.reddit.com/r/ocala/comments/1cyu8wu/affordable_and_good_wifi_and_mobile_services_in"
+     "https://www.facebook.com/groups/1505517603098972/posts/4103114976672542",
+     "https://www.highspeedinternet.com/fl/ocala",
+     "https://www.highspeedinternet.com/providers/spectrum",
+     "https://www.highspeedinternet.com/providers/t-mobile-home-internet",
+     "https://www.investing.com/news/company-news/att-introduces-wireless-plans-with-increased-data-allowances-93CH-4559345",
+     "https://www.mapquest.com/us/florida/cablevision-of-marion-county-403851934",
+     "https://www.reddit.com/r/321/comments/1kodcn6/anyone_switched_to_wire_3",
+     "https://www.reddit.com/r/tmobile/comments/1vukm2l/thoughts_on_tmobile_5g_home_internet",
+     "https://www.whistleout.com/Internet/Providers/Charter-Spectrum",
+     "https://www.whistleout.com/Internet/Providers/T-Mobile/United-States/Florida",
+     "https://www.yelp.com/biz/marion-county-childrens-alliance-ocala",
+     "https://www.youtube.com/watch?v=LgtXwIxn_D8&vl=en-US"
+    ],
+    "run_time_link_check": {
+     "broken": 0,
+     "broken_share": 0.0,
+     "blocked_or_unverified": 18
+    },
+    "recheck": {
+     "broken": 0,
+     "broken_share": 0.0,
+     "by_class": {
+      "blocked": 11,
+      "ok": 27,
+      "unverified": 5
+     },
+     "broken_urls": []
+    }
+   }
+  },
+  "run-20260923-131659": {
+   "impl": "crewai",
+   "kind": "full",
+   "coverage": {
+    "value": 1.0,
+    "per_rq": {
+     "RQ1": true,
+     "RQ2": true,
+     "RQ3": true,
+     "RQ4": true,
+     "RQ5": true,
+     "RQ6": true,
+     "RQ7": true,
+     "RQ8": true
+    }
+   },
+   "source_quality": {
+    "cited_urls": 40,
+    "cited_records": 47,
+    "by_tier": {
+     "primary": 25,
+     "weak": 14,
+     "top_secondary": 1
+    },
+    "top_tier_share": 0.65,
+    "top_tier_share_by_record": 0.6595744680851063,
+    "weak_urls": [
+     "https://ispreports.org/compare-internet-service-providers/t-mobile-home-vs-ocala-fiber",
+     "https://www.allconnect.com/local/fl/ocala/zip-34481",
+     "https://www.cabletv.com/tmobile/deals",
+     "https://www.compareinternet.com/fl/ocala",
+     "https://www.facebook.com/groups/1505517603098972/posts/4103114976672542",
+     "https://www.highspeedinternet.com/providers/spectrum",
+     "https://www.highspeedinternet.com/providers/t-mobile-home-internet",
+     "https://www.investing.com/news/company-news/att-introduces-wireless-plans-with-increased-data-allowances-93CH-4559345",
+     "https://www.investing.com/news/company-news/tmobile-adds-new-benefits-to-home-and-business-internet-plans-93CH-4173502",
+     "https://www.reddit.com/r/ocala/comments/1cyu8wu/affordable_and_good_wifi_and_mobile_services_in",
+     "https://www.rsinc.com/how-to-get-the-best-deal-with-spectrum-in-florida.php",
+     "https://www.whistleout.com/Internet/Providers/Charter-Spectrum",
+     "https://www.whistleout.com/Internet/Providers/T-Mobile/United-States/Florida",
+     "https://www.youtube.com/watch?v=LgtXwIxn_D8&vl=en-US"
+    ],
+    "run_time_link_check": {
+     "broken": 0,
+     "broken_share": 0.0,
+     "blocked_or_unverified": 17
+    },
+    "recheck": {
+     "broken": 0,
+     "broken_share": 0.0,
+     "by_class": {
+      "blocked": 10,
+      "ok": 25,
+      "unverified": 5
+     },
+     "broken_urls": []
+    }
+   }
+  },
+  "run-20260923-132404": {
+   "impl": "crewai",
+   "kind": "full",
+   "coverage": {
+    "value": 1.0,
+    "per_rq": {
+     "RQ1": true,
+     "RQ2": true,
+     "RQ3": true,
+     "RQ4": true,
+     "RQ5": true,
+     "RQ6": true,
+     "RQ7": true,
+     "RQ8": true
+    }
+   },
+   "source_quality": {
+    "cited_urls": 35,
+    "cited_records": 42,
+    "by_tier": {
+     "weak": 11,
+     "top_secondary": 2,
+     "primary": 22
+    },
+    "top_tier_share": 0.6857142857142857,
+    "top_tier_share_by_record": 0.6904761904761905,
+    "weak_urls": [
+     "https://ca.investing.com/news/company-news/tmobile-adds-new-benefits-to-home-and-business-internet-plans-93CH-4140201",
+     "https://www.allconnect.com/local/fl/ocala/zip-34481",
+     "https://www.cabletv.com/tmobile/deals",
+     "https://www.compareinternet.com/fl/ocala",
+     "https://www.facebook.com/groups/1505517603098972/posts/4103114976672542",
+     "https://www.highspeedinternet.com/providers/spectrum",
+     "https://www.highspeedinternet.com/providers/t-mobile-home-internet",
+     "https://www.reddit.com/r/ocala/comments/1cyu8wu/affordable_and_good_wifi_and_mobile_services_in",
+     "https://www.whistleout.com/Internet/Providers/Charter-Spectrum",
+     "https://www.whistleout.com/Internet/Providers/T-Mobile/United-States/Florida",
+     "https://www.yelp.com/biz/marion-county-childrens-alliance-ocala"
+    ],
+    "run_time_link_check": {
+     "broken": 0,
+     "broken_share": 0.0,
+     "blocked_or_unverified": 13
+    },
+    "recheck": {
+     "broken": 0,
+     "broken_share": 0.0,
+     "by_class": {
+      "blocked": 7,
+      "ok": 24,
+      "unverified": 4
+     },
+     "broken_urls": []
+    }
+   }
+  },
+  "client-muebb850-kyrc43": {
+   "impl": "n8n",
+   "kind": "full",
+   "coverage": {
+    "value": 1.0,
+    "per_rq": {
+     "RQ1": true,
+     "RQ2": true,
+     "RQ3": true,
+     "RQ4": true,
+     "RQ5": true,
+     "RQ6": true,
+     "RQ7": true,
+     "RQ8": true
+    }
+   },
+   "source_quality": {
+    "cited_urls": 33,
+    "cited_records": 38,
+    "by_tier": {
+     "weak": 9,
+     "primary": 24
+    },
+    "top_tier_share": 0.7272727272727273,
+    "top_tier_share_by_record": 0.7368421052631579,
+    "weak_urls": [
+     "https://downdetector.com/status/wire3",
+     "https://finance.yahoo.com/news/wire-3-brings-100-fiber-130000400.html",
+     "https://www.allconnect.com/internet",
+     "https://www.allconnect.com/local/fl/ocala/zip-34481",
+     "https://www.compareinternet.com/fl/ocala",
+     "https://www.facebook.com/groups/1505517603098972/posts/4103114976672542",
+     "https://www.facebook.com/groups/599079008630521/posts/1433554715182942",
+     "https://www.highspeedinternet.com/providers/t-mobile-home-internet",
+     "https://www.whistleout.com/Internet/Providers/Charter-Spectrum"
     ],
     "run_time_link_check": null,
     "recheck": {
      "broken": 0,
      "broken_share": 0.0,
      "by_class": {
-      "ok": 8,
-      "blocked": 1,
-      "unverified": 2
+      "blocked": 6,
+      "ok": 22,
+      "unverified": 5
+     },
+     "broken_urls": []
+    }
+   }
+  },
+  "client-muebyn9q-em7deg": {
+   "impl": "n8n",
+   "kind": "full",
+   "coverage": {
+    "value": 1.0,
+    "per_rq": {
+     "RQ1": true,
+     "RQ2": true,
+     "RQ3": true,
+     "RQ4": true,
+     "RQ5": true,
+     "RQ6": true,
+     "RQ7": true,
+     "RQ8": true
+    }
+   },
+   "source_quality": {
+    "cited_urls": 39,
+    "cited_records": 50,
+    "by_tier": {
+     "primary": 28,
+     "weak": 11
+    },
+    "top_tier_share": 0.717948717948718,
+    "top_tier_share_by_record": 0.78,
+    "weak_urls": [
+     "https://en.wikipedia.org/wiki/AT&T",
+     "https://leadiq.com/c/spectrum-business--charter/5b4ca81c370000751692093a/employee-directory?page=3",
+     "https://www.allconnect.com/local/fl/ocala/zip-34481",
+     "https://www.allconnect.com/providers/t-mobile",
+     "https://www.cabletv.com/spectrum/cable-tv",
+     "https://www.facebook.com/groups/1505517603098972/posts/4103114976672542",
+     "https://www.highspeedinternet.com/providers/t-mobile-home-internet",
+     "https://www.indeed.com/q-ocala-l-marion-county,-fl-jobs.html",
+     "https://www.investing.com/news/company-news/att-introduces-wireless-plans-with-increased-data-allowances-93CH-4559345",
+     "https://www.investing.com/news/company-news/tmobile-adds-new-benefits-to-home-and-business-internet-plans-93CH-4173502",
+     "https://www.youtube.com/watch?v=LgtXwIxn_D8&vl=en-US"
+    ],
+    "run_time_link_check": null,
+    "recheck": {
+     "broken": 0,
+     "broken_share": 0.0,
+     "by_class": {
+      "blocked": 7,
+      "ok": 27,
+      "unverified": 5
+     },
+     "broken_urls": []
+    }
+   }
+  },
+  "client-muecjos5-gzgudf": {
+   "impl": "n8n",
+   "kind": "full",
+   "coverage": {
+    "value": 1.0,
+    "per_rq": {
+     "RQ1": true,
+     "RQ2": true,
+     "RQ3": true,
+     "RQ4": true,
+     "RQ5": true,
+     "RQ6": true,
+     "RQ7": true,
+     "RQ8": true
+    }
+   },
+   "source_quality": {
+    "cited_urls": 41,
+    "cited_records": 46,
+    "by_tier": {
+     "primary": 27,
+     "weak": 13,
+     "top_secondary": 1
+    },
+    "top_tier_share": 0.6829268292682927,
+    "top_tier_share_by_record": 0.717391304347826,
+    "weak_urls": [
+     "https://ca.investing.com/news/company-news/tmobile-adds-new-benefits-to-home-and-business-internet-plans-93CH-4140201",
+     "https://finance.yahoo.com/news/wire-3-brings-100-fiber-130000400.html",
+     "https://umbrex.com/resources/company-profiles/att",
+     "https://www.allconnect.com/providers/t-mobile",
+     "https://www.cabletv.com/spectrum/cable-tv",
+     "https://www.compareinternet.com/fl/ocala",
+     "https://www.facebook.com/groups/1505517603098972/posts/4103114976672542",
+     "https://www.highspeedinternet.com/providers/spectrum",
+     "https://www.highspeedinternet.com/providers/t-mobile-home-internet",
+     "https://www.investing.com/news/company-news/tmobile-adds-new-benefits-to-home-and-business-internet-plans-93CH-4173502",
+     "https://www.whistleout.com/Internet/Providers/Charter-Spectrum",
+     "https://www.youtube.com/watch?v=GZbYqYAYz5M",
+     "https://www.youtube.com/watch?v=LgtXwIxn_D8&vl=en-US"
+    ],
+    "run_time_link_check": null,
+    "recheck": {
+     "broken": 0,
+     "broken_share": 0.0,
+     "by_class": {
+      "blocked": 7,
+      "ok": 30,
+      "unverified": 4
      },
      "broken_urls": []
     }
@@ -659,56 +718,52 @@
  "links_rechecked": true,
  "crewai": {
   "latency_and_cost": {
-   "runs_attempted": 5,
-   "runs_completed": 4,
+   "runs_attempted": 3,
+   "runs_completed": 3,
    "statuses": {
-    "success": 4,
-    "failed": 1
+    "success": 3
    },
    "latency_minutes": {
-    "run-20260920-223513": 10.4,
-    "run-20260920-232205": 11.6,
-    "run-20260921-102023": 7.1,
-    "run-20260921-121832": 8.4
+    "run-20260923-130640": 9.3,
+    "run-20260923-131659": 6.0,
+    "run-20260923-132404": 7.6
    },
-   "latency_max": 11.6,
-   "latency_median": 9.4,
+   "latency_max": 9.3,
+   "latency_median": 7.6,
    "cost_usd": {
-    "run-20260920-223513": 0.11062,
-    "run-20260920-232205": 0.20405,
-    "run-20260921-102023": 0.12627,
-    "run-20260921-121832": 0.14961
+    "run-20260923-130640": 0.18213,
+    "run-20260923-131659": 0.11965,
+    "run-20260923-132404": 0.14111
    },
-   "cost_max": 0.20405,
+   "cost_max": 0.18213,
    "cost_is_lower_bound": false,
    "budget_usd": 2.5,
    "excluded": "runs with a deliberately overridden budget (cap tests) and seeded A/B runs"
   },
   "reproducibility_end_to_end": {
    "runs": [
-    "run-20260920-223513",
-    "run-20260920-232205",
-    "run-20260921-102023",
-    "run-20260921-121832"
+    "run-20260923-130640",
+    "run-20260923-131659",
+    "run-20260923-132404"
    ],
-   "value": 0.882,
+   "value": 0.922,
    "per_item": {
     "AT&T: footprint confirmed": 1.0,
     "AT&T: mobile bundle": 1.0,
-    "AT&T: priced plans (promo, post-promo)": 0.5,
+    "AT&T: priced plans (promo, post-promo)": 0.67,
     "AT&T: service type": 1.0,
     "Spectrum: footprint confirmed": 1.0,
     "Spectrum: mobile bundle": 1.0,
-    "Spectrum: priced plans (promo, post-promo)": 0.5,
+    "Spectrum: priced plans (promo, post-promo)": 0.67,
     "Spectrum: service type": 1.0,
     "T-Mobile Home Internet: footprint confirmed": 1.0,
     "T-Mobile Home Internet: mobile bundle": 1.0,
-    "T-Mobile Home Internet: priced plans (promo, post-promo)": 0.25,
+    "T-Mobile Home Internet: priced plans (promo, post-promo)": 0.33,
     "T-Mobile Home Internet: service type": 1.0,
     "Wire3: footprint confirmed": 1.0,
     "Wire3: mobile bundle": 1.0,
     "Wire3: service type": 1.0,
-    "strategy: channel categories": 0.75,
+    "strategy: channel categories": 1.0,
     "strategy: number of ICPs": 1.0
    }
   },
@@ -740,37 +795,68 @@
    }
   },
   "full_runs_measured": [
-   "run-20260920-223513",
-   "run-20260920-232205",
-   "run-20260921-102023",
-   "run-20260921-121832"
+   "run-20260923-130640",
+   "run-20260923-131659",
+   "run-20260923-132404"
   ]
  },
  "n8n": {
   "latency_and_cost": {
-   "runs_attempted": 3,
-   "runs_completed": 1,
+   "runs_attempted": 4,
+   "runs_completed": 3,
    "statuses": {
-    "failed": 2,
-    "degraded": 1
+    "degraded": 3,
+    "failed": 1
    },
    "latency_minutes": {
-    "client-mudhx5in-ji99rx": 7.7
+    "client-muebb850-kyrc43": 7.2,
+    "client-muebyn9q-em7deg": 8.8,
+    "client-muecjos5-gzgudf": 7.6
    },
-   "latency_max": 7.7,
-   "latency_median": 7.7,
+   "latency_max": 8.8,
+   "latency_median": 7.6,
    "cost_usd": {
-    "client-mudhx5in-ji99rx": 0.34718
+    "client-muebb850-kyrc43": 0.10015,
+    "client-muebyn9q-em7deg": 0.11261,
+    "client-muecjos5-gzgudf": 0.11187
    },
-   "cost_max": 0.34718,
+   "cost_max": 0.11261,
    "cost_is_lower_bound": true,
    "budget_usd": 2.5,
    "excluded": "runs with a deliberately overridden budget (cap tests) and seeded A/B runs"
   },
-  "reproducibility_end_to_end": null,
+  "reproducibility_end_to_end": {
+   "runs": [
+    "client-muebb850-kyrc43",
+    "client-muebyn9q-em7deg",
+    "client-muecjos5-gzgudf"
+   ],
+   "value": 0.784,
+   "per_item": {
+    "AT&T: footprint confirmed": 1.0,
+    "AT&T: mobile bundle": 1.0,
+    "AT&T: priced plans (promo, post-promo)": 1.0,
+    "AT&T: service type": 0.33,
+    "Spectrum: footprint confirmed": 1.0,
+    "Spectrum: mobile bundle": 1.0,
+    "Spectrum: priced plans (promo, post-promo)": 0.33,
+    "Spectrum: service type": 0.33,
+    "T-Mobile Home Internet: footprint confirmed": 1.0,
+    "T-Mobile Home Internet: mobile bundle": 1.0,
+    "T-Mobile Home Internet: priced plans (promo, post-promo)": 0.33,
+    "T-Mobile Home Internet: service type": 0.33,
+    "Wire3: footprint confirmed": 1.0,
+    "Wire3: mobile bundle": 1.0,
+    "Wire3: service type": 1.0,
+    "strategy: channel categories": 0.67,
+    "strategy: number of ICPs": 1.0
+   }
+  },
   "reproducibility_fixed_evidence": null,
   "full_runs_measured": [
-   "client-mudhx5in-ji99rx"
+   "client-muebb850-kyrc43",
+   "client-muebyn9q-em7deg",
+   "client-muecjos5-gzgudf"
   ]
  }
 }

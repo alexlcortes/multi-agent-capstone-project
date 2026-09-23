@@ -26,10 +26,12 @@ n8n or CrewAI works, not from a choice we made.
 | 8 | 2026-09-23 | Research context window: all-at-once calls overflow | n8n | Reliability | **Yes** |
 | 9 | 2026-09-23 | Research runs once per company, with a pause | n8n | Reliability | **Yes** |
 | 10 | 2026-09-23 | n8n's Analyst invents evidence ids; its gate deletes them instead of re-prompting | n8n | Kept | **Yes** |
+| 11 | 2026-09-23 | n8n's Strategy cited its own label as a source; the run stopped with no document | n8n | Kept | **Yes** |
+| 12 | 2026-09-23 | n8n's service type is free text, so identical answers read as different | n8n | Kept (for now) | No |
 
-**Runs before these changes do not compare like-for-like with runs after them.** n8n's KPI figures in
-`KPI_REPORT.md` (execution 29, 2026-09-23 02:40) predate #4–#9 and are to be replaced by runs of the fixed
-workflow.
+**Runs before these changes do not compare like-for-like with runs after them.** `KPI_REPORT.md` counts only
+n8n's final workflow (executions 35–38) and CrewAI's fresh runs on current code (2026-09-23 17:06 UTC on);
+see `eval/kpi/runs.yaml`.
 
 ---
 
@@ -165,6 +167,32 @@ workflow.
   (`issues` in each run record).
 - **Orchestrator finding: yes,** the same limitation as #4: validation after the LLM step, not inside it.
 
+## 11. A self-referencing citation stopped an n8n run
+
+- **Found:** execution 36 (`client-muebmst4-z4npdz`, final workflow) completed research (20 of 20 calls) and
+  analysis, then failed: one launch-phase activity cited `CHANNEL-1`, the Strategy's own label for one of
+  its channels, as its support. n8n's "Validate Strategy Grounding" found an unresolvable id and the Docs
+  Writer gate refused the document. 7.7 min and at least $0.12 spent, no document.
+- **Why it matters:** CrewAI's Strategy guardrail checks for exactly this ("your own ICP-/PILLAR-/CHANNEL-
+  ids are never sources") and re-prompts. n8n validates after the chain node and cannot re-prompt, so a
+  single bad citation costs the whole run.
+- **Change:** none, deliberately: changing the workflow mid-measurement would reset the run count. Counted as
+  a failure of the final workflow in the reliability figures. A possible later fix, mirroring #10, is to
+  remove self-referencing ids and downgrade the claim to inference.
+- **Orchestrator finding: yes,** the same limitation as #4 and #10, here at its most expensive.
+
+## 12. Free-text service type lowers n8n's measured reproducibility
+
+- **Found:** in the reproducibility KPI, n8n's three final runs agreed on each competitor's service type only
+  33% of the time, although they meant the same thing: "cable (fiber-powered / HFC)", "hybrid (fiber & HFC)",
+  "hybrid (HFC/fiber)". CrewAI's Pydantic schema allows only cable, fiber, dsl or fixed_wireless; n8n's
+  structured-output schema for the Analyst allows any string.
+- **Effect:** n8n's reproducibility is 78% (target 80%); with the wording mapped to CrewAI's categories it
+  would be about 90%. The KPI report gives 78% as the result, because the metric was fixed before the runs.
+- **Change:** none yet. The fix is an `enum` in n8n's Analyst output schema, which n8n's Structured Output
+  Parser supports. It would be a new workflow version.
+- **Orchestrator finding: no,** a schema choice in our n8n build.
+
 ---
 
 ## What this means for the final comparison
@@ -176,8 +204,9 @@ So far, the differences that are about **the orchestrators**, not our build:
    research alone). CrewAI's pipeline collects tool results in code. Batching (#9) works around the cap in
    n8n at the price of extra nodes and time.
 2. **Recovering from a bad LLM output.** CrewAI re-prompts inside the task (guardrails); n8n validates in a
-   Code node afterwards and can only repair (remove invented ids) or stop the run (#2, #4, #10). In the two
-   completed runs of the fixed n8n workflow, that meant deleting 5 and 15 invented citations.
+   Code node afterwards and can only repair (remove invented ids) or stop the run (#2, #4, #10, #11). On the
+   final n8n workflow that meant deleting 15 and 2 invented citations in the two completed runs, and losing
+   a whole run (execution 36) to one self-referencing citation.
 3. **Enforcing a plan.** Both agents drift. CrewAI enforces the plan in code before the next step; n8n needs
    an explicit Code node after the agent (#5).
 4. **Changing and testing it.** CrewAI changes are file edits with 358 tests run in seconds. n8n changes to
