@@ -1,0 +1,19 @@
+{
+  "reviewer": "your name",
+  "reviewed_at": "YYYY-MM-DD",
+  "rubric": "eval/rubric.md",
+  "blind": true,
+  "documents": {
+    "Doc 1": {"file": "path to the blinded copy you read"}
+  },
+  "scores": {
+    "Doc 1": {
+      "clarity": {"score": null, "evidence": ""},
+      "feasibility": {"score": null, "evidence": ""},
+      "differentiation": {"score": null, "evidence": ""},
+      "evidence_quality": {"score": null, "evidence": ""},
+      "citation_completeness": {"score": null, "evidence": ""},
+      "usefulness": {"score": null, "evidence": ""}
+    }
+  }
+}

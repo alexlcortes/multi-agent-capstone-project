@@ -1,0 +1,48 @@
+{
+  "reviewer": "Claude (model first pass, NOT a human review)",
+  "reviewed_at": "2026-09-23",
+  "rubric": "eval/rubric.md",
+  "blind": false,
+  "caveats": [
+    "A model scoring model output: use as a first pass for a human reviewer to confirm or overturn, not as the result.",
+    "Not blind: the reviewer knew which implementation made each document.",
+    "One run per implementation. The n8n run finished 'degraded' (11 invented evidence ids removed), so it may be worse than a typical n8n run.",
+    "The n8n Docs Writer renders only the Strategy artifact (known gap, schemas/gtm_document_template.md rule 4). n8n's Analyst artifact has competitor and pricing tables that the document never shows; scores are for the document as delivered."
+  ],
+  "documents": {
+    "crewai": {
+      "file": "eval/inputs/crewai_run-20260921-121832.md",
+      "run_id": "run-20260921-121832",
+      "brief_id": "brief-d516e1daddfb",
+      "words": 5150,
+      "sources_cited": 61
+    },
+    "n8n": {
+      "file": "eval/inputs/n8n_client-mudhx5in-ji99rx.md",
+      "run_id": "client-mudhx5in-ji99rx",
+      "brief_id": "brief-d516e1daddfb",
+      "words": 1752,
+      "sources_cited": 13
+    }
+  },
+  "scores": {
+    "crewai": {
+      "clarity": {"score": 3, "evidence": "All 13 brief sections are present, but the executive summary gives the value proposition and a list of channel names with no price points, targets or top actions. Much of the body is raw labelled fields (\"Promo status: has_promo\", \"fixed_wireless\", \"digital_paid\"), so the reader assembles the plan from 19 sections."},
+      "feasibility": {"score": 3, "evidence": "Three time-boxed phases with activities and exit criteria. But spend is only 'low/medium' tiers, with no sizing against the brief's budget; targets are marked illustrative (1,000 subs in 6 months [inference]); PHASE-1's exit criterion refers to a CTR target no metric defines; ICP-2 (small business) is outside the brief's residential segment."},
+      "differentiation": {"score": 4, "evidence": "Rests on sourced Wire3 facts: up to 10 Gbps, free eero Wi-Fi, free professional install, FREEMO/streaming promos, local technicians. PILLAR-4 answers the no-bundle constraint with a TCO argument. The 'transparent pricing' pillar is weak: Wire3's own post-promo price is unknown (UNK-1)."},
+      "evidence_quality": {"score": 3, "evidence": "61 sources incl. Wire3's own pages and competitor pricing with post-promo rates. But only 59% top-tier against the brief's 80% target, and several citations do not support their claim: SWOT-W1 ('lower brand recognition') cites a Yahoo article on Landstar's business model; Spectrum's Ocala footprint cites a MapQuest listing in Ionia, MI; installation-damage and construction-progress claims cite Port St. Lucie and Palm Bay, not Ocala. The T-Mobile pricing row is incoherent: 'has_promo' with promo = post-promo = $35 and a 1-month duration [inference]."},
+      "citation_completeness": {"score": 4, "evidence": "Every value carries ids; Appendix B lists all 61 sources with links; inference, brief-stated facts, 3 unknowns and 2 conflicts are all disclosed. Held back from 5 by citations that are present but do not support the claim (scored under evidence quality) and one metric target that repeats '(inference)' in its own text."},
+      "usefulness": {"score": 3, "evidence": "Gives competitor price points a team can use (Spectrum 1 Gig $60 -> $100, AT&T 1 Gig $50 -> $90) and clear pillars and channels. But it cannot answer 'what should Wire3 charge' (Wire3's standard prices are UNK-1), spend is unsized, and the 12-month blended price hides the post-promo cliff that is the plan's main argument (Spectrum and AT&T blend to their promo price)."}
+    },
+    "n8n": {
+      "clarity": {"score": 2, "evidence": "Concise and readable, but it starts at ICPs: no executive summary, research scope, competitor comparison or pricing matrix. The header shows 'Brief: run_1a2b3c' (a planner run id, not the brief). Metric targets have no units ('Target value: 5', '60', '80')."},
+      "feasibility": {"score": 3, "evidence": "Sensible sequencing: PHASE-1 first verifies Wire3's own speeds, prices and coverage (UNK-1). Concrete exit criteria (50+ interest sign-ups; >80% of installs within the promised window). But employer partnerships and a 'bring-your-phone credit' are unscoped; spend is unsized; ICP-2 (newly served rural addresses) and ICP-3 (small business) are outside the brief's segment of residential switchers."},
+      "differentiation": {"score": 2, "evidence": "Positioning is 'local, transparent, symmetric', which any regional fiber ISP could claim. The research found no Wire3 evidence, so Wire3's speeds are placeholders (ASM-1: '1000/1000 Mbps as plausible placeholders') and its footprint is inferred as not confirmed."},
+      "evidence_quality": {"score": 2, "evidence": "0 of 400 evidence records are from wire3.com, and 72% (287) are community sources. The document cites 13 sources, including duplicates (the same Reddit thread twice, the same Charter press release twice). 11 invented evidence ids had to be removed during the run."},
+      "citation_completeness": {"score": 3, "evidence": "Strategy claims carry finding ids and both appendices are linked. But a recommendation is labelled [brief] ('No bundle gap response ... [brief]'), metric targets are cited to themes that contain no such number (churn 5 [THEME-1]), and no strategy claim can be traced to a price because the pricing tables are not in the document."},
+      "usefulness": {"score": 2, "evidence": "A team gets reasonable pillars and channels, but no competitor prices, no competitor comparison and no verified Wire3 facts, so pricing, offer and targeting decisions cannot be made from it. n8n's Analyst did produce three competitor pricing rows (Spectrum 500 Mbps $40 -> $60, AT&T Fiber 300 $35 -> $55, T-Mobile Rely $35 -> $50) that the document never shows."}
+    }
+  },
+  "totals": {"crewai": 20, "n8n": 14, "out_of": 30},
+  "summary": "CrewAI's document is more complete and better grounded, mainly because its research found Wire3's own pages and it renders the analysis. Its weak points are presentation (raw field dumps, thin summary) and citation relevance (several sources for the wrong company or market). n8n's weak points are structural: its Docs Writer omits the analysis sections, and its research never retrieved Wire3 evidence. Fixing n8n's renderer (template rule 4) would raise its clarity and usefulness scores without new research; its evidence scores need a research fix (a company_overview call for Wire3 that returns Wire3 pages)."
+}
