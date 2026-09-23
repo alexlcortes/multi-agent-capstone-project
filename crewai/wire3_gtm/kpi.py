@@ -248,6 +248,23 @@ def strategy_quality(reviews_dir: Path = REPO / "eval" / "reviews") -> dict:
             if all(isinstance(v, int) for v in vals):
                 out.setdefault(impl, []).append({"review": f.name, "mean": round(sum(vals) / 6, 2),
                                                  "counts_toward_kpi": not is_model and bool(rev.get("blind"))})
+    # blinded reviews of the counted runs (python -m wire3_gtm review-packets): unblind through the key
+    key_file = reviews_dir / "kpi4" / "packets" / "key.json"
+    if key_file.exists():
+        key = json.loads(key_file.read_text())["key"]
+        for f in sorted((reviews_dir / "kpi4").glob("*.json")):
+            if f.name == "TEMPLATE.json":
+                continue
+            rev = json.loads(f.read_text())
+            for label, scores in rev.get("scores", {}).items():
+                vals = [(scores.get(c) or {}).get("score") for c in CRITERIA]
+                if label in key and all(isinstance(v, int) and 1 <= v <= 5 for v in vals):
+                    has_evidence = all(str((scores.get(c) or {}).get("evidence") or "").strip() for c in CRITERIA)
+                    # no document label or run id in the output: the reviewer may still be adding evidence blind
+                    out.setdefault(key[label]["implementation"], []).append({
+                        "review": f"kpi4/{f.name}", "mean": round(sum(vals) / 6, 2),
+                        "scores": dict(zip(CRITERIA, vals)), "has_evidence": has_evidence,
+                        "counts_toward_kpi": bool(rev.get("blind")) and has_evidence})
     return out
 
 

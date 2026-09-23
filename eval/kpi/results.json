@@ -637,8 +637,8 @@
      "broken_share": 0.0,
      "by_class": {
       "blocked": 7,
-      "ok": 27,
-      "unverified": 5
+      "ok": 28,
+      "unverified": 4
      },
      "broken_urls": []
     }
@@ -705,12 +705,96 @@
     "review": "2026-09-23-claude-first-pass.json",
     "mean": 3.33,
     "counts_toward_kpi": false
+   },
+   {
+    "review": "kpi4/2026-09-23-alejandro.json",
+    "mean": 4.5,
+    "scores": {
+     "clarity": 4,
+     "feasibility": 5,
+     "differentiation": 4,
+     "evidence_quality": 4,
+     "citation_completeness": 5,
+     "usefulness": 5
+    },
+    "has_evidence": false,
+    "counts_toward_kpi": false
+   },
+   {
+    "review": "kpi4/2026-09-23-alejandro.json",
+    "mean": 5.0,
+    "scores": {
+     "clarity": 5,
+     "feasibility": 5,
+     "differentiation": 5,
+     "evidence_quality": 5,
+     "citation_completeness": 5,
+     "usefulness": 5
+    },
+    "has_evidence": false,
+    "counts_toward_kpi": false
+   },
+   {
+    "review": "kpi4/2026-09-23-alejandro.json",
+    "mean": 5.0,
+    "scores": {
+     "clarity": 5,
+     "feasibility": 5,
+     "differentiation": 5,
+     "evidence_quality": 5,
+     "citation_completeness": 5,
+     "usefulness": 5
+    },
+    "has_evidence": false,
+    "counts_toward_kpi": false
    }
   ],
   "n8n": [
    {
     "review": "2026-09-23-claude-first-pass.json",
     "mean": 2.33,
+    "counts_toward_kpi": false
+   },
+   {
+    "review": "kpi4/2026-09-23-alejandro.json",
+    "mean": 4.67,
+    "scores": {
+     "clarity": 5,
+     "feasibility": 4,
+     "differentiation": 5,
+     "evidence_quality": 4,
+     "citation_completeness": 5,
+     "usefulness": 5
+    },
+    "has_evidence": false,
+    "counts_toward_kpi": false
+   },
+   {
+    "review": "kpi4/2026-09-23-alejandro.json",
+    "mean": 4.5,
+    "scores": {
+     "clarity": 5,
+     "feasibility": 3,
+     "differentiation": 4,
+     "evidence_quality": 5,
+     "citation_completeness": 5,
+     "usefulness": 5
+    },
+    "has_evidence": false,
+    "counts_toward_kpi": false
+   },
+   {
+    "review": "kpi4/2026-09-23-alejandro.json",
+    "mean": 4.67,
+    "scores": {
+     "clarity": 5,
+     "feasibility": 5,
+     "differentiation": 3,
+     "evidence_quality": 5,
+     "citation_completeness": 5,
+     "usefulness": 5
+    },
+    "has_evidence": false,
     "counts_toward_kpi": false
    }
   ]

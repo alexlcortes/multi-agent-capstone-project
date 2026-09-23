@@ -35,3 +35,6 @@ crewai/.google/
 # MCP research-result cache (mcp-server/research/cache.py)
 mcp-server/.cache/
 n8n/docs_writer/fixtures/*/rendered_doc.txt
+
+# Blind-review unblinding keys: commit only after scoring is done
+eval/**/packets/key.json

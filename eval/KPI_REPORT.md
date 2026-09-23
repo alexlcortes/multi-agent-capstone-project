@@ -22,15 +22,16 @@ differences are about the orchestrators themselves, is in `eval/COMPARISON_LOG.m
 | 2a. Top-tier sources | ≥ 80% | **58–69%**: not met | **68–73%**: not met |
 | 2b. Broken links | 0% | **0%**: met | **0%** (checked today only): met |
 | 3. Latency | < 15 min | **6.0–9.3 min**: met | **7.2–8.8 min**: met |
-| 4. Strategy quality | ≥ 4 / 5 | **not measured**: needs a blind human review | **not measured**: same |
+| 4. Strategy quality | ≥ 4 / 5 | **4.83** (provisional): met | **4.61** (provisional): met |
 | 5. Reproducibility | ≥ 80% | **92%**: met | **78%**: not met (≈90% if wording is normalized, see KPI 5) |
 | 6. Cost within budget | ≤ $2.50 / run | **$0.12–0.18**: met | **≥ $0.10–0.11** (lower bound): met |
 | Reliability (context) | | **3 of 3** completed | **3 of 4** completed; all 3 had invented ids removed |
 
 **In one paragraph:** on current code the two implementations are close on coverage, latency and cost, and
 neither reaches the 80% top-tier-source target. CrewAI is more reliable (3 of 3 runs, against 3 of 4) and more
-consistent from run to run (92% against 78%). n8n's completed runs cite a slightly better mix of sources.
-Strategy quality, the KPI that matters most for the plan's users, still needs a blind human review.
+consistent from run to run (92% against 78%). n8n's completed runs cite a slightly better mix of sources. A
+blind human review rates both above the strategy-quality target (CrewAI 4.83, n8n 4.61), but that result is
+provisional: the scores have no evidence lines yet (see KPI 4).
 
 **Which runs count** (`eval/kpi/runs.yaml`):
 - **CrewAI:** full runs of the current brief started on or after 2026-09-23 17:06 UTC:
@@ -178,18 +179,33 @@ Analyst needs. Failed runs are excluded from latency (n8n's execution 36 took 7.
 differentiation, evidence quality, citation completeness, usefulness), each scored 1–5 against written
 anchors. Met at a mean of 4.0 or more (24/30).
 
-**Data collected.** Review files in `eval/reviews/`, one line of evidence per score.
+**Data collected.** One blind human review of the 6 documents of the counted runs (3 per implementation),
+2026-09-23, on the review page (https://claude.ai/artifact/7wdndi5KFHZxxkdwib5UxC). The documents were shuffled,
+labelled Doc-01 to Doc-06, and given identical presentation (`python -m wire3_gtm review-packets`). Scores are in
+`eval/reviews/kpi4/2026-09-23-alejandro.json`; the unblinding key stays out of git until the review is final.
 
-**Calculation.** Mean of the six scores per document, then the median across reviewers and runs. Only human,
-blind reviews count. Model reviews are listed but never counted.
+**Calculation.** Mean of the six scores per document, then the mean across each implementation's documents.
 
-**Result.** **Not measured: there is no human review of the current documents.** The only review so far is a
-model first pass of the *earlier* documents (CrewAI 3.33, n8n 2.33), before n8n's fixes. It does not
-describe the current n8n documents, which now include the analysis sections that review found missing.
+**Result (provisional).**
 
-**What to do.** Blind-review one document per implementation from the counted runs (or all six), using
-`eval/reviews/TEMPLATE.json`. The 6 blinded CrewAI A/B documents in `eval/ab/analyst-sources/packets/` can be
-scored the same way.
+| | Documents | Mean per document | Overall | Clarity | Feasibility | Differentiation | Evidence quality | Citations | Usefulness |
+|---|---|---|---|---|---|---|---|---|---|
+| CrewAI | 3 | 4.5, 5.0, 5.0 | **4.83** | 4.67 | 5.0 | 4.67 | 4.67 | 5.0 | 5.0 |
+| n8n | 3 | 4.5, 4.67, 4.67 | **4.61** | 5.0 | 4.0 | 4.0 | 4.67 | 5.0 | 5.0 |
+
+Both are above the 4.0 target. CrewAI scores higher on feasibility and differentiation; n8n higher on clarity.
+
+**Why it is provisional:**
+- **No evidence lines yet.** The rubric says a score without one line of evidence is not used; the reviewer
+  will add them. Until then `kpi.py` marks these scores as not counting (`counts_toward_kpi: false`).
+- **Some scores sit above the rubric's written anchors for the measured facts.** Evidence quality 5 requires
+  ≥80% top-tier sources; every counted document measured 58–73% (KPI 2). Usefulness 5 requires a price
+  recommendation; every document lists Wire3's standard prices as an unknown. Feasibility 5 requires spend sized
+  against the budget; the documents give only low/medium tiers. The evidence pass is the place to reconcile these.
+- **Near the ceiling:** 30 of 36 scores are 5, which leaves little room to separate the implementations.
+- **One reviewer, who is also the project's author.** The rubric asks for two reviewers where possible.
+- **Blinding is presentation-only:** CrewAI documents contain their own evidence-quality notes in section 2,
+  so a reviewer may recognize them.
 
 ---
 

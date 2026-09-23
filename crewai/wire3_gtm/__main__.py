@@ -13,6 +13,7 @@ uv run python -m wire3_gtm snapshot RUN_ID  # save a validated Strategy output t
 uv run python -m wire3_gtm run-records     # add a run_record to every logged run that lacks one
 uv run python -m wire3_gtm ab run|packets|report EXPERIMENT.yaml   # prompt/model A/B (see wire3_gtm/ab.py)
 uv run python -m wire3_gtm kpi [--recheck-links]   # the six capstone KPIs for both implementations
+uv run python -m wire3_gtm review-packets   # blinded documents of the counted runs, for the KPI 4 rubric review
 """
 
 import sys
@@ -51,6 +52,10 @@ def main() -> None:
             if summary.exists():
                 print("\n" + summary.read_text())
         return
+    if sys.argv[1:2] == ["review-packets"]:
+        from wire3_gtm.review_packets import main as review_packets
+
+        raise SystemExit(review_packets(sys.argv[2:]))
     if sys.argv[1:2] == ["kpi"]:
         from wire3_gtm.kpi import main as kpi
 

@@ -1,0 +1,166 @@
+{
+ "reviewer": "Alejandro Luis Cortes",
+ "reviewed_at": "2026-09-23",
+ "rubric": "eval/rubric.md",
+ "blind": true,
+ "source": "GTM Plan Review Desk (https://claude.ai/artifact/7wdndi5KFHZxxkdwib5UxC), exported 2026-09-23",
+ "notes": "Recorded without evidence lines at the reviewer's request; evidence to be added later. Until then these scores do not meet the rubric's rule (a score without evidence is not used), so KPI 4 is reported as provisional.",
+ "scores": {
+  "Doc-01": {
+   "clarity": {
+    "score": 5,
+    "evidence": ""
+   },
+   "feasibility": {
+    "score": 4,
+    "evidence": ""
+   },
+   "differentiation": {
+    "score": 5,
+    "evidence": ""
+   },
+   "evidence_quality": {
+    "score": 4,
+    "evidence": ""
+   },
+   "citation_completeness": {
+    "score": 5,
+    "evidence": ""
+   },
+   "usefulness": {
+    "score": 5,
+    "evidence": ""
+   }
+  },
+  "Doc-02": {
+   "clarity": {
+    "score": 4,
+    "evidence": ""
+   },
+   "feasibility": {
+    "score": 5,
+    "evidence": ""
+   },
+   "differentiation": {
+    "score": 4,
+    "evidence": ""
+   },
+   "evidence_quality": {
+    "score": 4,
+    "evidence": ""
+   },
+   "citation_completeness": {
+    "score": 5,
+    "evidence": ""
+   },
+   "usefulness": {
+    "score": 5,
+    "evidence": ""
+   }
+  },
+  "Doc-03": {
+   "clarity": {
+    "score": 5,
+    "evidence": ""
+   },
+   "feasibility": {
+    "score": 3,
+    "evidence": ""
+   },
+   "differentiation": {
+    "score": 4,
+    "evidence": ""
+   },
+   "evidence_quality": {
+    "score": 5,
+    "evidence": ""
+   },
+   "citation_completeness": {
+    "score": 5,
+    "evidence": ""
+   },
+   "usefulness": {
+    "score": 5,
+    "evidence": ""
+   }
+  },
+  "Doc-04": {
+   "clarity": {
+    "score": 5,
+    "evidence": ""
+   },
+   "feasibility": {
+    "score": 5,
+    "evidence": ""
+   },
+   "differentiation": {
+    "score": 5,
+    "evidence": ""
+   },
+   "evidence_quality": {
+    "score": 5,
+    "evidence": ""
+   },
+   "citation_completeness": {
+    "score": 5,
+    "evidence": ""
+   },
+   "usefulness": {
+    "score": 5,
+    "evidence": ""
+   }
+  },
+  "Doc-05": {
+   "clarity": {
+    "score": 5,
+    "evidence": ""
+   },
+   "feasibility": {
+    "score": 5,
+    "evidence": ""
+   },
+   "differentiation": {
+    "score": 5,
+    "evidence": ""
+   },
+   "evidence_quality": {
+    "score": 5,
+    "evidence": ""
+   },
+   "citation_completeness": {
+    "score": 5,
+    "evidence": ""
+   },
+   "usefulness": {
+    "score": 5,
+    "evidence": ""
+   }
+  },
+  "Doc-06": {
+   "clarity": {
+    "score": 5,
+    "evidence": ""
+   },
+   "feasibility": {
+    "score": 5,
+    "evidence": ""
+   },
+   "differentiation": {
+    "score": 3,
+    "evidence": ""
+   },
+   "evidence_quality": {
+    "score": 5,
+    "evidence": ""
+   },
+   "citation_completeness": {
+    "score": 5,
+    "evidence": ""
+   },
+   "usefulness": {
+    "score": 5,
+    "evidence": ""
+   }
+  }
+ }
+}
