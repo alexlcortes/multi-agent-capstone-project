@@ -12,6 +12,7 @@ uv run python -m wire3_gtm google-auth     # one-time Google consent (opens a br
 uv run python -m wire3_gtm snapshot RUN_ID  # save a validated Strategy output to snapshots/RUN_ID (no Google)
 uv run python -m wire3_gtm run-records     # add a run_record to every logged run that lacks one
 uv run python -m wire3_gtm ab run|packets|report EXPERIMENT.yaml   # prompt/model A/B (see wire3_gtm/ab.py)
+uv run python -m wire3_gtm kpi [--recheck-links]   # the six capstone KPIs for both implementations
 """
 
 import sys
@@ -50,6 +51,10 @@ def main() -> None:
             if summary.exists():
                 print("\n" + summary.read_text())
         return
+    if sys.argv[1:2] == ["kpi"]:
+        from wire3_gtm.kpi import main as kpi
+
+        raise SystemExit(kpi(sys.argv[2:]))
     if sys.argv[1:2] == ["ab"]:
         from wire3_gtm.ab import main as ab
 

@@ -1,0 +1,181 @@
+# Source tiers for the source-quality KPI (capstone guide's three tiers).
+#
+#   primary        official pages of the company a claim is about, company press releases (incl.
+#                  syndicated copies), government and regulator pages, company filings
+#   top_secondary  peer-reviewed or academic work, respected analyst / research firms and industry
+#                  bodies, news and trade press with named authors and editorial standards
+#   weak           affiliate comparison sites, content farms, AI-generated summaries, anonymous or
+#                  user-generated content (forums, social posts, video uploads, reviews), directories,
+#                  job boards, vendor/agency marketing blogs, and index/tag pages that carry no claim
+#
+# The tier describes the SOURCE, not whether it supports the claim it is cited for. A primary page
+# for the wrong company or market is still primary here; relevance is judged in the rubric
+# (evidence quality) and reported separately as a limitation.
+#
+# How a URL is classified: the first matching `urls` rule (by URL prefix), else its domain's rule.
+# `www.` is ignored. A domain with no rule is an error: every source must be classified on purpose.
+# When a source could fairly sit in two tiers, the LOWER tier is used and the rule says why.
+
+urls:
+  # Yahoo Finance hosts syndicated press releases, algorithmic articles and wire news under one domain.
+  - {prefix: "https://finance.yahoo.com/sectors/technology/articles/wire-3-launches-summer-offer", tier: primary, why: "Wire3 press release (Business Wire), syndicated"}
+  - {prefix: "https://finance.yahoo.com/quote/CHTR/press-releases", tier: primary, why: "Charter's press-release index"}
+  - {prefix: "https://finance.yahoo.com/quote/T/press-releases", tier: primary, why: "AT&T's press-release index"}
+  - {prefix: "https://finance.yahoo.com/news/charter-launches-spectrum-mobile", tier: primary, why: "Charter press release, syndicated"}
+  - {prefix: "https://streetinsider.com/Business+Wire/", tier: primary, why: "Business Wire press release, syndicated"}
+  # Company-owned news and official company social accounts
+  - {prefix: "https://spectrumlocalnews.com/us/snplus/business/", tier: top_secondary, why: "Spectrum News article (bylined news; owned by Charter, a conflict when about Spectrum)"}
+  - {prefix: "https://x.com/ATTNEWS", tier: primary, why: "AT&T's official account"}
+  - {prefix: "https://x.com/CharterNewsroom", tier: primary, why: "Charter's official account"}
+  - {prefix: "https://facebook.com/TMobile/", tier: primary, why: "T-Mobile's official page"}
+  - {prefix: "https://instagram.com/attnews", tier: primary, why: "AT&T's official account"}
+  - {prefix: "https://linkedin.com/company/", tier: primary, why: "a company's own profile"}
+  # News sites: articles are top_secondary, topic/tag index pages carry no claim
+  - {prefix: "https://cbsnews.com/news/", tier: top_secondary, why: "bylined national news"}
+  - {prefix: "https://consumeraffairs.com/news/", tier: top_secondary, why: "bylined news article"}
+
+domains:
+  # --- primary: the companies themselves --------------------------------------------------------
+  t-mobile.com: {tier: primary, why: "competitor's official site"}
+  wire3.com: {tier: primary, why: "Wire3's official site"}
+  spectrum.com: {tier: primary, why: "competitor's official site"}
+  jobs.spectrum.com: {tier: primary, why: "Spectrum's official careers site"}
+  att.com: {tier: primary, why: "competitor's official site"}
+  about.att.com: {tier: primary, why: "AT&T newsroom"}
+  business.att.com: {tier: primary, why: "AT&T official site"}
+  investors.att.com: {tier: primary, why: "AT&T investor relations / filings"}
+  corporate.charter.com: {tier: primary, why: "Charter newsroom"}
+  cox.com: {tier: primary, why: "Cox's official site (now Spectrum in Ocala)"}
+  xfinity.com: {tier: primary, why: "Comcast's official site"}
+  boostmobile.com: {tier: primary, why: "Boost Mobile's official site"}
+  businesswire.com: {tier: primary, why: "company-issued press release"}
+  prnewswire.com: {tier: primary, why: "company-issued press release"}
+  prweb.com: {tier: primary, why: "company-issued press release"}
+  # --- primary: government ----------------------------------------------------------------------
+  marionfl.org: {tier: primary, why: "Marion County government"}
+  ocalafl.gov: {tier: primary, why: "City of Ocala government"}
+
+  # --- top_secondary: news and trade press with named authors ----------------------------------
+  cnet.com: {tier: top_secondary, why: "bylined tech press"}
+  tomshardware.com: {tier: top_secondary, why: "bylined tech trade press"}
+  tomsguide.com: {tier: top_secondary, why: "bylined tech press"}
+  fierce-network.com: {tier: top_secondary, why: "telecom trade press (brief's preferred source)"}
+  mobileworldlive.com: {tier: top_secondary, why: "GSMA telecom trade press"}
+  wirelessestimator.com: {tier: top_secondary, why: "bylined wireless-infrastructure trade press"}
+  thedesk.net: {tier: top_secondary, why: "bylined TV/streaming trade press"}
+  investors.com: {tier: top_secondary, why: "Investor's Business Daily, bylined"}
+  ocala.com: {tier: top_secondary, why: "Ocala Star-Banner (brief's preferred source)"}
+  wftv.com: {tier: top_secondary, why: "local TV news"}
+  352today.com: {tier: top_secondary, why: "local news outlet"}
+  # --- top_secondary: analyst firms, industry bodies, academic and institutional research ---------
+  stlpartners.com: {tier: top_secondary, why: "telecom analyst firm"}
+  globaldata.com: {tier: top_secondary, why: "analyst firm company profile"}
+  pitchbook.com: {tier: top_secondary, why: "financial data provider"}
+  cbinsights.com: {tier: top_secondary, why: "financial data provider"}
+  fiberbroadband.org: {tier: top_secondary, why: "Fiber Broadband Association (industry body)"}
+  worldbroadbandassociation.com: {tier: top_secondary, why: "industry association report"}
+  documents1.worldbank.org: {tier: top_secondary, why: "World Bank research report"}
+  pmc.ncbi.nlm.nih.gov: {tier: top_secondary, why: "peer-reviewed article"}
+  laborcenter.berkeley.edu: {tier: top_secondary, why: "university research centre"}
+  people.csail.mit.edu: {tier: top_secondary, why: "academic publication"}
+
+  # --- weak: affiliate comparison and deal sites ---------------------------------------------------
+  cabletv.com: {tier: weak, why: "affiliate comparison site"}
+  highspeedinternet.com: {tier: weak, why: "affiliate comparison site"}
+  allconnect.com: {tier: weak, why: "affiliate comparison site"}
+  compareinternet.com: {tier: weak, why: "affiliate comparison site"}
+  broadbandnow.com: {tier: weak, why: "affiliate comparison site (in the brief's preferred list, but its pages are marketing summaries, not the FCC data they draw on)"}
+  ispreports.org: {tier: weak, why: "affiliate comparison site"}
+  internetproviders.ai: {tier: weak, why: "AI-generated comparison site"}
+  reviews.org: {tier: weak, why: "affiliate review site"}
+  inmyarea.com: {tier: weak, why: "affiliate comparison site"}
+  bestneighborhood.org: {tier: weak, why: "affiliate comparison site"}
+  whistleout.com: {tier: weak, why: "affiliate comparison site"}
+  broadbandsearch.net: {tier: weak, why: "affiliate comparison site"}
+  compareinternethub.com: {tier: weak, why: "affiliate comparison site"}
+  bundleinternet.com: {tier: weak, why: "affiliate comparison site"}
+  myutilitysearch.com: {tier: weak, why: "affiliate comparison site"}
+  moneysavingpro.com: {tier: weak, why: "affiliate deals site"}
+  checkthat.ai: {tier: weak, why: "AI-generated pricing summaries"}
+  seniorliving.org: {tier: weak, why: "affiliate guide"}
+  roomies.com: {tier: weak, why: "affiliate guide"}
+  konecteaze.com: {tier: weak, why: "reseller marketing"}
+  ezinternet.services: {tier: weak, why: "reseller marketing"}
+  datapartners.com: {tier: weak, why: "reseller marketing"}
+  americantv.com: {tier: weak, why: "reseller marketing"}
+  spectrumoffers.com: {tier: weak, why: "third-party reseller site, not Spectrum's"}
+  rsinc.com: {tier: weak, why: "affiliate comparison site"}
+  businessinsider.com: {tier: weak, why: "the cited pages are /guides/deals/ affiliate content"}
+  hollywoodreporter.com: {tier: weak, why: "the cited page is shopping/affiliate content"}
+  rollingstone.com: {tier: weak, why: "the cited page is product-recommendation affiliate content"}
+  usmobile.com: {tier: weak, why: "a rival carrier's marketing blog about competitors"}
+  # --- weak: coverage maps and crowdsourced data ---------------------------------------------------
+  broadbandmap.com: {tier: weak, why: "third-party map, not the FCC's broadbandmap.fcc.gov"}
+  coveragemap.com: {tier: weak, why: "crowdsourced coverage map"}
+  nperf.com: {tier: weak, why: "crowdsourced speed-test map"}
+  downdetector.com: {tier: weak, why: "crowdsourced outage reports"}
+  # --- weak: user-generated and social content -------------------------------------------------------
+  reddit.com: {tier: weak, why: "anonymous forum posts"}
+  business.reddit.com: {tier: weak, why: "platform marketing page"}
+  facebook.com: {tier: weak, why: "group and page posts (official company pages are listed under urls)"}
+  x.com: {tier: weak, why: "social posts (official company accounts are listed under urls)"}
+  instagram.com: {tier: weak, why: "social posts (official company accounts are listed under urls)"}
+  linkedin.com: {tier: weak, why: "social posts (company profiles are listed under urls)"}
+  tiktok.com: {tier: weak, why: "user video"}
+  youtube.com: {tier: weak, why: "user uploads; none of the cited videos is an official company channel"}
+  yelp.com: {tier: weak, why: "anonymous reviews"}
+  tripadvisor.com: {tier: weak, why: "anonymous reviews"}
+  bbb.org: {tier: weak, why: "consumer complaints (brief's preferred source for pain points, but unverified individual reports)"}
+  complaintsboard.com: {tier: weak, why: "anonymous complaints"}
+  revdex.com: {tier: weak, why: "anonymous reviews"}
+  consumeraffairs.com: {tier: weak, why: "reviews and home page (bylined news articles are listed under urls)"}
+  # --- weak: syndication, index pages and algorithmic news -------------------------------------------
+  finance.yahoo.com: {tier: weak, why: "syndicated or algorithmic articles of unknown authorship (press releases are listed under urls)"}
+  investing.com: {tier: weak, why: "'By Investing.com' AI-assisted news"}
+  ca.investing.com: {tier: weak, why: "'By Investing.com' AI-assisted news"}
+  streetinsider.com: {tier: weak, why: "news aggregator (Business Wire copies are listed under urls)"}
+  spectrumlocalnews.com: {tier: weak, why: "section/index pages (bylined articles are listed under urls)"}
+  spectrumnews1.com: {tier: weak, why: "section/index page"}
+  ny1.com: {tier: weak, why: "section/index page"}
+  cbsnews.com: {tier: weak, why: "tag/index page (articles are listed under urls)"}
+  nytimes.com: {tier: weak, why: "topic/index page"}
+  qab.co.jp: {tier: weak, why: "tag/index page, unrelated market"}
+  presseportal.de: {tier: weak, why: "index page, unrelated market"}
+  en.wikipedia.org: {tier: weak, why: "tertiary, anonymous authorship"}
+  # --- weak: content farms, vendor and agency blogs, report resellers ---------------------------------
+  businessmodelanalyst.com: {tier: weak, why: "content farm"}
+  pitchgrade.com: {tier: weak, why: "AI-generated company summaries"}
+  prometai.app: {tier: weak, why: "AI-generated content"}
+  coherentmarketinsights.com: {tier: weak, why: "market-report content farm"}
+  researchandmarkets.com: {tier: weak, why: "report reseller listing page"}
+  umbrex.com: {tier: weak, why: "consultancy marketing blog"}
+  luthresearch.com: {tier: weak, why: "marketing glossary page, not a research report"}
+  upoharbd.com: {tier: weak, why: "content farm"}
+  amworldgroup.com: {tier: weak, why: "agency marketing blog"}
+  btgrp.com: {tier: weak, why: "vendor marketing blog"}
+  netsuite.com: {tier: weak, why: "vendor marketing blog"}
+  a10networks.com: {tier: weak, why: "vendor marketing blog"}
+  iqgeo.com: {tier: weak, why: "vendor marketing blog"}
+  percepture.com: {tier: weak, why: "agency marketing blog"}
+  postalytics.com: {tier: weak, why: "vendor marketing blog"}
+  trimarkdigital.com: {tier: weak, why: "agency marketing blog"}
+  crosstalksolutions.com: {tier: weak, why: "individual tech blog"}
+  rvmobileinternet.com: {tier: weak, why: "individual blog"}
+  appalachiandevelopment.org: {tier: weak, why: "regional nonprofit case-study page"}
+  # --- weak: directories, job boards and unrelated pages ------------------------------------------------
+  mapquest.com: {tier: weak, why: "business directory listing"}
+  indeed.com: {tier: weak, why: "job-search results"}
+  rocketreach.co: {tier: weak, why: "contact-data broker"}
+  leadiq.com: {tier: weak, why: "contact-data broker"}
+  contacthelp.com: {tier: weak, why: "contact directory"}
+  chamberofcommerce.com: {tier: weak, why: "business directory"}
+  marion-county-public-records-ocala-fl.govbackgroundchecks.com: {tier: weak, why: "records broker, not a government site"}
+  realtor.com: {tier: weak, why: "property listings"}
+  cars.com: {tier: weak, why: "unrelated listing"}
+  trawickhomes.com: {tier: weak, why: "unrelated business"}
+  twomenandatruck.com: {tier: weak, why: "unrelated business"}
+  structuresmart.us: {tier: weak, why: "unrelated business"}
+  numberbarn.com: {tier: weak, why: "unrelated business"}
+  deluxe.com: {tier: weak, why: "vendor marketing"}
+  wasteconnections.com: {tier: weak, why: "unrelated business"}
+  southernnevadamodeltclub.org: {tier: weak, why: "unrelated club site"}
