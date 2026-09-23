@@ -8,6 +8,7 @@ Grounding against a concrete evidence set (do the cited ids exist?) cannot live
 in the model, so it is check_grounding() below, used as the task guardrail.
 """
 
+import re
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, create_model, model_validator
@@ -308,6 +309,30 @@ def cited_evidence_ids(node) -> set[str]:
 
 
 def check_grounding(artifact: AnalystArtifact, valid_ids: set[str]) -> list[str]:
-    """Errors for any cited evidence_id that is not in the evidence set."""
+    """Errors for any cited evidence_id that is not in the evidence set, including ids written into
+    prose (an A/B run wrote a near-copy id inside an unknown's reason_unresolved; the id fields were
+    clean, so it passed here and the Docs Writer refused the document at the very end)."""
     invented = sorted(cited_evidence_ids(artifact.model_dump()) - valid_ids)
-    return [f"evidence_id {i} is not in the evidence set" for i in invented]
+    return [f"evidence_id {i} is not in the evidence set" for i in invented] + prose_id_errors(
+        artifact.model_dump(), valid_ids)
+
+
+_EV_IN_TEXT = re.compile(r"\bEV-[0-9a-f]{8}\b")
+
+
+def prose_id_errors(doc, valid_ids: set[str], path: str = "") -> list[str]:
+    """Evidence ids mentioned inside free-text fields that are not real ids. Id fields themselves
+    (evidence_ids, evidence_id_a, ...) are checked by the callers' own id checks."""
+    errors = []
+    if isinstance(doc, dict):
+        for k, v in doc.items():
+            if "evidence_id" not in k and k != "supporting_ids":
+                errors += prose_id_errors(v, valid_ids, f"{path}.{k}" if path else k)
+    elif isinstance(doc, list):
+        for i, v in enumerate(doc):
+            errors += prose_id_errors(v, valid_ids, f"{path}[{i}]")
+    elif isinstance(doc, str):
+        for bad in sorted(set(_EV_IN_TEXT.findall(doc)) - valid_ids):
+            errors.append(f"{path} mentions {bad} in its text, which is not an id in the evidence set: "
+                          "copy ids exactly or leave them out of prose")
+    return errors

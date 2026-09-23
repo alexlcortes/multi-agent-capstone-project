@@ -19,7 +19,9 @@ GUARDRAILS = {"plan_research": plan_guardrail}
 
 def build_tasks(agents: dict[str, Agent], guardrails: dict | None = None) -> dict[str, Task]:
     """guardrails: per-run guardrails (e.g. the Analyst's, which needs the evidence ids)."""
-    config = yaml.safe_load((CONFIG_DIR / "tasks.yaml").read_text())
+    from wire3_gtm import variant
+
+    config = variant.apply_tasks(yaml.safe_load((CONFIG_DIR / "tasks.yaml").read_text()))
     tasks: dict[str, Task] = {}
     for name, spec in config.items():  # YAML order == dependency order
         spec = dict(spec)

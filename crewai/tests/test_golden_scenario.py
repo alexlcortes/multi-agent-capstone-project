@@ -105,7 +105,7 @@ def test_golden_counts_have_not_drifted(run):
     """The reference numbers the bands in golden.py were set from. If the snapshot is re-exported these
     change, and this test says so, instead of the bands quietly no longer fitting the reference."""
     assert (len(run["plan"]["research_questions"]), len(run["evidence"]), len(run["doc"].sources),
-            len(run["markdown"].split())) == (8, 474, 61, 5150)
+            len(run["markdown"].split())) == (8, 474, 61, 5183)
 
 
 # ============================== each check catches its failure ==============================

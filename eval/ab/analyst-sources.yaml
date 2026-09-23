@@ -1,0 +1,15 @@
+# Does telling the Analyst how to choose sources improve evidence quality, at no extra cost?
+# Decision rule is fixed here BEFORE any run; change it only by starting a new experiment.
+name: analyst-sources
+variants:
+  A: variants/control.yaml
+  B: variants/strict-sources.yaml
+repeats: 3
+seed_snapshot: run-20260921-121832
+decision:
+  min_successful_runs: 3
+  primary: rubric_total          # blinded human rubric (eval/rubric.md), median total out of 30
+  min_gain: 2
+  max_cost_increase_pct: 25
+  max_latency_increase_pct: 25
+  max_golden_error_increase: 0

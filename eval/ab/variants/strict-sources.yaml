@@ -1,0 +1,18 @@
+name: strict-sources
+hypothesis: >
+  The 2026-09-23 rubric review scored CrewAI's evidence quality 3/5: 59% top-tier sources against the
+  brief's 80% target, and citations about the wrong company or market (a Landstar article for Wire3's
+  brand recognition, a Michigan MapQuest listing for Spectrum's Ocala footprint). Telling the Analyst
+  to choose, among the evidence it already has, sources about the named company and market, and to
+  prefer the company's own pages, should raise top-tier share and remove mismatched citations
+  without adding cost. Research is held fixed (seeded), so only the Analyst's choice of sources varies.
+agents:
+  analyst:
+    backstory:
+      append: >
+        When several evidence records could support a claim, cite the ones that are about the
+        company named in the claim and about Ocala / Marion County, FL, and prefer the company's own
+        pages (spectrum.com, att.com, t-mobile.com, wire3.com) and regulators over aggregators, news
+        and forums. Never cite a record about a different company or a different market as support:
+        if nothing in the evidence is about the right company and market, mark the field as
+        inference or record an unknown.

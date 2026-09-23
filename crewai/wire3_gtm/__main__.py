@@ -11,6 +11,7 @@ uv run python -m wire3_gtm docs RUN_ID --google   # also create, verify and expo
 uv run python -m wire3_gtm google-auth     # one-time Google consent (opens a browser)
 uv run python -m wire3_gtm snapshot RUN_ID  # save a validated Strategy output to snapshots/RUN_ID (no Google)
 uv run python -m wire3_gtm run-records     # add a run_record to every logged run that lacks one
+uv run python -m wire3_gtm ab run|packets|report EXPERIMENT.yaml   # prompt/model A/B (see wire3_gtm/ab.py)
 """
 
 import sys
@@ -49,6 +50,10 @@ def main() -> None:
             if summary.exists():
                 print("\n" + summary.read_text())
         return
+    if sys.argv[1:2] == ["ab"]:
+        from wire3_gtm.ab import main as ab
+
+        raise SystemExit(ab(sys.argv[2:]))
     if sys.argv[1:2] == ["compare"]:
         from wire3_gtm.compare_logs import main as compare
 

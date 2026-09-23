@@ -279,7 +279,8 @@ def build_document(
         (b.add(r["competitor_name"], "H3"), b.obj(r, ["competitor_name"])) for r in an["product_feature_comparison"]])
     b.section("Pricing matrix", lambda: [
         (b.add(f"{r['competitor_name']}: {r['plan_name']['value']}", "H3"),
-         b.obj(r, ["competitor_name", "plan_name"])) for r in an["pricing_matrix"]])
+         # plan_name stays in the body: the heading shows its value, but its citations would be lost
+         b.obj(r, ["competitor_name"])) for r in an["pricing_matrix"]])
 
     def themes():
         for t in an["market_themes"]:

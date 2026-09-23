@@ -53,7 +53,9 @@ def grounding_errors(strategy: StrategyArtifact, analyst: AnalystArtifact) -> li
         bad = [i for i in field["supporting_ids"] if i not in valid]
         if bad:
             errors.append(f"{path} cites {bad}, which are not ids in the Analyst artifact")
-    return errors
+    from wire3_gtm.analyst_models import prose_id_errors
+
+    return errors + prose_id_errors(dump_contract(strategy), {i for i in valid if i.startswith("EV-")})
 
 
 def unknown_coverage_errors(strategy: StrategyArtifact, analyst: AnalystArtifact) -> list[str]:

@@ -46,14 +46,14 @@ SECTION_MAP = {
 TRACED_STRATEGY_SECTIONS = ("icps", "pains_and_outcomes", "value_proposition", "positioning", "message_pillars",
                             "channels", "launch_phases", "success_metrics", "risks")
 
-# Length band, in Markdown words. The golden document is 5,150 words over 61 sources. The band is wide
+# Length band, in Markdown words. The golden document is 5,183 words over 61 sources. The band is wide
 # on purpose (runs legitimately cite more or fewer sources) and exists to catch a truncated document
 # (a step that returned almost nothing) or a runaway one (duplicated sections, dumped excerpts).
 MIN_WORDS, MAX_WORDS = 2_500, 10_000
 MIN_SOURCES, MAX_SOURCES = 20, 150
 MAX_SECTION_SHARE = 0.40  # no one numbered section may be most of the document
 
-TITLE_RE = re.compile(r"^Wire3 GTM Plan - run-\d{8}-\d{6} - \d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC$")
+TITLE_RE = re.compile(r"^Wire3 GTM Plan - (?!None\b)[A-Za-z0-9][A-Za-z0-9-]* - \d{4}-\d{2}-\d{2} \d{2}:\d{2} UTC$")
 EV_RE = re.compile(r"\bEV-[0-9a-f]{8}\b")
 URL_RE = re.compile(r"^https?://[^\s/$.?#][^\s]*$", re.I)
 # Python values leaking into prose: None, nan, dict/list reprs, empty citation brackets.

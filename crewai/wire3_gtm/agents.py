@@ -8,7 +8,14 @@ from crewai import LLM, Agent
 CONFIG_DIR = Path(__file__).parent / "config"
 
 # Same model as the n8n implementation, so the comparison isolates the framework.
-MODEL = "gpt-5-mini"
+# An A/B variant (wire3_gtm/variant.py) may override it for one run; read it through model().
+DEFAULT_MODEL = MODEL = "gpt-5-mini"
+
+
+def model() -> str:
+    from wire3_gtm import variant
+
+    return variant.model(DEFAULT_MODEL)
 
 # Brief budget: max 6 LLM calls per agent role. max_iter bounds an agent's
 # reasoning/tool loop. Research is the exception: it makes one LLM step per
@@ -26,14 +33,16 @@ DEFAULT_MAX_COMPLETION_TOKENS = 32_000
 
 
 def _load_config() -> dict:
-    return yaml.safe_load((CONFIG_DIR / "agents.yaml").read_text())
+    from wire3_gtm import variant
+
+    return variant.apply_agents(yaml.safe_load((CONFIG_DIR / "agents.yaml").read_text()))
 
 
 def build_agents(research_tools: list | None = None,
                  max_completion_tokens: int | None = None) -> dict[str, Agent]:
     """Return the four agents keyed by role. Only Research gets tools."""
     config = _load_config()
-    llm = LLM(model=MODEL, max_completion_tokens=max_completion_tokens or DEFAULT_MAX_COMPLETION_TOKENS)
+    llm = LLM(model=model(), max_completion_tokens=max_completion_tokens or DEFAULT_MAX_COMPLETION_TOKENS)
     agents = {}
     for key in ROLE_KEYS:
         agents[key] = Agent(

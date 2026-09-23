@@ -1,0 +1,164 @@
+{
+ "reviewer": "",
+ "reviewed_at": "",
+ "rubric": "eval/rubric.md",
+ "blind": true,
+ "scores": {
+  "Doc-01": {
+   "clarity": {
+    "score": null,
+    "evidence": ""
+   },
+   "feasibility": {
+    "score": null,
+    "evidence": ""
+   },
+   "differentiation": {
+    "score": null,
+    "evidence": ""
+   },
+   "evidence_quality": {
+    "score": null,
+    "evidence": ""
+   },
+   "citation_completeness": {
+    "score": null,
+    "evidence": ""
+   },
+   "usefulness": {
+    "score": null,
+    "evidence": ""
+   }
+  },
+  "Doc-02": {
+   "clarity": {
+    "score": null,
+    "evidence": ""
+   },
+   "feasibility": {
+    "score": null,
+    "evidence": ""
+   },
+   "differentiation": {
+    "score": null,
+    "evidence": ""
+   },
+   "evidence_quality": {
+    "score": null,
+    "evidence": ""
+   },
+   "citation_completeness": {
+    "score": null,
+    "evidence": ""
+   },
+   "usefulness": {
+    "score": null,
+    "evidence": ""
+   }
+  },
+  "Doc-03": {
+   "clarity": {
+    "score": null,
+    "evidence": ""
+   },
+   "feasibility": {
+    "score": null,
+    "evidence": ""
+   },
+   "differentiation": {
+    "score": null,
+    "evidence": ""
+   },
+   "evidence_quality": {
+    "score": null,
+    "evidence": ""
+   },
+   "citation_completeness": {
+    "score": null,
+    "evidence": ""
+   },
+   "usefulness": {
+    "score": null,
+    "evidence": ""
+   }
+  },
+  "Doc-04": {
+   "clarity": {
+    "score": null,
+    "evidence": ""
+   },
+   "feasibility": {
+    "score": null,
+    "evidence": ""
+   },
+   "differentiation": {
+    "score": null,
+    "evidence": ""
+   },
+   "evidence_quality": {
+    "score": null,
+    "evidence": ""
+   },
+   "citation_completeness": {
+    "score": null,
+    "evidence": ""
+   },
+   "usefulness": {
+    "score": null,
+    "evidence": ""
+   }
+  },
+  "Doc-05": {
+   "clarity": {
+    "score": null,
+    "evidence": ""
+   },
+   "feasibility": {
+    "score": null,
+    "evidence": ""
+   },
+   "differentiation": {
+    "score": null,
+    "evidence": ""
+   },
+   "evidence_quality": {
+    "score": null,
+    "evidence": ""
+   },
+   "citation_completeness": {
+    "score": null,
+    "evidence": ""
+   },
+   "usefulness": {
+    "score": null,
+    "evidence": ""
+   }
+  },
+  "Doc-06": {
+   "clarity": {
+    "score": null,
+    "evidence": ""
+   },
+   "feasibility": {
+    "score": null,
+    "evidence": ""
+   },
+   "differentiation": {
+    "score": null,
+    "evidence": ""
+   },
+   "evidence_quality": {
+    "score": null,
+    "evidence": ""
+   },
+   "citation_completeness": {
+    "score": null,
+    "evidence": ""
+   },
+   "usefulness": {
+    "score": null,
+    "evidence": ""
+   }
+  }
+ }
+}

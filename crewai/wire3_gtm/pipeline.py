@@ -368,7 +368,8 @@ def run_pipeline(
         monitor.event("pipeline_start", node="Pipeline", status="ok", docs_backend=docs, orchestrator="crewai.Flow",
                       resuming=[n for n in ("01_plan.json", "02_evidence_set.json", "03_analyst_artifact.json",
                                             "04_strategy_artifact.json") if store.exists(n)],
-                      budget=monitor.budget.__dict__, budget_overrides=monitor.budget_overrides or None)
+                      budget=monitor.budget.__dict__, budget_overrides=monitor.budget_overrides or None,
+                      variant=_variant_label())
         flow = Wire3Flow(ctx)
         flow.kickoff()
         s = flow.state
@@ -378,6 +379,21 @@ def run_pipeline(
         raise
     finally:
         _finish(store, monitor, error)
+
+
+def _variant_label() -> dict | None:
+    """Which A/B variant ran (name + sha256 of its file), so every run log says what was being tested."""
+    import hashlib
+    import os
+
+    from wire3_gtm import variant
+
+    path = os.environ.get(variant.ENV)
+    if not path:
+        return None
+    v = variant.load(path)
+    return {"name": v["name"], "model": v.get("model"), "file": path,
+            "sha256": hashlib.sha256(Path(path).read_bytes()).hexdigest()}
 
 
 def _finish(store: RunStore, monitor: RunMonitor, error: BaseException | None) -> None:

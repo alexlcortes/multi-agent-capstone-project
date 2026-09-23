@@ -24,7 +24,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
-from wire3_gtm.agents import MODEL
+from wire3_gtm.agents import model as current_model
 
 LOG_PATH = Path(__file__).parent.parent / "logs" / "runs.jsonl"
 PROVIDER = "openai"
@@ -33,6 +33,21 @@ PROVIDER = "openai"
 # against OpenAI's pricing page on 2026-09-19. NOT re-verified here: update the
 # value and the date together when prices change.
 PRICING = {"gpt-5-mini": {"input": 0.25, "cached_input": 0.025, "output": 2.0, "verified": "2026-09-19"}}
+
+
+
+def price_for(model: str) -> dict:
+    """Prices for `model`: an A/B variant's own pricing_usd_per_1m wins, then PRICING. An unpriced model
+    raises instead of reporting $0, because the cost budget and every A/B cost figure depend on it."""
+    from wire3_gtm import variant
+
+    p = variant.pricing() if variant.active() and variant.active().get("model") == model else None
+    if p is None:
+        p = PRICING.get(model)
+    if p is None:
+        raise KeyError(f"no price for model {model!r}: add pricing_usd_per_1m to the variant (or to run_log.PRICING)")
+    return p
+
 
 COST_EXCLUDES = ["search-provider fees (Tavily/SerpAPI)", "Google API usage (free at this volume)"]
 
@@ -89,8 +104,8 @@ class Usage:
         self.cached_prompt_tokens += int(u.get("cached_prompt_tokens") or 0)
         self.reasoning_tokens += int(u.get("reasoning_tokens") or 0)
 
-    def cost_usd(self, model: str = MODEL) -> float:
-        p = PRICING[model]
+    def cost_usd(self, model: str | None = None) -> float:
+        p = price_for(model or current_model())
         fresh = max(self.prompt_tokens - self.cached_prompt_tokens, 0)
         return (fresh * p["input"] + self.cached_prompt_tokens * p["cached_input"]
                 + self.completion_tokens * p["output"]) / 1_000_000
@@ -222,7 +237,7 @@ class RunMonitor:
             self.active_role = role
             self._mark[role] = self.clock()
             self._starts[role] = (ts or datetime.now(timezone.utc), self.usage.get(role, Usage()).snapshot())
-        self.event("agent_start", node=role, agent=role, model=MODEL, provider=PROVIDER, status="ok", _ts=ts)
+        self.event("agent_start", node=role, agent=role, model=current_model(), provider=PROVIDER, status="ok", _ts=ts)
 
     def on_task_ended(self, role: str, status: str, ts: datetime | None = None, error: str | None = None) -> None:
         ts = ts or datetime.now(timezone.utc)
@@ -232,7 +247,7 @@ class RunMonitor:
             failed = self.usage.get(role, Usage()).failed_calls
         rejections = self.guardrail_rejections.get(role, 0)
         self.role_results[role] = {"status": status, "duration_ms": int((ts - start_ts).total_seconds() * 1000)}
-        self.event("agent_end", node=role, agent=role, model=MODEL, provider=PROVIDER, status=status,
+        self.event("agent_end", node=role, agent=role, model=current_model(), provider=PROVIDER, status=status,
                    duration_ms=self.role_results[role]["duration_ms"], **used.as_fields(),
                    failed_llm_calls=failed, guardrail_retries=rejections, error=(error or None), _ts=ts)
 
@@ -253,19 +268,20 @@ class RunMonitor:
 
     def usage_summary(self, status: str) -> dict:
         with self.lock:
-            per_agent = [{"agent": r, "model": MODEL, **u.as_fields(), "failed_llm_calls": u.failed_calls,
+            per_agent = [{"agent": r, "model": current_model(), **u.as_fields(), "failed_llm_calls": u.failed_calls,
                           "tokens_source": "provider_reported"} for r, u in self.usage.items()]
             total = Usage()
             for u in self.usage.values():
                 for k in total.__dict__:
                     setattr(total, k, getattr(total, k) + getattr(u, k))
-        p = PRICING[MODEL]
+        m = current_model()
+        p = price_for(m)
         return self.event(
             "usage_summary", node="RunMonitor", status=status, per_agent=per_agent,
             total_prompt_tokens=total.prompt_tokens, total_completion_tokens=total.completion_tokens,
             total_reasoning_tokens=total.reasoning_tokens, estimated_llm_cost_usd=round(total.cost_usd(), 5),
             cost_is_lower_bound=False, retries=self.retries(), search_tool_calls_attempted=self.search_calls,
-            cost_basis={"pricing_usd_per_1m_tokens": {MODEL: p}, "token_source": "provider-reported usage per LLM call"},
+            cost_basis={"pricing_usd_per_1m_tokens": {m: p}, "token_source": "provider-reported usage per LLM call"},
             cost_excludes=COST_EXCLUDES,
         )
 

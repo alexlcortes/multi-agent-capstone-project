@@ -1,6 +1,6 @@
 """The run_complete event (n8n's fields plus the guide's Step 8 list) and a readable summary."""
 
-from wire3_gtm.agents import MODEL
+from wire3_gtm.agents import model as current_model
 from wire3_gtm.run_log import PROVIDER, BudgetExceeded, RunMonitor
 from wire3_gtm.run_store import RunStore
 
@@ -84,7 +84,7 @@ def build_run_complete(monitor: RunMonitor, store: RunStore, *, plan=None, evide
         "resumed_steps": [k for k, v in steps.items() if v.get("status") in ("resumed", "salvaged")],
         "latency_within_budget": minutes <= monitor.budget.max_wall_clock_minutes,
         "latency_within_kpi": minutes < KPI_LATENCY_MIN,
-        "model": MODEL, "provider": PROVIDER,
+        "model": current_model(), "provider": PROVIDER,
         "research_questions_answered": answered if plan else None, "research_questions_total": rq_total,
         "evidence_coverage_percent": round(100 * answered / rq_total) if rq_total else None,
         "evidence_count": len(evidence) if evidence is not None else None,
