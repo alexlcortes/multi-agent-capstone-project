@@ -65,6 +65,8 @@ def build_run_complete(monitor: RunMonitor, store: RunStore, *, plan=None, evide
     if flags := (strategy_report or {}).get("equity_flags"):
         issues.append(f"{len(flags)} strategy statement(s) flagged by the equity screen; review them before use "
                       f"(document section 'Equity and compliance check')"); degraded = True
+    if same := (strategy_report or {}).get("icps_with_identical_channels"):
+        issues.append(f"customer profiles {', '.join(same)} are reached by exactly the same channels")
     mix = (strategy_report or {}).get("basis_mix") or {}
     if mix.get("inference"):  # allowed, but never silent: each is marked [inference] in the document too
         issues.append(f"{mix['inference']} of {sum(mix.values())} strategy claims have no source (basis inference)")

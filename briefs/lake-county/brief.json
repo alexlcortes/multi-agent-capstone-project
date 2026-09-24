@@ -7,6 +7,17 @@
   "region": "Leesburg and Mount Dora, Lake County, FL",
   "segment": "Budget-conscious and value-seeking residential households, in two sub-segments assigned by primary barrier to switching: cost-constrained households (affordability of getting or staying connected) and value switchers (already subscribed; post-promo bill increases, switching friction, trust)",
   "segment_short": "budget-conscious and value-seeking households",
+  "customer_segments": [
+    {
+      "name": "Cost-constrained households",
+      "definition": "The barrier is affording to get or stay connected: monthly price, upfront costs (install, equipment, deposits), credit checks and contract lock-in. Commonly renters, multifamily residents, and households affected by the end of the Affordable Connectivity Program."
+    },
+    {
+      "name": "Value switchers",
+      "definition": "Already subscribed; the barrier is switching friction and trust in a new provider, and the trigger is the bill increase after promotional pricing expires. Commonly homeowners, including retirees and manufactured-home owners. They value reliability and simple, predictable billing."
+    }
+  ],
+  "segment_rule": "Assign households by their primary barrier to switching, not by age or income source: a fixed-income or retired household belongs to whichever segment matches its primary barrier.",
   "competitors": [
     "Xfinity (Comcast)",
     "CenturyLink (Lumen)",

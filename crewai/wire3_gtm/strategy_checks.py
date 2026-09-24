@@ -67,6 +67,28 @@ def unknown_coverage_errors(strategy: StrategyArtifact, analyst: AnalystArtifact
     ]
 
 
+def segment_errors(strategy: StrategyArtifact) -> list[str]:
+    """Briefs with customer_segments (not Ocala): one ICP per segment, named after it."""
+    from wire3_gtm.brief_context import active
+
+    segments = [name for name, _ in active().customer_segments]
+    if not segments:
+        return []
+    names = [i.name for i in strategy.icps]
+    errors = [f"no ICP for the brief's segment {s!r}: start that ICP's name with {s!r}"
+              for s in segments if not any(n.lower().startswith(s.lower()) for n in names)]
+    if len(names) != len(segments):
+        errors.append(f"define exactly {len(segments)} ICPs, one per segment {segments}; got {names}")
+    return errors
+
+
+def shared_channel_icps(strategy: StrategyArtifact) -> list[str]:
+    """ICPs reached by exactly the same channel set as another ICP (reported, not blocking)."""
+    sets = {i.icp_id: frozenset(c.channel_id for c in strategy.channels if i.icp_id in c.target_icp_ids)
+            for i in strategy.icps}
+    return sorted(i for i, chans in sets.items() if sum(chans == other for other in sets.values()) > 1)
+
+
 def make_strategy_guardrail(analyst: AnalystArtifact):
     def guardrail(output):
         from wire3_gtm.wire_models import strict_or_feedback
@@ -75,7 +97,7 @@ def make_strategy_guardrail(analyst: AnalystArtifact):
         if strategy is None:
             return False, feedback
         output.pydantic = strategy
-        errors = grounding_errors(strategy, analyst) + unknown_coverage_errors(strategy, analyst)
+        errors = grounding_errors(strategy, analyst) + unknown_coverage_errors(strategy, analyst) + segment_errors(strategy)
         if errors:
             return False, (
                 "Fix these problems and return the full corrected artifact. supporting_ids must be "
@@ -108,4 +130,6 @@ def report(strategy: StrategyArtifact) -> dict:
         from wire3_gtm.equity_checks import equity_flags
 
         out["equity_flags"] = equity_flags(strategy)
+    if active().customer_segments:
+        out["icps_with_identical_channels"] = shared_channel_icps(strategy)
     return out

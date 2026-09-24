@@ -18,7 +18,7 @@ from wire3_gtm.analyst_checks import (
 )
 from wire3_gtm.analyst_models import AnalystArtifact, check_grounding, dump_contract
 from wire3_gtm.strategy_checks import (
-    grounding_errors, make_strategy_guardrail, report as strategy_report, unknown_coverage_errors,
+    grounding_errors, make_strategy_guardrail, report as strategy_report, segment_errors, unknown_coverage_errors,
 )
 from wire3_gtm.strategy_models import StrategyArtifact
 from wire3_gtm.evidence import EvidenceCollector, EvidenceRecord, EvidenceSet
@@ -190,7 +190,7 @@ def run_strategy(analyst: AnalystArtifact, store: RunStore | None = None,
     artifact = task.output.pydantic
     if artifact is None:
         raise RuntimeError("Strategy did not return a valid StrategyArtifact")
-    errors = grounding_errors(artifact, analyst) + unknown_coverage_errors(artifact, analyst)
+    errors = grounding_errors(artifact, analyst) + unknown_coverage_errors(artifact, analyst) + segment_errors(artifact)
     if errors:
         raise RuntimeError(f"Strategy artifact failed hard checks after retries: {errors[:5]}")
     return StrategyResult(artifact=artifact, report=strategy_report(artifact))

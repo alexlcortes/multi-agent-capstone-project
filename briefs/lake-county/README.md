@@ -131,6 +131,10 @@ A section of the GTM document for briefs with `framing_rules` (not Ocala), place
 
 Checked: `crewai/tests/test_equity.py` (15 tests). The latest Ocala run's document, rebuilt with this code, is identical to the one it produced.
 
+### Customer segments (added 2026-09-24)
+
+`customer_segments` and `segment_rule` in `brief.json` name the two groups (cost-constrained households, value switchers) and the rule for assigning households by primary barrier. The Strategy agent is told to define exactly one customer profile per segment, named after it, with different channel mixes; a guardrail sends the draft back if a segment has no profile or the count is wrong (`segment_errors` in `crewai/wire3_gtm/strategy_checks.py`), and the run summary flags profiles reached by exactly the same channels. The first run's second profile had drifted to "Value-seeking households with higher bandwidth needs" with the same channels as the first; rerunning only the Strategy step on that run's data with this change produced "Cost-constrained households" and "Value switchers" with distinct channels and message pillars.
+
 ### Still missing
 
 - **RQ9–RQ11** (analogues, channels, local partners) still get only what the company-centered searches return.

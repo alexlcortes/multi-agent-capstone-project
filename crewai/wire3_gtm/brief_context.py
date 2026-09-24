@@ -34,6 +34,8 @@ class BriefContext:
     census_geographies: tuple[str, ...] = ()  # fetched in code from the Census tool after research (none for Ocala)
     census_rq: str | None = None  # the research question the Census evidence answers
     compliance_considerations: tuple[str, ...] = ()  # listed, unresearched, in the equity and compliance section
+    customer_segments: tuple[tuple[str, str], ...] = ()  # (name, definition): one ICP each, named after the segment
+    segment_rule: str = ""  # how households are assigned to a segment
 
     @property
     def all_names(self) -> tuple[str, ...]:
@@ -94,6 +96,8 @@ def from_brief(brief: dict) -> BriefContext:
         census_geographies=tuple((brief.get("census") or {}).get("geographies") or ()),
         census_rq=(brief.get("census") or {}).get("research_question_id"),
         compliance_considerations=tuple(brief.get("compliance_considerations") or ()),
+        customer_segments=tuple((seg["name"], seg["definition"]) for seg in brief.get("customer_segments") or ()),
+        segment_rule=brief.get("segment_rule") or "",
     )
 
 
@@ -131,6 +135,13 @@ def fill(text: str, ctx: BriefContext | None = None) -> str:
         "row_count": str(len(ctx.all_names)),
         # leading space: these markers sit right after a sentence and vanish when empty
         "competitor_aliases": "".join(f' Map "{k}" to "{v}".' for k, v in ctx.aliases.items()),
+        "segment_instructions": (
+            f" Customer segments from the brief: define exactly one ICP per segment, and start each ICP name with "
+            f"its segment name ({', '.join(repr(n) for n, _ in ctx.customer_segments)}). "
+            + " ".join(f"{n}: {d}" for n, d in ctx.customer_segments)
+            + (f" {ctx.segment_rule}" if ctx.segment_rule else "")
+            + " Segments with different barriers need different pains, message pillars and channel mixes; do not "
+              "give every ICP the same channels." if ctx.customer_segments else ""),
         "framing_rules": (" Rules from the brief, which override any recommendation that conflicts with them: "
                           + " ".join(f"({i + 1}) {r}" for i, r in enumerate(ctx.framing_rules))
                           if ctx.framing_rules else ""),

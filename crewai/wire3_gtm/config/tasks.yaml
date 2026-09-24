@@ -153,7 +153,7 @@ build_strategy:
     AnalystArtifact:
     {analyst_artifact}
 
-    Build the StrategyArtifact strictly from it, for [[strategy_target]]. Rules, in order of importance:
+    Build the StrategyArtifact strictly from it, for [[strategy_target]].[[segment_instructions]] Rules, in order of importance:
 
     (1) Never invent a supporting_id. Every supporting_ids value must be copied
     from an id that appears in the Analyst artifact: an evidence id it already
