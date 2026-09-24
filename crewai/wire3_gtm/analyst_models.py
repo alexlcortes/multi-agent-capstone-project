@@ -6,20 +6,69 @@ column, the promo_status rules, the fixed blended-price formula).
 
 Grounding against a concrete evidence set (do the cited ids exist?) cannot live
 in the model, so it is check_grounding() below, used as the task guardrail.
+
+Competitor names and the per-competitor row counts come from the active brief
+(brief_context; Ocala by default), so the same models serve every brief. Their
+JSON schema is generated from the active brief too, which is what OpenAI's
+constrained decoding sees.
 """
 
 import re
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field, create_model, model_validator
+from pydantic import AfterValidator, BaseModel, Field, create_model, model_validator
+
+from wire3_gtm import brief_context
 
 EvidenceId = Annotated[str, Field(pattern=r"^EV-[a-f0-9]{8}$")]
 RQId = Annotated[str, Field(pattern=r"^RQ[0-9]+$")]
-CompetitorName = Literal["Wire3", "Spectrum", "AT&T", "T-Mobile Home Internet"]
+
+
+class _CompetitorEnum:
+    """JSON schema of a competitor name: the active brief's table spellings, exactly as a Literal of them."""
+
+    def __get_pydantic_json_schema__(self, core_schema, handler):
+        return {"enum": list(brief_context.active().all_names), "type": "string"}
+
+
+def _known_competitor(name: str) -> str:
+    names = brief_context.active().all_names
+    if name not in names:
+        raise ValueError(f"competitor_name must be one of {list(names)}, got {name!r}")
+    return name
+
+
+class _RowsPerCompetitor:
+    """JSON schema minItems/maxItems for a table with one row per competitor of the active brief.
+    Only the schema: the model validators enforce which names the rows have."""
+
+    def __init__(self, priced_only: bool = False, exact: bool = True):
+        self.priced_only, self.exact = priced_only, exact
+
+    def bounds(self) -> dict:
+        ctx = brief_context.active()
+        n = len(ctx.competitors if self.priced_only else ctx.all_names)
+        return {"min_length": n, "max_length": n} if self.exact else {"min_length": n}
+
+    def wire_constraints(self) -> list:
+        """What wire_model puts in its place: real length constraints for the active brief."""
+        from annotated_types import MaxLen, MinLen
+
+        b = self.bounds()
+        return [MinLen(b["min_length"])] + ([MaxLen(b["max_length"])] if "max_length" in b else [])
+
+    def __get_pydantic_json_schema__(self, core_schema, handler):
+        schema = handler(core_schema)
+        b = self.bounds()
+        schema["minItems"] = b["min_length"]
+        if "max_length" in b:
+            schema["maxItems"] = b["max_length"]
+        return schema
+
+
+CompetitorName = Annotated[str, AfterValidator(_known_competitor), _CompetitorEnum()]
 Basis = Literal["evidence", "brief_stated", "inference"]
 
-ALL_COMPETITORS = {"Wire3", "Spectrum", "AT&T", "T-Mobile Home Internet"}
-PRICED_COMPETITORS = ALL_COMPETITORS - {"Wire3"}  # n8n prompt rule 6: Wire3 needn't be priced
 BLENDED_FORMULA = (
     "((promo_price * promo_duration_months) + "
     "(post_promo_price * (12 - promo_duration_months))) / 12"
@@ -232,13 +281,13 @@ class AssumptionsUnknownsConflicts(BaseModel):
 
 class AnalystArtifact(BaseModel):
     brief_id: str
-    competitor_comparison_table: list[CompetitorComparisonRow] = Field(min_length=4, max_length=4)
+    competitor_comparison_table: Annotated[list[CompetitorComparisonRow], _RowsPerCompetitor()]
     # DELIBERATE deviation from analyst_artifact.schema.json (minItems 4, "one row per CompetitorName"):
     # the schema counts Wire3, but Wire3's price is not public and the brief forbids inventing it, so a
-    # priced Wire3 row usually cannot exist. 3 = one row per priced competitor, which _competitor_coverage
-    # enforces. n8n's artifact already has 3 rows (its prompt makes Wire3 optional).
-    pricing_matrix: list[PricingMatrixRow] = Field(min_length=3)
-    product_feature_comparison: list[ProductFeatureRow] = Field(min_length=4, max_length=4)
+    # priced Wire3 row usually cannot exist. The minimum is one row per priced competitor (3 for Ocala),
+    # which _competitor_coverage enforces. n8n's artifact already has 3 rows (its prompt makes Wire3 optional).
+    pricing_matrix: Annotated[list[PricingMatrixRow], _RowsPerCompetitor(priced_only=True, exact=False)]
+    product_feature_comparison: Annotated[list[ProductFeatureRow], _RowsPerCompetitor()]
     market_themes: list[MarketTheme] = Field(min_length=3, max_length=6)
     swot: Swot
     seven_p_analysis: SevenP
@@ -246,13 +295,14 @@ class AnalystArtifact(BaseModel):
 
     @model_validator(mode="after")
     def _competitor_coverage(self):
+        ctx = brief_context.active()
         for table in ("competitor_comparison_table", "product_feature_comparison"):
             names = [r.competitor_name for r in getattr(self, table)]
-            if sorted(names) != sorted(ALL_COMPETITORS):
+            if sorted(names) != sorted(ctx.all_names):
                 raise ValueError(f"{table} must have exactly one row per competitor, got {names}")
         priced = {r.competitor_name for r in self.pricing_matrix}
-        if not PRICED_COMPETITORS <= priced:
-            raise ValueError(f"pricing_matrix missing rows for {sorted(PRICED_COMPETITORS - priced)}")
+        if missing := set(ctx.competitors) - priced:
+            raise ValueError(f"pricing_matrix missing rows for {sorted(missing)}")
         for r in self.pricing_matrix:
             price = r.post_promo_price_usd_per_month
             if r.competitor_name == "Wire3" and price.basis != "evidence":

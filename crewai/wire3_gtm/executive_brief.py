@@ -12,7 +12,7 @@ listed at the end. The full plan for the same run remains the reference.
 from datetime import datetime, timezone
 
 from wire3_gtm.analyst_models import AnalystArtifact, dump_contract
-from wire3_gtm.docs_content import HTTP_URL_RE, DocumentPlan, _Builder, _natural, _text, preflight
+from wire3_gtm.docs_content import HTTP_URL_RE, DocumentPlan, _Builder, _natural, _text, census_records, preflight
 from wire3_gtm.evidence import EvidenceRecord
 from wire3_gtm.models import ResearchPlan
 from wire3_gtm.strategy_models import StrategyArtifact
@@ -37,6 +37,7 @@ def judged(*fields) -> str:
 class _Brief:
     def __init__(self, strategy: dict, analyst: dict, evidence: list[EvidenceRecord]):
         self.st, self.an = strategy, analyst
+        self.evidence = evidence
         self.by_id = {e.evidence_id: e for e in evidence}
         self.used: set[str] = set()
         # analyst finding id -> the evidence behind it, so strategy lines resolve to sources
@@ -117,6 +118,18 @@ def _executive(br: _Brief, b: _Builder, plan: ResearchPlan) -> None:
         for t in an["market_themes"]:
             br.used.update(t["supporting_evidence_ids"])
             b.add(t["title"], "BULLET")
+        areas: dict[str, list] = {}
+        for e in census_records(br.evidence):  # briefs with Census geographies only (not Ocala)
+            topic = e.source_title.split(": ", 1)[-1].split(" (", 1)[0]
+            if topic in ("income and poverty", "housing"):
+                areas.setdefault(e.source_title.split(": ", 1)[0], []).append(e)
+        if areas:
+            b.add("Local market (U.S. Census, ACS 2020-2024)", "H3")
+        for area, recs in areas.items():
+            br.used.update(e.evidence_id for e in recs)
+            lead = f"{area.replace('ZCTA5 ', 'ZIP area ')}: "
+            b.add(lead + "; ".join(e.claim.split("): ", 1)[-1].rstrip(".") for e in recs) + ".", "BULLET",
+                  bold_len=len(lead))
 
     def targets():
         for i in st["icps"]:

@@ -288,7 +288,7 @@ def test_preflight_event_accepts_the_real_health_check_shape(tmp_path):
     (e,) = events_of(tmp_path)
     assert e["gate"] == "mcp_preflight" and e["status"] == "ok" and e["active_provider"] == "tavily"
     assert e["provider_key_configured"] is True and e["server_status"] == "ok"
-    assert "key" not in json.dumps(e).replace("provider_key_configured", "")  # no key values, only whether one is set
+    assert "key" not in json.dumps(e).replace("provider_key_configured", "").replace("brief_key", "")  # no key values, only whether one is set
 
 
 # --- honest run status: skipped calls and thin coverage -------------------------------------

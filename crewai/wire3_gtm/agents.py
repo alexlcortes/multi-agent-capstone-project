@@ -35,7 +35,9 @@ DEFAULT_MAX_COMPLETION_TOKENS = 32_000
 def _load_config() -> dict:
     from wire3_gtm import variant
 
-    return variant.apply_agents(yaml.safe_load((CONFIG_DIR / "agents.yaml").read_text()))
+    from wire3_gtm.brief_context import fill_config
+
+    return fill_config(variant.apply_agents(yaml.safe_load((CONFIG_DIR / "agents.yaml").read_text())))
 
 
 def build_agents(research_tools: list | None = None,

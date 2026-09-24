@@ -1,6 +1,6 @@
 # Lake County Brief — Notes and Data Recommendations
 
-> **Status: planned, not yet runnable.** Added after the capstone submission (2026-09-24). CrewAI only. The pipeline currently runs only the Ocala brief ([`brief.json`](../../brief.json)); see [Before this brief can run](#before-this-brief-can-run) for what has to change first.
+> **Status: runnable in CrewAI, not yet run.** Added after the capstone submission (2026-09-24). CrewAI only. Run it with `--brief lake-county` (see [Running this brief](#running-this-brief)). All 15 required output sections are produced, including the Census market profile and the equity and compliance check.
 
 Companion to [`PROJECT_BRIEF.md`](PROJECT_BRIEF.md) in this folder. It records what was checked while the brief was written, which sources to trust, and which data APIs would give the pipeline cleaner inputs than web search alone.
 
@@ -58,11 +58,11 @@ BBB, Trustpilot, J.D. Power, Pew and trade press remain as preferred sources bec
 
 ## Recommended data APIs
 
-None of these are wired into the CrewAI implementation yet. Listed by how much they would improve the Lake County run.
+Only the Census Data API is wired in so far. Listed by how much they would improve the Lake County run.
 
 | API | What it gives | Research questions | Cost / access | Notes |
 |---|---|---|---|---|
-| **Census Data API** (api.census.gov) | ACS tables by place and ZCTA; the numbers above, straight from the source | RQ5 | Free; key required (sign up at api.census.gov/data/key_signup.html) | Calls without a key are redirected to a "missing key" page. Store it as `CENSUS_API_KEY` in `.env`. |
+| **Census Data API** (api.census.gov) | ACS tables by place and ZCTA; the numbers above, straight from the source | RQ5 | Free; key required (sign up at api.census.gov/data/key_signup.html) | **Implemented** as the `census_profile` tool (see [Census data](#census-data-added-2026-09-24)). Key in `mcp-server/.env`. |
 | **Census Reporter API** (api.censusreporter.org) | Same ACS data with simpler JSON | RQ5 (fallback) | Free, no key | Unofficial. Rejects Python's default user agent (403), so send a User-Agent header. Geo search endpoint returned `block`. |
 | **FCC Broadband Data Collection public data API** (broadbandmap.fcc.gov) | Fixed-broadband availability by provider, technology and advertised speed at location level | RQ1 | Free; requires an FCC account plus an API token generated in it | State files are large. Pull Florida once, filter to Lake County, and cache the extract instead of querying per run. |
 | **Ookla Open Data** (speed-test tiles, public S3 bucket) | Measured fixed and mobile download/upload speeds and latency by quarterly tile | RQ1, RQ8 (tests "DSL is slow" and "fixed wireless varies") | Free, no key | Measured speeds give evidence beyond what providers advertise. |
@@ -89,30 +89,52 @@ The Lake County brief has 7 comparison rows (vs. 4), 11 questions (vs. 8) and 2 
 | Wall-clock | ~12–19 min | 12 min | 20 min |
 | LLM calls (Analyst) | 4–6 | 6 | 8 |
 
-These are extrapolations, not measurements. The pipeline cannot run this brief yet (see below). Live API calls during a run count against the 60-call cap. One-time cached pulls (the FCC extract, Census tables) do not (Section 7).
+These are extrapolations, not measurements; no full Lake County run has been made yet. Live API calls during a run count against the 60-call cap. One-time cached pulls (the FCC extract, Census tables) do not (Section 7).
 
-## Before this brief can run
+## Running this brief
 
-The pipeline is still Ocala-specific:
-- The competitor names `Wire3 / Spectrum / AT&T / T-Mobile Home Internet` are fixed in `crewai/wire3_gtm/analyst_models.py`, `golden.py`, `kpi.py`, `config/tasks.yaml`, `config/agents.yaml` and `schemas/strategy_artifact.schema.json`.
-- `schemas/analyst_artifact.schema.json` requires exactly 4 comparison rows.
-- `schemas/docs_field_map.json` has an Ocala column label ("Footprint in Ocala").
-- `schemas/gtm_document_template.md` has 13 sections; this brief needs 15.
-- There is no Lake County `brief.json` yet.
+```bash
+cd mcp-server && uv run python main.py                                          # terminal 1: research server
+cd crewai && uv run python -m wire3_gtm run --brief lake-county --docs google   # terminal 2
+uv run python -m wire3_gtm executive-brief LAKE-YYYYMMDD-HHMMSS                 # optional CEO version
+```
 
-### Run identification
+`--brief lake-county` loads [`brief.json`](brief.json) from this folder. Without it, the pipeline runs the Ocala brief (the repo-root `brief.json`) exactly as before: same prompts, same schema sent to OpenAI, same `run-...` run IDs, and the KPI script and golden test still pin Ocala.
 
-Lake County runs are separable from Ocala runs today only by `brief_id`, a hash of `brief.json` (`crewai/wire3_gtm/run_record.py`). That is hard to use:
-- The hash is unreadable (`brief-d516e1daddfb` is Ocala), and every edit to `brief.json` produces a new one.
-- Readable run IDs are invented by the Head Planner (`W3-OCALA-001`, `wire3-ocala-r1`, `r3Wk9q`, ...). `config/agents.yaml` still says "Ocala", so a Lake County run could be labeled Ocala.
-- Only `run_record` events carry `brief_id`; every other event has to be joined through `client_run_id`.
-- CrewAI reads the single root `brief.json` (n8n reads the same file). Swapping in Lake County would drop Ocala runs from the KPI script (`kpi.py`) and fail the golden test, which pins the Ocala brief by sha256 (`golden.py`).
+### What changed in the pipeline to make this possible
 
-Changes needed:
-- Add a readable `brief_key` to each brief (e.g. `"wire3-lake-county"`) and write it on every log event alongside `brief_id`.
-- Generate run IDs in code from `brief_key` + date + sequence (e.g. `LAKE-20261001-01`) instead of letting the Head Planner name them.
-- Store briefs separately (e.g. `briefs/ocala/brief.json`, `briefs/lake-county/brief.json`) and add a `--brief` option to the CrewAI entry point, so KPIs and the golden test stay tied to their own brief.
-- Put `brief_key` and the generated run ID in the CrewAI Google Doc title (e.g. `Wire3 GTM Plan - wire3-lake-county - LAKE-20261001-01 - <date> UTC`). Today CrewAI titles docs with the Head Planner's run ID (`crewai/wire3_gtm/docs_content.py`), so the title does not name the region.
+- **Brief selection.** `--brief NAME` loads `briefs/NAME/brief.json`. A resumed run keeps the brief it started with, and commands that take a run ID (`docs`, `executive-brief`, `salvage`, ...) switch to that run's brief automatically (`crewai/wire3_gtm/brief_context.py`).
+- **Competitor names from the brief.** This brief's `competitor_names` sets the 7 table rows. The data models check names and row counts against the active brief, and the JSON schema sent to OpenAI lists the same 7 names, so the model cannot return an Ocala name. `competitor_aliases` tells the Analyst how to map spellings like "Comcast" to "Xfinity".
+- **Prompts filled from the brief.** `config/agents.yaml` and `config/tasks.yaml` use `[[...]]` markers for names, row counts and the target segment. The brief's `framing_rules` (no stigmatizing descriptors, no excluding neighborhoods, Wire3 facts only from its website, hypothetical framing) are passed to the Strategy agent, which never sees the brief itself.
+- **Readable IDs.** Runs are named `LAKE-YYYYMMDD-HHMMSS`, every log event carries `"brief_key": "wire3-lake-county"`, and the Google Doc title uses the run ID (`Wire3 GTM Plan - LAKE-... - <date> UTC`).
+
+Checked on 2026-09-24: `tests/test_brief_context.py` (15 tests), and a Head Planner-only call on this brief (about 1 cent), which returned a valid plan with all 7 competitors, all 11 research questions, 28 of 60 planned calls and the brief's budget.
+
+### Census data (added 2026-09-24)
+
+The brief's `census` field lists six geographies (Leesburg city, ZIPs 34748 and 34788, Mount Dora city, ZIP 32757, Lake County). After the planned searches, the pipeline calls the research server's new `census_profile` tool once per geography (`run_census` in `crewai/wire3_gtm/research_tools.py`). That is 6 calls, counted against the 60-call budget, with no AI involved. Each geography returns four evidence records (income and poverty, housing, age and language, internet access), tagged RQ5 and classed as primary sources.
+
+- **Market profile by city** is now a section of the GTM document, built directly from that evidence, so every figure is exactly what the Census API returned and carries its citation. The Analyst also receives the records like any other evidence.
+- **The executive brief** gets one line per area (income, poverty and housing) under "What the market looks like".
+- The server needs `CENSUS_API_KEY` in `mcp-server/.env`; the preflight stops the run early if it is missing.
+
+Checked: `mcp-server/tests/test_census.py` (8 tests), `crewai/tests/test_census_research.py` (10 tests), and a live fetch of all six geographies through the running server, which returned the figures in [The geography check](#the-geography-check).
+
+### Equity and compliance check (added 2026-09-24)
+
+A section of the GTM document for briefs with `framing_rules` (not Ocala), placed before Risks:
+
+- **Rules this plan was held to:** the brief's `framing_rules`, which the Strategy agent also receives in its prompt.
+- **Automated screen** (`crewai/wire3_gtm/equity_checks.py`): every recommendation the Strategy agent wrote is screened for places described by crime or safety, and for recommendations to exclude, deprioritize or charge more by income, housing type, age, language or ethnicity. Negations ("do not exclude renters") pass, and pains and risk descriptions are skipped because they describe the market, not Wire3's choices. Anything flagged is listed in the section and in the run summary, and marks the run degraded. It does not block the run: it is a keyword screen, not a legal review.
+- **Where the plan targets specific customer profiles:** which channels reach each profile, with the rule that targeting may change outreach but not availability, price or service quality.
+- **Consumer-protection and digital-discrimination considerations:** the brief's `compliance_considerations` (FCC broadband labels, FTC Act and Florida FDUTPA on promo pricing, FCC digital-discrimination rules, affordability-program claims, multiple-tenant agreements), labeled as not researched in the run.
+
+Checked: `crewai/tests/test_equity.py` (15 tests). The latest Ocala run's document, rebuilt with this code, is identical to the one it produced.
+
+### Still missing
+
+- **RQ9–RQ11** (analogues, channels, local partners) still get only what the company-centered searches return.
+- **`schemas/*.json` and `schemas/docs_field_map.json` still describe Ocala.** They are the contract shared with n8n and are left unchanged; the CrewAI models follow the active brief instead.
 
 Each CrewAI run creates a new Google Doc (a resumed run reuses its doc) plus local `05_document.md` and `05_document.pdf` copies. The Ocala CrewAI runs left 7 docs in Drive, including some from failed runs that were created before the write step. Expect the same pattern here.
 

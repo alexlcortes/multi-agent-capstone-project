@@ -11,6 +11,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
+from wire3_gtm import brief_context
 from wire3_gtm.analyst_models import AnalystArtifact, check_grounding, dump_contract
 from wire3_gtm.evidence import EvidenceRecord
 from wire3_gtm.models import ResearchPlan
@@ -161,6 +162,72 @@ class _Builder:
             self.obj(item, [k for k in (id_key, name_key) if k])
 
 
+CENSUS_URL = "https://data.census.gov/profile"
+
+
+def census_records(evidence: list[EvidenceRecord]) -> list[EvidenceRecord]:
+    """The Census tool's evidence (research_tools.run_census), in the order it was fetched."""
+    return [e for e in evidence if (e.source_url or "").startswith(CENSUS_URL)]
+
+
+def market_profile(b: "_Builder", records: list[EvidenceRecord]) -> None:
+    """Built from the Census evidence itself, not from an agent's summary of it, so every figure is
+    exactly what the Census API returned. Each record's title is 'NAME: topic (dataset)'."""
+    b.add(
+        "Public data only: U.S. Census Bureau American Community Survey 5-year estimates, retrieved through the "
+        "Census Data API. City-limit and ZIP-area figures describe different populations, so each is labeled. "
+        "Figures describe economic, housing and connectivity characteristics only.",
+        "P",
+    )
+    areas: dict[str, list[EvidenceRecord]] = {}
+    for e in records:
+        areas.setdefault(e.source_title.split(": ", 1)[0], []).append(e)
+    for area, recs in areas.items():
+        b.add(area.replace("ZCTA5 ", "ZIP area "), "H3")
+        for e in recs:
+            topic = e.source_title.split(": ", 1)[-1].split(" (", 1)[0]
+            figures = e.claim.split("): ", 1)[-1].rstrip(".")
+            lead = f"{topic[:1].upper()}{topic[1:]}: "
+            b.add(f"{lead}{figures} [{e.evidence_id}]", "BULLET", bold_len=len(lead))
+
+
+def equity_section(b: "_Builder", strategy: StrategyArtifact, st: dict) -> None:
+    """The brief's rules, an automated screen of every Strategy statement against them, who each
+    channel targets, and the brief's consumer-protection checklist. A screen, not a legal review."""
+    from wire3_gtm.equity_checks import equity_flags, statements_checked
+
+    ctx = brief_context.active()
+    b.add("Rules this plan was held to (from the brief)", "H3")
+    for r in ctx.framing_rules:
+        b.add(r, "BULLET")
+    b.add("Automated screen", "H3")
+    flags = equity_flags(strategy)
+    b.add(f"{statements_checked(strategy)} recommendation statements in the strategy were screened for place descriptions based on "
+          "crime or safety, and for recommendations to exclude, deprioritize or charge more by income, housing type, "
+          "age, language or ethnicity. This is a keyword screen, not a legal review.", "P")
+    if not flags:
+        b.add("Result: nothing flagged.", "P", bold_len=len("Result: "))
+    else:
+        b.add(f"Result: {len(flags)} statement(s) flagged for review before this plan is used:", "P",
+              bold_len=len("Result: "))
+        for f in flags:
+            lead = f"{f['where']}: "
+            b.add(f"{lead}\"{f['text']}\" ({f['reason']})", "BULLET", bold_len=len(lead))
+    b.add("Where the plan targets specific customer profiles", "H3")
+    b.add("Targeting decides where and how Wire3 communicates. Under the rules above it must not change "
+          "availability, price or service quality for any area.", "P")
+    icps = {i["icp_id"]: i["name"] for i in st["icps"]}
+    for icp_id, name in icps.items():
+        chans = [c["channel_name"] for c in st["channels"] if icp_id in c["target_icp_ids"]]
+        lead = f"{name}: "
+        b.add(lead + ("; ".join(chans) if chans else "no channel targets this profile"), "BULLET", bold_len=len(lead))
+    if ctx.compliance_considerations:
+        b.add("Consumer-protection and digital-discrimination considerations", "H3")
+        b.add("Listed in the brief and not researched in this run: verify each before use.", "P")
+        for c in ctx.compliance_considerations:
+            b.add(c, "BULLET")
+
+
 def build_document(
     strategy: StrategyArtifact,
     analyst: AnalystArtifact,
@@ -273,6 +340,9 @@ def build_document(
 
     b.section("Executive summary", executive_summary)
     b.section("Research scope and evidence", research_scope)
+    census = census_records(evidence)
+    if census:  # only briefs that list Census geographies (not Ocala)
+        b.section("Market profile by city", lambda: market_profile(b, census))
     b.section("Competitor comparison", lambda: [
         (b.add(r["competitor_name"], "H3"), b.obj(r, ["competitor_name"])) for r in an["competitor_comparison_table"]])
     b.section("Product and feature comparison", lambda: [
@@ -312,6 +382,8 @@ def build_document(
     b.section("Launch phases and activities", lambda: b.items(
         sorted(st["launch_phases"], key=lambda p: p.get("sequence_order", 0)), "phase_id", "phase_name"))
     b.section("Success metrics", lambda: b.items(st["success_metrics"], "metric_id", "name"))
+    if brief_context.active().framing_rules:  # briefs with an equity requirement (not Ocala)
+        b.section("Equity and compliance check", lambda: equity_section(b, strategy, st))
     b.section("Risks", lambda: b.items(st["risks"], "risk_id"))
 
     def auc_section():

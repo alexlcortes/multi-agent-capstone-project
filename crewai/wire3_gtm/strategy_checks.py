@@ -101,4 +101,11 @@ def report(strategy: StrategyArtifact) -> dict:
             ("low_brand_recognition_response", vp.low_brand_recognition_response),
         ) if f.basis == "evidence"
     ]
-    return {"cited_fields": len(fields), "basis_mix": dict(mix), "wire3_response_claims_evidence": suspect}
+    out = {"cited_fields": len(fields), "basis_mix": dict(mix), "wire3_response_claims_evidence": suspect}
+    from wire3_gtm.brief_context import active
+
+    if active().framing_rules:  # briefs with an equity requirement (not Ocala, whose report is unchanged)
+        from wire3_gtm.equity_checks import equity_flags
+
+        out["equity_flags"] = equity_flags(strategy)
+    return out

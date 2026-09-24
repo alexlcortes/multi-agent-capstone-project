@@ -2,6 +2,7 @@
 uv run python -m wire3_gtm run          # full pipeline, artifacts kept in runs/<run_id>/
 uv run python -m wire3_gtm run --docs google   # ...then write and verify the Google Doc (or --docs local)
 uv run python -m wire3_gtm run --budget max_cost_usd=0.02   # test a cap: tighter limit for this run only
+uv run python -m wire3_gtm run --brief lake-county   # another brief: briefs/<name>/brief.json (default: ../brief.json, Ocala)
 uv run python -m wire3_gtm run RUN_ID   # resume: finished steps are loaded from disk
 uv run python -m wire3_gtm compare      # latest n8n vs CrewAI run, side by side
 uv run python -m wire3_gtm salvage RUN_ID  # recover a failed Analyst step from its saved drafts
@@ -24,24 +25,41 @@ from wire3_gtm.tasks import build_tasks
 
 
 def main() -> None:
+    from wire3_gtm import brief_context
+    from wire3_gtm.run_store import RUNS_DIR
+
+    # Commands that take a saved run work in that run's brief (its competitor names validate its artifacts).
+    if len(sys.argv) > 2 and not sys.argv[2].startswith("--") and (RUNS_DIR / sys.argv[2]).is_dir():
+        brief_context.activate(brief_context.for_run(RUNS_DIR / sys.argv[2]))
     if sys.argv[1:2] == ["run"]:
+        import json
+
         from wire3_gtm.pipeline import load_brief, run_pipeline
-        from wire3_gtm.run_store import RunStore
+        from wire3_gtm.run_store import RunStore, new_run_id
 
         from wire3_gtm.run_log import Budget, RunMonitor
 
         args = sys.argv[2:]
-        valued = {"--docs", "--budget"}
+        valued = {"--docs", "--budget", "--brief"}
         docs = args[args.index("--docs") + 1] if "--docs" in args else None
+        brief_name = args[args.index("--brief") + 1] if "--brief" in args else None
         overrides = [args[i + 1] for i, a in enumerate(args) if a == "--budget"]
         positional = [a for i, a in enumerate(args) if not a.startswith("--") and (i == 0 or args[i - 1] not in valued)]
-        store = RunStore(positional[0] if positional else None)
-        brief = load_brief()
+        brief = load_brief(brief_name)
+        resumed = positional and (RUNS_DIR / positional[0] / "00_brief.json").exists()
+        if resumed:  # a resumed run keeps the brief it started with
+            saved = json.loads((RUNS_DIR / positional[0] / "00_brief.json").read_text())
+            if brief_name and saved != brief:
+                raise SystemExit(f"run {positional[0]} was started with a different brief; drop --brief to resume it")
+            brief = saved
+        ctx = brief_context.from_brief(brief)
+        brief_context.activate(ctx)
+        store = RunStore(positional[0] if positional else new_run_id(ctx.run_prefix))
         monitor = RunMonitor(store, Budget.from_brief(brief))
         monitor.budget_overrides = monitor.budget.override(overrides)
         if monitor.budget_overrides:
             print("Budget overridden for this run:", monitor.budget_overrides)
-        print(f"Run {store.run_id}: artifacts are saved as each step finishes in {store.dir}")
+        print(f"Run {store.run_id} ({ctx.key}): artifacts are saved as each step finishes in {store.dir}")
         try:
             result = run_pipeline(brief, store=store, docs=docs, monitor=monitor)
         except BaseException:

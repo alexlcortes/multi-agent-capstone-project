@@ -1,6 +1,6 @@
 # Project Brief: Wire3 Residential Value & Affordability GTM (Lake County, FL — Leesburg / Mount Dora)
 
-> **Status: planned, not yet runnable.** Added after the capstone submission (2026-09-24). CrewAI only. The pipeline currently runs only the Ocala brief ([`brief.json`](../../brief.json), [`PROJECT_BRIEF.md`](../../PROJECT_BRIEF.md)). See [`README.md`](README.md) in this folder for what has to change before this brief can run.
+> **Status: runnable in CrewAI, not yet run.** Added after the capstone submission (2026-09-24). CrewAI only. Machine-readable version: [`brief.json`](brief.json). See [`README.md`](README.md) in this folder for how to run it and how each required section is produced. The original, submitted brief is [`../../PROJECT_BRIEF.md`](../../PROJECT_BRIEF.md) (Ocala).
 
 ## 1. Product / company being analyzed
 Wire3 — a regional fiber-to-the-home (FTTH) internet service provider. Product in scope: Wire3's residential fiber internet plans as published on Wire3's public website (standalone internet only; **no bundled mobile phone plan or TV bundle**, unlike the primary competitors).

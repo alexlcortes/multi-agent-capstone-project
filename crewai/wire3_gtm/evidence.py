@@ -102,7 +102,8 @@ class ToolCallRecord:
     attempts: int = 1  # 1 = no retry. Only the FINAL outcome becomes evidence, so a retry never duplicates it.
     duration_ms: int | None = None
     attempt_errors: list[str] = field(default_factory=list)  # why each failed attempt failed
-    source: str = "agent"  # "agent", or "enforced" when the pipeline ran a planned call the agent skipped
+    source: str = "agent"  # "agent"; "enforced" when the pipeline ran a planned call the agent skipped; "census"
+    research_question_ids: list[str] = field(default_factory=list)  # set only on code-made calls outside the plan
 
 
 @dataclass
@@ -114,10 +115,12 @@ class EvidenceCollector:
     # so paid search results survive a crash before the evidence set is built.
     sink: Path | None = None
     source: str = "agent"  # stamped on every call recorded while set; enforce_plan sets it to "enforced"
+    research_question_ids: list[str] = field(default_factory=list)  # stamped the same way (run_census)
     _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
     def _add(self, rec: ToolCallRecord) -> None:
         rec.source = self.source
+        rec.research_question_ids = list(self.research_question_ids)
         with self._lock:  # enforced calls run in a small thread pool
             self.calls.append(rec)
             if self.sink is not None:
@@ -180,7 +183,8 @@ class EvidenceCollector:
 
     def build_evidence(self, plan: ResearchPlan) -> list[EvidenceRecord]:
         evidence: dict[str, EvidenceRecord] = {}
-        for call, rq_ids in zip(self.calls, self.match_plan(plan)):
+        for call, matched in zip(self.calls, self.match_plan(plan)):
+            rq_ids = call.research_question_ids or matched
             for r in call.results:
                 text = str(r.get("excerpt") or "")
                 claim = text[:400] or "No excerpt available"
@@ -208,7 +212,8 @@ class EvidenceCollector:
             "retried": sum(c.attempts > 1 for c in self.calls),
             "enforced": sum(c.source == "enforced" for c in self.calls),
             "empty": sum(c.status == "empty_result" for c in self.calls),
-            "unplanned": sum(1 for rq in self.match_plan(plan) if not rq),
+            "unplanned": sum(1 for rq in self.match_plan(plan) if not rq),  # includes census calls, never planned
+            "census": sum(c.source == "census" for c in self.calls),
         }
 
 

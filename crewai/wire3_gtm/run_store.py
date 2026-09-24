@@ -35,8 +35,9 @@ def _now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def new_run_id() -> str:
-    return datetime.now().strftime("run-%Y%m%d-%H%M%S")
+def new_run_id(prefix: str | None = None) -> str:
+    """run-YYYYMMDD-HHMMSS for the Ocala brief (unchanged); <PREFIX>-YYYYMMDD-HHMMSS for other briefs."""
+    return datetime.now().strftime(f"{prefix or 'run'}-%Y%m%d-%H%M%S")
 
 
 class RunStore:

@@ -21,6 +21,7 @@ uv run python main.py       # serves http://127.0.0.1:8000/mcp; leave it running
 | `TAVILY_API_KEY` / `SERPAPI_API_KEY` | Key for the chosen provider (only that one is needed) |
 | `RESEARCH_CACHE_TTL_HOURS` | Cache lifetime, default 24; `0` turns the cache off |
 | `RESEARCH_CACHE_DIR` | Optional; default `.cache/research/` (gitignored) |
+| `CENSUS_API_KEY` | Optional; only for `census_profile` (free key: api.census.gov/data/key_signup.html) |
 
 Search keys live only here, never in `crewai/.env` or `n8n/.env`.
 
@@ -35,6 +36,7 @@ Search keys live only here, never in `crewai/.env` or `n8n/.env`.
 | `recent_news` | `company_name` | `<company> news` |
 | `validate_source` | `url`, `timeout` (10 s) | none: a HEAD request to the URL |
 | `health_check` | none | none: reports the active provider and which keys are set (never their values) |
+| `census_profile` | `geography` | none: a Census Data API request (ACS 2020-2024 5-year estimates) |
 
 The five research tools take `max_results` (default 10) and return a list of results shaped like the evidence
 contract (`../schemas/research_evidence.schema.json`):
@@ -45,6 +47,13 @@ contract (`../schemas/research_evidence.schema.json`):
 ```
 
 Evidence ids, research-question ids and source types are assigned by the calling pipeline, not here.
+
+`census_profile` (added after the capstone submission, for the Lake County brief) takes `ZIP 32757`,
+`Lake County, FL` or a city such as `Leesburg city, FL`, and returns four results in the same shape (income and
+poverty, housing, age and language, internet access), each linking to the data.census.gov page for that
+geography. The key is sent only to api.census.gov: it never appears in a returned URL, the cache or an error. The
+CrewAI pipeline calls it in code for the geographies a brief lists (`census` in `briefs/<name>/brief.json`); the
+Head Planner never plans it, and the Ocala brief does not use it. Code: `research/census.py`.
 
 `validate_source` returns `{url, is_valid, status_code, error, checked_at}`. A dead link is a normal result
 (`is_valid: false`), not a tool error. How a status is classified (only 404/410/DNS failure = broken; 403/429 =
@@ -81,7 +90,7 @@ in the last 24 hours costs the other nothing.
 ## Tests
 
 ```bash
-uv run python -m pytest tests -q     # 77 tests, offline: the provider is mocked, no key or network needed
+uv run python -m pytest tests -q     # 85 tests, offline: the provider and the Census API are mocked, no key or network needed
 ```
 
 `tests/test_tools.py` covers the tools, the result shape and the error paths (blank input, missing key,
@@ -89,6 +98,8 @@ unknown provider, provider failure). `tests/test_cache.py` covers hits, TTL expi
 and empty answers are not cached. `tests/test_boundaries.py` covers what the providers send back: normalizing both
 providers' results, honouring `max_results`, empty and malformed payloads, bad dates, readable errors that never
 leak an API key, and `validate_source` reporting every status and network failure without raising.
+`tests/test_census.py` covers `census_profile`: geography lookup, figures, missing values, caching, and that the key
+never appears in a result or an error.
 
 `health_check.py` is a **live** end-to-end check: it calls every tool once against the real provider
 (`max_results=1`). It uses real search credits, so run it by hand, not in CI:

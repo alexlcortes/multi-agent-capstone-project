@@ -1,0 +1,136 @@
+{
+  "brief_key": "wire3-lake-county",
+  "run_prefix": "LAKE",
+  "implementation_scope": "crewai",
+  "company": "Wire3",
+  "product": "Residential fiber internet (standalone, no bundled mobile plan or TV bundle)",
+  "region": "Leesburg and Mount Dora, Lake County, FL",
+  "segment": "Budget-conscious and value-seeking residential households, in two sub-segments assigned by primary barrier to switching: cost-constrained households (affordability of getting or staying connected) and value switchers (already subscribed; post-promo bill increases, switching friction, trust)",
+  "segment_short": "budget-conscious and value-seeking households",
+  "competitors": [
+    "Xfinity (Comcast)",
+    "CenturyLink (Lumen)",
+    "Quantum Fiber",
+    "Spectrum (Charter)",
+    "T-Mobile Home Internet",
+    "Verizon Home Internet"
+  ],
+  "competitor_names": [
+    "Wire3",
+    "Xfinity",
+    "CenturyLink",
+    "Quantum Fiber",
+    "Spectrum",
+    "T-Mobile Home Internet",
+    "Verizon Home Internet"
+  ],
+  "competitor_aliases": {
+    "Comcast": "Xfinity",
+    "Xfinity (Comcast)": "Xfinity",
+    "Lumen": "CenturyLink",
+    "CenturyLink (Lumen)": "CenturyLink",
+    "Charter Spectrum": "Spectrum",
+    "Spectrum (Charter)": "Spectrum"
+  },
+  "business_question": "Given that Wire3 cannot compete on mobile or TV bundling or on brand recognition, what go-to-market strategy (positioning, pricing and promo structure, affordability options, messaging, channels) will convert budget-conscious and value-seeking households in Leesburg and Mount Dora away from Xfinity, CenturyLink, Quantum Fiber, Spectrum, T-Mobile Home Internet and Verizon Home Internet, within budget?",
+  "research_questions": [
+    "What is each competitor's serviceable footprint and advertised speed tiers in Leesburg and Mount Dora, and where does each overlap with Wire3's publicly listed coverage?",
+    "What are each competitor's current standalone and bundled pricing tiers, promo rates, and post-promo rates?",
+    "What upfront and recurring costs does each competitor charge (install, equipment, deposits or credit checks, early-termination fees, data caps and overages, surcharges)?",
+    "What low-income, prepaid, or no-contract options does each competitor offer (e.g. Xfinity Internet Essentials, Xfinity NOW, Lifeline-eligible plans), and what changed for households after the Affordable Connectivity Program ended?",
+    "What public demographic and housing data describes Leesburg and Mount Dora (income, poverty, renters vs. owners, multifamily and manufactured housing, age, broadband adoption, languages), at city-limit and ZIP level?",
+    "What documented triggers cause residential customers to switch ISPs (promo-cliff bill shock, reliability, customer service, moving)?",
+    "How much do mobile and TV bundles influence purchase decisions for budget-conscious households compared with other segments?",
+    "What do verified customer reviews and complaints say about each competitor's pain points, prioritizing Lake County and Central Florida sources?",
+    "How have regional fiber ISPs without a mobile bundle positioned and priced against a cable incumbent, including affordable tiers, community partnerships and apartment programs?",
+    "Which marketing channels are effective and cost-appropriate for a low-awareness regional ISP entering Lake County neighborhoods (community groups, libraries, property and manufactured-home community managers, local media, direct mail, geo-targeted digital, referrals)?",
+    "Which local organizations active in digital inclusion or affordability in Lake County could be credible partners?"
+  ],
+  "research_question_priority": "RQ1-RQ4 first, then RQ5, then RQ9-RQ10, then the rest",
+  "census": {
+    "research_question_id": "RQ5",
+    "geographies": [
+      "Leesburg city, FL",
+      "ZIP 34748",
+      "ZIP 34788",
+      "Mount Dora city, FL",
+      "ZIP 32757",
+      "Lake County, FL"
+    ]
+  },
+  "required_output_sections": [
+    "Executive summary",
+    "Research scope & evidence table",
+    "Market profile by city",
+    "Competitor comparison table",
+    "Pricing matrix",
+    "Ideal customer profiles",
+    "Customer pains and desired outcomes",
+    "Value proposition and positioning",
+    "Message pillars",
+    "Recommended channels",
+    "Launch phases and activities",
+    "Success metrics",
+    "Equity and compliance check",
+    "Risks, assumptions, and open follow-up research questions",
+    "Citations / evidence appendix"
+  ],
+  "budget": {
+    "max_search_calls": 60,
+    "max_wall_clock_minutes": 20,
+    "max_llm_calls_per_role": 8,
+    "max_cost_usd": 2.5
+  },
+  "sources": {
+    "preferred": [
+      "xfinity.com",
+      "centurylink.com",
+      "quantumfiber.com",
+      "spectrum.com",
+      "t-mobile.com/home-internet",
+      "verizon.com/home/internet",
+      "wire3.com",
+      "FCC Broadband Data Collection data",
+      "U.S. Census ACS (Census Data API)",
+      "FCC Lifeline",
+      "Florida Office of Broadband",
+      "Lake County and city government sites",
+      "BroadbandNow",
+      "J.D. Power / ACSI",
+      "Pew Research",
+      "BBB",
+      "Trustpilot",
+      "Reddit",
+      "Daily Commercial",
+      "Orlando Sentinel",
+      "Fierce Network",
+      "Light Reading",
+      "Broadband Communities"
+    ],
+    "excluded": [
+      "anything behind login/paywall",
+      "competitor non-public data",
+      "Wire3 non-public internal data",
+      "crime statistics as a basis for targeting or excluding neighborhoods",
+      "FCC National Broadband Map web interface",
+      "address serviceability checkers",
+      "data.census.gov",
+      "Google reviews",
+      "Wayback Machine",
+      "Parks Associates"
+    ]
+  },
+  "framing_rules": [
+    "Describe neighborhoods and households only by publicly measurable economic and connectivity characteristics; never by crime, safety or other stigmatizing descriptors.",
+    "Never recommend excluding, deprioritizing or offering worse terms to areas based on income or demographic composition.",
+    "Only facts from Wire3's public website are real Wire3 inputs; everything else about Wire3 must not be guessed. If Wire3 lists no affordability plan, one may be recommended as a hypothetical but never stated to exist.",
+    "All pricing, promo, spend and channel recommendations are hypothetical and illustrative for an academic capstone, not Wire3's actual plan."
+  ],
+  "compliance_considerations": [
+    "FCC broadband consumer labels: any advertised plan must show its monthly price, promo terms, one-time and recurring fees, and speeds in the FCC label format.",
+    "Promotional and post-promo pricing claims must be clear and not misleading under the FTC Act and the Florida Deceptive and Unfair Trade Practices Act.",
+    "FCC rules on digital discrimination of access (47 CFR Part 16): check their current status and whether deployment, pricing or service decisions differ by income, race, ethnicity, color, religion or national origin.",
+    "Affordability programs: do not state or imply that Wire3 participates in Lifeline or any subsidy program unless its public website says so; the Affordable Connectivity Program has ended.",
+    "Property-manager and manufactured-home community agreements: check that exclusive-access or bulk-billing terms comply with FCC rules for multiple-tenant environments."
+  ]
+}

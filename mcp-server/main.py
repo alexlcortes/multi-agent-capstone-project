@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from mcp.server.mcpserver import MCPServer
 
-from research import tools
+from research import census, tools
 
 load_dotenv()
 
@@ -18,6 +18,7 @@ def health_check() -> dict:
         "active_provider": os.environ.get("SEARCH_PROVIDER", "tavily"),
         "serpapi_configured": bool(os.environ.get("SERPAPI_API_KEY")),
         "tavily_configured": bool(os.environ.get("TAVILY_API_KEY")),
+        "census_configured": bool(os.environ.get("CENSUS_API_KEY")),
     }
 
 
@@ -27,6 +28,7 @@ mcp.tool()(tools.product_portfolio_mapping)
 mcp.tool()(tools.pricing_research)
 mcp.tool()(tools.recent_news)
 mcp.tool()(tools.validate_source)
+mcp.tool()(census.census_profile)
 
 
 if __name__ == "__main__":

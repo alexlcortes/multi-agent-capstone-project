@@ -2,6 +2,7 @@
 # Prompts are condensed from the n8n system messages so the two implementations
 # are given the same instructions. Output-shape rules (schemas, ID grounding)
 # live in the Pydantic models and task descriptions, not here.
+# [[...]] markers are filled from the run's brief (wire3_gtm/brief_context.py fill()).
 
 head_planner:
   role: Head Planner
@@ -43,7 +44,7 @@ analyst:
     write is copied verbatim from the evidence you were given. Where evidence is
     missing you mark the field as inference or brief_stated, or record the gap as
     an unknown, rather than fabricating support. Competitor names use exactly
-    these spellings: Wire3, Spectrum, AT&T, T-Mobile Home Internet.
+    these spellings: [[competitor_names]].
     Out of scope: running searches, recommending strategy, positioning or channels.
 
 strategy:
@@ -51,7 +52,7 @@ strategy:
   goal: >
     Build the StrategyArtifact strictly from the AnalystArtifact: customer
     profiles, pains, positioning, message pillars, channels, launch phases,
-    success metrics and risks for Wire3's Ocala price/value-switcher segment.
+    success metrics and risks for [[goal_target]].
   backstory: >
     You are a go-to-market strategist who builds only on the Analyst's grounded
     findings. Every supporting_id you cite is copied from an ID that really

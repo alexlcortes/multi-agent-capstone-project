@@ -12,8 +12,12 @@ from wire3_gtm.wire_models import wire_model
 # Tasks with a Pydantic contract defined so far; the rest are validated downstream.
 # The LLM call is given validator-free "wire" twins; the strict models validate in the guardrails
 # (wire_models.py explains why: custom validators used to raise inside the OpenAI SDK).
-OUTPUT_MODELS = {"plan_research": wire_model(ResearchPlan), "analyze_evidence": wire_model(AnalystArtifact),
-                "build_strategy": wire_model(StrategyArtifact)}
+def output_models() -> dict:
+    """Built per call: the wire models carry the active brief's competitor names and row counts."""
+    return {"plan_research": wire_model(ResearchPlan), "analyze_evidence": wire_model(AnalystArtifact),
+            "build_strategy": wire_model(StrategyArtifact)}
+
+
 GUARDRAILS = {"plan_research": plan_guardrail}
 
 
@@ -21,7 +25,10 @@ def build_tasks(agents: dict[str, Agent], guardrails: dict | None = None) -> dic
     """guardrails: per-run guardrails (e.g. the Analyst's, which needs the evidence ids)."""
     from wire3_gtm import variant
 
-    config = variant.apply_tasks(yaml.safe_load((CONFIG_DIR / "tasks.yaml").read_text()))
+    from wire3_gtm.brief_context import fill_config
+
+    config = fill_config(variant.apply_tasks(yaml.safe_load((CONFIG_DIR / "tasks.yaml").read_text())))
+    models = output_models()
     tasks: dict[str, Task] = {}
     for name, spec in config.items():  # YAML order == dependency order
         spec = dict(spec)
@@ -31,7 +38,7 @@ def build_tasks(agents: dict[str, Agent], guardrails: dict | None = None) -> dic
             **spec,
             agent=agent,
             context=context,
-            output_pydantic=OUTPUT_MODELS.get(name),
+            output_pydantic=models.get(name),
             guardrail=(guardrails or {}).get(name, GUARDRAILS.get(name)),
         )
     return tasks

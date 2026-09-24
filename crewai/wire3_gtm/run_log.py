@@ -152,8 +152,11 @@ class RunMonitor:
 
     # --- output -----------------------------------------------------------
     def event(self, event_type: str, **fields) -> dict:
+        from wire3_gtm.brief_context import active
+
         rec = {"ts": _iso(fields.pop("_ts", None)), "implementation": "crewai", "event_type": event_type,
-               "client_run_id": self.store.run_id, "run_id": self.run_id or self.store.run_id, **fields}
+               "client_run_id": self.store.run_id, "run_id": self.run_id or self.store.run_id,
+               "brief_key": active().key, **fields}
         with self.lock:
             self.log_path.parent.mkdir(parents=True, exist_ok=True)
             with self.log_path.open("a") as f:

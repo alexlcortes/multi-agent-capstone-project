@@ -62,6 +62,9 @@ def build_run_complete(monitor: RunMonitor, store: RunStore, *, plan=None, evide
     if monitor.cost_usd() > monitor.budget.max_cost_usd:
         issues.append(f"cost ${monitor.cost_usd():.3f} is over the ${monitor.budget.max_cost_usd} budget"); degraded = True
 
+    if flags := (strategy_report or {}).get("equity_flags"):
+        issues.append(f"{len(flags)} strategy statement(s) flagged by the equity screen; review them before use "
+                      f"(document section 'Equity and compliance check')"); degraded = True
     mix = (strategy_report or {}).get("basis_mix") or {}
     if mix.get("inference"):  # allowed, but never silent: each is marked [inference] in the document too
         issues.append(f"{mix['inference']} of {sum(mix.values())} strategy claims have no source (basis inference)")

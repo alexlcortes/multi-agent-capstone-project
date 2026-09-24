@@ -13,7 +13,7 @@ from wire3_gtm.evidence import EvidenceRecord
 from wire3_gtm.models import ResearchPlan, plan_guardrail
 from wire3_gtm.strategy_checks import make_strategy_guardrail
 from wire3_gtm.strategy_models import StrategyArtifact
-from wire3_gtm.tasks import OUTPUT_MODELS
+from wire3_gtm.tasks import output_models
 from wire3_gtm.wire_models import wire_model
 
 EVIDENCE = [EvidenceRecord(evidence_id="EV-aaaaaaaa", research_question_id="RQ2", claim="c", source_title="t",
@@ -54,7 +54,8 @@ def test_the_schema_sent_to_openai_is_unchanged():
 def test_tasks_hand_the_llm_the_wire_models_not_the_strict_ones():
     for name, strict in (("analyze_evidence", AnalystArtifact), ("build_strategy", StrategyArtifact),
                          ("plan_research", ResearchPlan)):
-        assert OUTPUT_MODELS[name] is not strict and OUTPUT_MODELS[name].__name__ == strict.__name__
+        models = output_models()
+        assert models[name] is not strict and models[name].__name__ == strict.__name__
 
 
 def test_analyst_guardrail_turns_a_rule_violation_into_retry_feedback_not_an_exception(valid):
