@@ -8,6 +8,7 @@ uv run python -m wire3_gtm salvage RUN_ID  # recover a failed Analyst step from 
 uv run python -m wire3_gtm salvage-research RUN_ID  # rebuild evidence from searches already saved (no new searches)
 uv run python -m wire3_gtm docs RUN_ID     # Docs Writer, local Markdown only (no Google)
 uv run python -m wire3_gtm docs RUN_ID --google   # also create, verify and export the Google Doc
+uv run python -m wire3_gtm executive-brief RUN_ID   # short CEO version of a finished run's plan (local Markdown, no LLM)
 uv run python -m wire3_gtm google-auth     # one-time Google consent (opens a browser)
 uv run python -m wire3_gtm snapshot RUN_ID  # save a validated Strategy output to snapshots/RUN_ID (no Google)
 uv run python -m wire3_gtm run-records     # add a run_record to every logged run that lacks one
@@ -105,6 +106,14 @@ def main() -> None:
             return json.loads(p.read_text()) if p.exists() else None
 
         print("run_record added for:", backfill(LOG_PATH, brief_for) or "none (all runs have one)")
+        return
+    if sys.argv[1:2] == ["executive-brief"]:
+        from wire3_gtm.executive_brief import write_executive_brief
+        from wire3_gtm.run_store import RUNS_DIR, RunStore
+
+        if not (RUNS_DIR / sys.argv[2]).is_dir():  # RunStore() would create an empty run
+            raise SystemExit(f"no run {sys.argv[2]} in {RUNS_DIR}")
+        print("Executive brief:", write_executive_brief(RunStore(sys.argv[2])))
         return
     if sys.argv[1:2] == ["docs"]:
         from wire3_gtm.pipeline import run_docs

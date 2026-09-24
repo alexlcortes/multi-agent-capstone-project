@@ -43,6 +43,7 @@ uv run python -m wire3_gtm run --docs google    # ...plus a real Google Doc and 
 uv run python -m wire3_gtm run RUN_ID           # resume: finished steps are loaded from disk, not re-run
 uv run python -m wire3_gtm compare              # latest n8n run vs latest CrewAI run, side by side
 uv run python -m wire3_gtm snapshot RUN_ID      # re-validate a run's Strategy output, save to ../snapshots/RUN_ID
+uv run python -m wire3_gtm executive-brief RUN_ID   # short CEO version of a finished run's plan (local Markdown, no LLM)
 ```
 
 `runs/` is gitignored. A snapshot is the committed copy of one validated Strategy output: its inputs (plan, evidence, Analyst artifact), `strategy.md`, and `snapshot.json` with the checks passed and a sha256 per file. `wire3_gtm.snapshot.load_snapshot()` refuses edited files, and `tests/test_snapshot.py` builds and verifies the full document from every committed snapshot, with no Google connection.
@@ -53,7 +54,7 @@ in LLM tokens (search-provider fees are not included). The brief is the repo-roo
 ## What a run leaves behind
 
 `runs/<run_id>/` (gitignored): `01_plan.json`, `02_tool_calls.jsonl` (one line per search, written as each returns),
-`02_evidence_set.json`, `03_analyst_artifact.json`, `04_strategy_artifact.json`, `05_document.md/.json/.pdf`,
+`02_evidence_set.json`, `03_analyst_artifact.json`, `04_strategy_artifact.json`, `05_document.md/.json/.pdf`, `05_executive_brief.md` (only after `executive-brief RUN_ID`),
 `06_link_check.json`, `06_run_summary.txt`, `manifest.json`, and `attempts/` (every guardrail attempt, including
 rejected drafts). If a step fails, everything before it is kept: rerun with the run id to resume, or
 `uv run python -m wire3_gtm salvage RUN_ID` to recover a failed Analyst step from its saved drafts.
