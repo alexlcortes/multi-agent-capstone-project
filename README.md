@@ -69,7 +69,8 @@ are used, and every output is framed as a hypothetical capstone exercise, not Wi
 | `mcp-server/` | MCP research server (Python, uv) |
 | `n8n/` | Workflow export, start script, run and export scripts, Docs Writer code + tests |
 | `crewai/` | CrewAI UV project (`wire3_gtm` package, YAML agents/tasks, tests) |
-| `samples/` | A generated GTM plan: Markdown, PDF, and Doc verification record |
+| `samples/` | Generated GTM plans as PDFs (two CrewAI runs, one n8n run), plus Markdown and Doc verification record |
+| `screenshots/` | CrewAI end-to-end run in the terminal (`crewai/`) and the n8n workflow canvas (`n8n/`) |
 | `snapshots/` | Committed, hash-verified copy of one validated run's artifacts |
 | `eval/` | KPI report, comparison table and log, rubric, blind reviews, A/B test |
 | `SETUP_DECISIONS.md` | Every environment/design decision with its cost if wrong |
@@ -210,8 +211,14 @@ headings, every cited source id resolves, no orphaned ids.
 
 **PDF for n8n Docs:** File → Download → PDF in Google Docs.
 
-**Samples:** [`samples/`](samples/) has a CrewAI plan as Markdown, **PDF**, and a verification record (19
-headings, 61 sources cited). n8n documents as read back after writing are in `eval/kpi/data/n8n_*.md`.
+**Samples:** [`samples/`](samples/) has:
+- CrewAI `run-20260921-121832`: Markdown, **PDF**, and a verification record (19 headings, 61 sources cited).
+- CrewAI `run-20260924-140309`: **PDF**, exported by the pipeline through the Drive API. This is the run in
+  [`screenshots/crewai/`](screenshots/crewai/) (9.6 min, $0.17 LLM cost, 17/17 tool calls, Doc verified).
+- n8n `client-muecjos5-gzgudf` (execution 38): **PDF**, downloaded from the Doc via File → Download → PDF.
+
+n8n documents as read back after writing are in `eval/kpi/data/n8n_*.md`. The Google Docs themselves are
+private to the developer's Drive, so the PDFs are the shareable copies.
 
 > Refresh tokens expire after **7 days** while the consent screen is in Testing. Re-authorize before a run.
 
