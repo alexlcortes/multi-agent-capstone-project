@@ -30,6 +30,11 @@ sections and a per-run budget of **12 minutes, 40 search calls, 6 LLM calls per 
 are used, and every output is framed as a hypothetical capstone exercise, not Wire3's actual plan. See
 `PROJECT_BRIEF.md` §9.
 
+**Other briefs:** everything in this README (the submitted and measured project) is the Ocala brief above.
+[`briefs/lake-county/`](briefs/lake-county/) holds a follow-on brief for Leesburg and Mount Dora, FL, added after
+the capstone submission (2026-09-24). It is **planned, not yet runnable**: it will run in CrewAI only, and the
+pipeline needs changes first (listed in that folder's README).
+
 ## 2. Architecture
 
 ```
