@@ -32,9 +32,9 @@ are used, and every output is framed as a hypothetical capstone exercise, not Wi
 
 **Other briefs:** everything in this README (the submitted and measured project) is the Ocala brief above.
 [`briefs/lake-county/`](briefs/lake-county/) holds a follow-on brief for Leesburg and Mount Dora, FL, added after
-the capstone submission (2026-09-24). It runs in **CrewAI only**, with `--brief lake-county`, and has not been
-run yet. It adds Census data through a new `census_profile` research tool and an equity and compliance check
-(see that folder's README).
+the capstone submission (2026-09-24). It runs in **CrewAI only**, with `--brief lake-county`; its first runs were
+on 2026-09-24. It adds two research tools (`census_profile` for Census data, `archived_page` for Wayback Machine
+snapshots of provider pricing pages) and an equity and compliance check (see that folder's README).
 
 ## 2. Architecture
 

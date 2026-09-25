@@ -1,6 +1,6 @@
 # Lake County Brief — Notes and Data Recommendations
 
-> **Status: runnable in CrewAI, not yet run.** Added after the capstone submission (2026-09-24). CrewAI only. Run it with `--brief lake-county` (see [Running this brief](#running-this-brief)). All 15 required output sections are produced, including the Census market profile and the equity and compliance check.
+> **Status: runs in CrewAI; first runs 2026-09-24.** Added after the capstone submission (2026-09-24). CrewAI only. Run it with `--brief lake-county` (see [Running this brief](#running-this-brief)). All 15 required output sections are produced, including the Census market profile and the equity and compliance check.
 
 Companion to [`PROJECT_BRIEF.md`](PROJECT_BRIEF.md) in this folder. It records what was checked while the brief was written, which sources to trust, and which data APIs would give the pipeline cleaner inputs than web search alone.
 
@@ -58,7 +58,7 @@ BBB, Trustpilot, J.D. Power, Pew and trade press remain as preferred sources bec
 
 ## Recommended data APIs
 
-Only the Census Data API is wired in so far. Listed by how much they would improve the Lake County run.
+The Census Data API and the Wayback Machine API are wired in so far. Listed by how much they would improve the Lake County run.
 
 | API | What it gives | Research questions | Cost / access | Notes |
 |---|---|---|---|---|
@@ -67,7 +67,7 @@ Only the Census Data API is wired in so far. Listed by how much they would impro
 | **FCC Broadband Data Collection public data API** (broadbandmap.fcc.gov) | Fixed-broadband availability by provider, technology and advertised speed at location level | RQ1 | Free; requires an FCC account plus an API token generated in it | State files are large. Pull Florida once, filter to Lake County, and cache the extract instead of querying per run. |
 | **Ookla Open Data** (speed-test tiles, public S3 bucket) | Measured fixed and mobile download/upload speeds and latency by quarterly tile | RQ1, RQ8 (tests "DSL is slow" and "fixed wireless varies") | Free, no key | Measured speeds give evidence beyond what providers advertise. |
 | **USAC Open Data** (opendata.usac.org) | Affordable Connectivity Program enrollment history and Lifeline data | RQ4 | Free, no key (Socrata) | Check which datasets reach ZIP level before relying on them. ZIP-level ACP enrollment would show how many households lost the subsidy. |
-| **Wayback Machine CDX / availability API** (archive.org) | Dated snapshots of provider pricing pages | RQ2 (promo vs. post-promo history) | Free, no key | Excluded as a search source, but reliable through its API. Would let Wayback come back into the brief. |
+| **Wayback Machine CDX / availability API** (archive.org) | Dated snapshots of provider pricing pages | RQ2 (promo vs. post-promo history) | Free, no key | **Implemented** as the `archived_page` tool (see [Archived pricing pages](#archived-pricing-pages-added-2026-09-24)). |
 | **Firecrawl** (already referenced in this repo) or Tavily Extract | Rendered page text for JavaScript-heavy provider sites | RQ2, RQ3 | Paid with free tier | Targets the spectrum.com "unverified" and att.com "blocked" failures. |
 | **Reddit API** | Posts and comments from local subreddits | RQ6, RQ8 | Free for non-commercial use with an OAuth app | Optional. Reddit already comes through search well (250 hits across Ocala runs). |
 
@@ -134,6 +134,29 @@ Checked: `crewai/tests/test_equity.py` (15 tests). The latest Ocala run's docume
 ### Customer segments (added 2026-09-24)
 
 `customer_segments` and `segment_rule` in `brief.json` name the two groups (cost-constrained households, value switchers) and the rule for assigning households by primary barrier. The Strategy agent is told to define exactly one customer profile per segment, named after it, with different channel mixes; a guardrail sends the draft back if a segment has no profile or the count is wrong (`segment_errors` in `crewai/wire3_gtm/strategy_checks.py`), and the run summary flags profiles reached by exactly the same channels. The first run's second profile had drifted to "Value-seeking households with higher bandwidth needs" with the same channels as the first; rerunning only the Strategy step on that run's data with this change produced "Cost-constrained households" and "Value switchers" with distinct channels and message pillars.
+
+### Archived pricing pages (added 2026-09-24)
+
+Both first runs left most post-promo prices empty: the providers' plan pages load their prices by script, so search results rarely carried them. A check of Wayback Machine snapshots found that the providers' **local city pages** keep their prices in the archived HTML (national plan pages mostly do not). The brief's `archived_pages` lists one page per competitor; after the planned searches the pipeline calls the research server's new `archived_page` tool for each (`run_archived_pages` in `crewai/wire3_gtm/research_tools.py`), 6 calls counted against the budget, no AI involved.
+
+The tool finds the newest snapshot (trying the address with and without a trailing slash, then the CDX index), reads the page as captured, and returns each home-internet monthly price with the lines around it (plan, "Everyday pricing", "for 1 year", price-guarantee fine print). TV, streaming, phone and device offers are ranked out. Each result cites the snapshot address and its date, is tagged RQ2, and is classed by the site it archives. The Analyst is told how to read them (everyday price = post-promo price; a price lock = its length as the promo duration; the snapshot date goes in the plan name).
+
+What the snapshots showed on 2026-09-24:
+
+| Competitor | Snapshot | Prices |
+|---|---|---|
+| Xfinity | Mount Dora page, 2026-05-18 | 300 Mbps $45/mo special offer, $75/mo everyday; 500 Mbps $60 / $85; 5-year price guarantee on 300 Mbps and up |
+| Spectrum | Mount Dora page, 2026-04-17 | 1 Gig $50, 500 Mbps $40, 100 Mbps $30, each "for 1 year"; no later price on the page |
+| CenturyLink | Mount Dora page, 2026-02-03 | $55/mo (100 Mbps), $75/mo fiber (940 Mbps); no annual contract; no promo wording |
+| Quantum Fiber | Mount Dora page, 2026-04-10 | $75/mo, 1 Gig; no annual contract |
+| T-Mobile | Home internet page, 2026-09-19 | $50/mo (Rely) with AutoPay, $35 with a voice line; price guarantee of at least 5 years |
+| Verizon | 5G Home page, 2026-09-10 | $35/mo with a Verizon phone plan and Auto Pay; $10 Auto Pay and $15 mobile+home discounts |
+
+Only Spectrum clearly runs a one-year promo, and its later price is still unknown. Several competitors advertise flat prices or multi-year price locks, which weakens a pitch built only on "their price will jump."
+
+Competitor sites (`company_domains` in `brief.json`: xfinity.com, comcast.com, centurylink.com, lumen.com, quantumfiber.com, verizon.com) are now classed as company sources for this brief. The classifier knew only the Ocala providers' sites, so these were counted as community sources in the first two runs, which lowered their source-quality score. Ocala classification is unchanged.
+
+Checked: `mcp-server/tests/test_wayback.py` (7 tests), `crewai/tests/test_archived_pages.py` (5 tests), and a live fetch of all six pages through the running server (16 dated records).
 
 ### Still missing
 

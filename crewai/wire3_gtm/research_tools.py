@@ -155,42 +155,57 @@ def enforce_plan(plan, collector: EvidenceCollector, tools: list, monitor=None) 
 
 
 CENSUS_TOOL = "census_profile"
+ARCHIVE_TOOL = "archived_page"
 
 
-def run_census(geographies, rq_id: str | None, collector: EvidenceCollector, url: str = MCP_URL,
-               monitor=None, policy: RetryPolicy | None = None, adapter=None) -> list[str]:
-    """Fetch the brief's Census geographies in code, after the planned research. The geographies are fixed
-    by the brief, so there is nothing for an agent to decide; the Head Planner's plan format (and so the
-    schema sent to OpenAI) stays unchanged. Calls go through the same recording wrapper as every research
-    call (retries, search budget, evidence), marked source="census" and tagged with rq_id."""
-    if not geographies:
+def run_fixed_calls(tool_name: str, calls: list[dict], rq_id: str | None, source: str, collector: EvidenceCollector,
+                    url: str = MCP_URL, monitor=None, policy: RetryPolicy | None = None, adapter=None) -> list[dict]:
+    """Make calls the brief fixes in advance (Census geographies, archived pricing pages), in code, after the
+    planned research. Nothing is left for an agent to decide, and the Head Planner's plan format (and so the
+    schema sent to OpenAI) stays unchanged. Calls go through the same recording wrapper as every research call
+    (retries, search budget, evidence), marked with `source` and tagged with rq_id; a failed call is recorded,
+    not raised, and the rest still run."""
+    if not calls:
         return []
     with (adapter or MCPServerAdapter)({"url": url, "transport": "streamable-http"}) as tools:
-        census = next((t for t in tools if t.name == CENSUS_TOOL), None)
-        if census is None:
-            raise McpUnavailable(f"MCP server at {url} has no {CENSUS_TOOL} tool; restart it from this branch")
-        tool = _recording(census, collector, monitor, policy)
-        collector.source, collector.research_question_ids = "census", [rq_id] if rq_id else []
+        found = next((t for t in tools if t.name == tool_name), None)
+        if found is None:
+            raise McpUnavailable(f"MCP server at {url} has no {tool_name} tool; restart it from this branch")
+        tool = _recording(found, collector, monitor, policy)
+        collector.source, collector.research_question_ids = source, [rq_id] if rq_id else []
         try:
-            for geography in geographies:
-                tool.run(geography=geography)  # records itself; a failure is recorded, not raised
+            for kwargs in calls:
+                tool.run(**kwargs)
         finally:
             collector.source, collector.research_question_ids = "agent", []
+    return calls
+
+
+def run_census(geographies, rq_id: str | None, collector: EvidenceCollector, **kw) -> list[str]:
+    """The brief's Census geographies (Lake County); none for Ocala."""
+    run_fixed_calls(CENSUS_TOOL, [{"geography": g} for g in geographies], rq_id, "census", collector, **kw)
     return list(geographies)
+
+
+def run_archived_pages(pages, rq_id: str | None, collector: EvidenceCollector, **kw) -> list[str]:
+    """The brief's provider pricing pages, read from their newest Wayback Machine snapshots; none for Ocala."""
+    run_fixed_calls(ARCHIVE_TOOL, [{"url": p} for p in pages], rq_id, "archive", collector, **kw)
+    return list(pages)
 
 
 class McpUnavailable(RuntimeError):
     pass
 
 
-def mcp_preflight(url: str = MCP_URL, census: bool = False) -> dict:
+def mcp_preflight(url: str = MCP_URL, census: bool = False, archive: bool = False) -> dict:
     """Fail fast, with a clear message, if the MCP research server is unreachable, and report
     which search provider it will use (never key values). Answers the guide's question: are
     MCP and the selected search provider available to the intended agent?"""
     try:
         with MCPServerAdapter({"url": url, "transport": "streamable-http"}) as tools:
             names = {t.name for t in tools}
-            missing = sorted(set(RESEARCH_TOOLS) - names) + ([CENSUS_TOOL] if census and CENSUS_TOOL not in names else [])
+            needed = set(RESEARCH_TOOLS) | ({CENSUS_TOOL} if census else set()) | ({ARCHIVE_TOOL} if archive else set())
+            missing = sorted(needed - names)
             if missing:
                 raise McpUnavailable(f"MCP server at {url} is missing tools: {missing}")
             health = next((t for t in tools if t.name == "health_check"), None)
@@ -206,4 +221,4 @@ def mcp_preflight(url: str = MCP_URL, census: bool = False) -> dict:
         raise McpUnavailable(f"MCP server is using search provider {info.get('active_provider')!r} but no API key is configured for it")
     if census and info and not info.get("census_configured"):
         raise McpUnavailable("this brief needs Census data but CENSUS_API_KEY is not set in mcp-server/.env")
-    return {"tools": sorted(RESEARCH_TOOLS) + ([CENSUS_TOOL] if census else []), **info}
+    return {"tools": sorted(RESEARCH_TOOLS) + ([CENSUS_TOOL] if census else []) + ([ARCHIVE_TOOL] if archive else []), **info}

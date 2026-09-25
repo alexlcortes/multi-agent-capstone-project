@@ -1,6 +1,6 @@
 # Project Brief: Wire3 Residential Value & Affordability GTM (Lake County, FL — Leesburg / Mount Dora)
 
-> **Status: runnable in CrewAI, not yet run.** Added after the capstone submission (2026-09-24). CrewAI only. Machine-readable version: [`brief.json`](brief.json). See [`README.md`](README.md) in this folder for how to run it and how each required section is produced. The original, submitted brief is [`../../PROJECT_BRIEF.md`](../../PROJECT_BRIEF.md) (Ocala).
+> **Status: runs in CrewAI; first runs 2026-09-24.** Added after the capstone submission (2026-09-24). CrewAI only. Machine-readable version: [`brief.json`](brief.json). See [`README.md`](README.md) in this folder for how to run it and how each required section is produced. The original, submitted brief is [`../../PROJECT_BRIEF.md`](../../PROJECT_BRIEF.md) (Ocala).
 
 ## 1. Product / company being analyzed
 Wire3 — a regional fiber-to-the-home (FTTH) internet service provider. Product in scope: Wire3's residential fiber internet plans as published on Wire3's public website (standalone internet only; **no bundled mobile phone plan or TV bundle**, unlike the primary competitors).
@@ -99,6 +99,7 @@ Each competitor is its own row in every comparison table and pricing matrix. Wit
 ## 8. Sources: preferred / excluded
 **Preferred:**
 - Provider public pricing, promo, terms, and low-income-program pages: xfinity.com, centurylink.com, quantumfiber.com, spectrum.com, t-mobile.com/home-internet, verizon.com/home/internet
+- Archived provider pages: Wayback Machine snapshots of each competitor's local pricing page, read through the Wayback Machine API (dated, stable citations)
 - Government and public data: FCC Broadband Data Collection data downloads, U.S. Census ACS via the Census Data API, the FCC Lifeline program pages, Florida Office of Broadband, Lake County and city government sites
 - Third-party comparisons and ratings: BroadbandNow; J.D. Power / ACSI published results; Pew Research and other publicly readable survey summaries
 - Reviews and forums: BBB, Trustpilot, Reddit (r/lakecountyfl, r/Leesburg, r/orlando, r/Florida, r/ISP, r/fiber)
@@ -107,7 +108,7 @@ Each competitor is its own row in every comparison table and pricing matrix. Wit
 **Excluded:**
 - Anything requiring login or paywall bypass, or scraping behind authentication
 - Interactive tools the pipeline cannot read through search: the FCC National Broadband Map web interface, address-based provider serviceability checkers, and data.census.gov (use the data downloads and APIs in Government and public data instead)
-- Sources that produced no usable evidence or are paywalled: Google reviews, Wayback Machine archives, and Parks Associates reports
+- Sources that produced no usable evidence or are paywalled: Google reviews and Parks Associates reports (Wayback Machine snapshots are read through its API instead; see Government and public data)
 - Competitor internal or non-public data
 - Wire3 non-public internal data, such as CRM, sales pipeline, take rate/penetration, churn, CAC, subscriber counts, internal market characterizations, or unannounced roadmap
 - Crime statistics or crime-news sources as a basis for segmenting, targeting, or excluding neighborhoods

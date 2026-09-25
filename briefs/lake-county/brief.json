@@ -43,6 +43,14 @@
     "Charter Spectrum": "Spectrum",
     "Spectrum (Charter)": "Spectrum"
   },
+  "company_domains": [
+    "xfinity.com",
+    "comcast.com",
+    "centurylink.com",
+    "lumen.com",
+    "quantumfiber.com",
+    "verizon.com"
+  ],
   "business_question": "Given that Wire3 cannot compete on mobile or TV bundling or on brand recognition, what go-to-market strategy (positioning, pricing and promo structure, affordability options, messaging, channels) will convert budget-conscious and value-seeking households in Leesburg and Mount Dora away from Xfinity, CenturyLink, Quantum Fiber, Spectrum, T-Mobile Home Internet and Verizon Home Internet, within budget?",
   "research_questions": [
     "What is each competitor's serviceable footprint and advertised speed tiers in Leesburg and Mount Dora, and where does each overlap with Wire3's publicly listed coverage?",
@@ -67,6 +75,35 @@
       "Mount Dora city, FL",
       "ZIP 32757",
       "Lake County, FL"
+    ]
+  },
+  "archived_pages": {
+    "research_question_id": "RQ2",
+    "pages": [
+      {
+        "competitor": "Xfinity",
+        "url": "https://www.xfinity.com/local/fl/mount-dora"
+      },
+      {
+        "competitor": "CenturyLink",
+        "url": "https://www.centurylink.com/local/fl/mount-dora"
+      },
+      {
+        "competitor": "Quantum Fiber",
+        "url": "https://www.quantumfiber.com/local/fl/mount-dora"
+      },
+      {
+        "competitor": "Spectrum",
+        "url": "https://www.spectrum.com/locations/internet-wifi-service/mount-dora-fl-i09117"
+      },
+      {
+        "competitor": "T-Mobile Home Internet",
+        "url": "https://www.t-mobile.com/home-internet"
+      },
+      {
+        "competitor": "Verizon Home Internet",
+        "url": "https://www.verizon.com/home/internet/5g"
+      }
     ]
   },
   "required_output_sections": [
@@ -116,7 +153,8 @@
       "Orlando Sentinel",
       "Fierce Network",
       "Light Reading",
-      "Broadband Communities"
+      "Broadband Communities",
+      "Wayback Machine snapshots of provider pages (via its API)"
     ],
     "excluded": [
       "anything behind login/paywall",
@@ -127,7 +165,6 @@
       "address serviceability checkers",
       "data.census.gov",
       "Google reviews",
-      "Wayback Machine",
       "Parks Associates"
     ]
   },

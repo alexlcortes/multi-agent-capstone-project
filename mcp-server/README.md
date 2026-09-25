@@ -37,6 +37,7 @@ Search keys live only here, never in `crewai/.env` or `n8n/.env`.
 | `validate_source` | `url`, `timeout` (10 s) | none: a HEAD request to the URL |
 | `health_check` | none | none: reports the active provider and which keys are set (never their values) |
 | `census_profile` | `geography` | none: a Census Data API request (ACS 2020-2024 5-year estimates) |
+| `archived_page` | `url`, `before` (YYYY-MM-DD, default today) | none: Wayback Machine availability/CDX lookup, then the snapshot |
 
 The five research tools take `max_results` (default 10) and return a list of results shaped like the evidence
 contract (`../schemas/research_evidence.schema.json`):
@@ -54,6 +55,13 @@ poverty, housing, age and language, internet access), each linking to the data.c
 geography. The key is sent only to api.census.gov: it never appears in a returned URL, the cache or an error. The
 CrewAI pipeline calls it in code for the geographies a brief lists (`census` in `briefs/<name>/brief.json`); the
 Head Planner never plans it, and the Ocala brief does not use it. Code: `research/census.py`.
+
+`archived_page` (also added after the submission) returns the home-internet monthly prices on the newest Wayback
+Machine snapshot of a public page taken on or before `before`, each with the lines around it (plan, "everyday"
+price, promo length, price-guarantee fine print), ranked so TV, phone and device offers drop out. Each result cites
+the snapshot (`web.archive.org/web/<timestamp>/<url>`) and its date. Free and keyless; requests are spaced one
+second apart and results are cached. Prices a page loads by script are not in a snapshot, so local city pages work
+better than national plan pages. Code: `research/wayback.py`.
 
 `validate_source` returns `{url, is_valid, status_code, error, checked_at}`. A dead link is a normal result
 (`is_valid: false`), not a tool error. How a status is classified (only 404/410/DNS failure = broken; 403/429 =
@@ -90,7 +98,7 @@ in the last 24 hours costs the other nothing.
 ## Tests
 
 ```bash
-uv run python -m pytest tests -q     # 85 tests, offline: the provider and the Census API are mocked, no key or network needed
+uv run python -m pytest tests -q     # 92 tests, offline: the provider, the Census API and the Wayback Machine are mocked
 ```
 
 `tests/test_tools.py` covers the tools, the result shape and the error paths (blank input, missing key,
@@ -99,7 +107,8 @@ and empty answers are not cached. `tests/test_boundaries.py` covers what the pro
 providers' results, honouring `max_results`, empty and malformed payloads, bad dates, readable errors that never
 leak an API key, and `validate_source` reporting every status and network failure without raising.
 `tests/test_census.py` covers `census_profile`: geography lookup, figures, missing values, caching, and that the key
-never appears in a result or an error.
+never appears in a result or an error. `tests/test_wayback.py` covers `archived_page`: snapshot lookup with the
+trailing-slash and CDX fallbacks, the date cutoff, gzipped pages, price extraction and ranking, errors and caching.
 
 `health_check.py` is a **live** end-to-end check: it calls every tool once against the real provider
 (`max_results=1`). It uses real search credits, so run it by hand, not in CI:

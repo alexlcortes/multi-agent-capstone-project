@@ -27,7 +27,7 @@ from wire3_gtm.evidence import EvidenceCollector as _EC  # noqa: F401
 from wire3_gtm.analyst_models import cited_evidence_ids
 from wire3_gtm.links import HTTP_URL_RE, check_links, mcp_validator
 from wire3_gtm import brief_context
-from wire3_gtm.research_tools import enforce_plan, mcp_preflight, research_tools, run_census
+from wire3_gtm.research_tools import enforce_plan, mcp_preflight, research_tools, run_archived_pages, run_census
 from wire3_gtm.run_log import Budget, RunMonitor, activate, flush_events, install_listeners
 from wire3_gtm.run_report import build_run_complete, format_summary
 from wire3_gtm.run_store import RunStore
@@ -81,8 +81,9 @@ def _token_cap(monitor: RunMonitor | None) -> int | None:
 
 
 def run_planning_and_research(brief: dict, store: RunStore | None = None, monitor: RunMonitor | None = None) -> PhaseResult:
+    ctx = brief_context.active()
     if monitor is not None:  # fail fast, and record which search provider this run will use
-        log_preflight(monitor, mcp_preflight(census=bool(brief_context.active().census_geographies)))
+        log_preflight(monitor, mcp_preflight(census=bool(ctx.census_geographies), archive=bool(ctx.archived_pages)))
     collector = EvidenceCollector(sink=store.path("02_tool_calls.jsonl") if store else None)
     with research_tools(collector, monitor=monitor) as tools:
         agents = build_agents(research_tools=tools, max_completion_tokens=_token_cap(monitor))
@@ -102,8 +103,8 @@ def run_planning_and_research(brief: dict, store: RunStore | None = None, monito
         # The agent is asked to make every planned call and sometimes does not: make the rest here,
         # while the MCP connection is still open.
         enforce_plan(plan, collector, tools, monitor)
-        ctx = brief_context.active()
         run_census(ctx.census_geographies, ctx.census_rq, collector, monitor=monitor)  # no-op for Ocala
+        run_archived_pages(ctx.archived_pages, ctx.archived_rq, collector, monitor=monitor)  # no-op for Ocala
     return PhaseResult(plan, phase["plan_research"].output.raw, collector.build_evidence(plan), collector)
 
 

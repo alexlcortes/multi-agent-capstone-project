@@ -98,7 +98,7 @@ analyze_evidence:
     fill it with an inferred number and never copy the promo price into it. A promo
     of 12 or more months does not need a post-promo price (it does not affect the
     12-month blend). A promo shorter than 12 months, or a plan with no promo, does
-    need an evidence-cited price: find one in the evidence or omit that plan.
+    need an evidence-cited price: find one in the evidence or omit that plan.[[archive_note]]
 
     (7) promo_status is "has_promo", "no_promo_found" or "not_researched".
     "no_promo_found" must cite the page you checked; only "not_researched" may

@@ -43,8 +43,11 @@ class EvidenceSet(BaseModel):
     evidence: list[EvidenceRecord]
 
 
+ARCHIVE = re.compile(r"^https?://web\.archive\.org/web/\d+(?:id_)?/", re.I)
+
+
 def classify_source_type(url: str) -> str:
-    u = (url or "").lower()
+    u = ARCHIVE.sub("", (url or "")).lower()  # a Wayback snapshot is the type of the page it archives
     if ".gov" in u:
         return "primary"
     if re.search(r"reddit\.com|trustpilot|bbb\.org", u):
@@ -53,6 +56,10 @@ def classify_source_type(url: str) -> str:
         return "news"
     if re.search(r"spectrum\.com|att\.com|t-mobile\.com|wire3\.com", u):
         return "company"
+    from wire3_gtm.brief_context import active
+
+    if any(re.search(rf"(^|[/.]){re.escape(d)}(/|$)", u) for d in active().company_domains):
+        return "company"  # the active brief's own competitor sites (Lake County); none for Ocala
     if re.search(r"broadbandnow|jdpower|j\.d\.\s?power|acsi|parksassociates", u):
         return "analyst"
     return "community"

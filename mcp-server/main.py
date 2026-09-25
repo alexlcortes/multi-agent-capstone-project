@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from mcp.server.mcpserver import MCPServer
 
-from research import census, tools
+from research import census, tools, wayback
 
 load_dotenv()
 
@@ -29,6 +29,7 @@ mcp.tool()(tools.pricing_research)
 mcp.tool()(tools.recent_news)
 mcp.tool()(tools.validate_source)
 mcp.tool()(census.census_profile)
+mcp.tool()(wayback.archived_page)
 
 
 if __name__ == "__main__":
