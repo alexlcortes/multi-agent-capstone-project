@@ -38,6 +38,7 @@ class BriefContext:
     segment_rule: str = ""  # how households are assigned to a segment
     archived_pages: tuple[str, ...] = ()  # provider pricing pages read from the Wayback Machine after research
     archived_rq: str | None = None  # the research question the archived pages answer
+    archived_page_of: dict = field(default_factory=dict)  # competitor -> its archived page; its pricing row must cite it
     company_domains: tuple[str, ...] = ()  # competitor sites classed as "company" sources, beyond the Ocala defaults
 
     @property
@@ -103,6 +104,8 @@ def from_brief(brief: dict) -> BriefContext:
         segment_rule=brief.get("segment_rule") or "",
         archived_pages=tuple(p["url"] for p in (brief.get("archived_pages") or {}).get("pages") or ()),
         archived_rq=(brief.get("archived_pages") or {}).get("research_question_id"),
+        archived_page_of={p["competitor"]: p["url"] for p in (brief.get("archived_pages") or {}).get("pages") or ()
+                          if p.get("competitor")},
         company_domains=tuple(d.lower() for d in brief.get("company_domains") or ()),
     )
 
@@ -145,9 +148,10 @@ def fill(text: str, ctx: BriefContext | None = None) -> str:
             " Evidence whose source_url starts with https://web.archive.org/web/ is a Wayback Machine snapshot of the "
             "provider's own page, and its publication_date is the snapshot date. Use it for pricing: an 'Everyday "
             "pricing' or regular price shown beside a special offer is the post-promo price; a price shown 'for 1 "
-            "year' with no later price leaves post_promo_price null; a price guarantee or lock ('won't change for 5 "
-            "years') is a promo_duration_months of that length. Put the snapshot date in plan_name, e.g. "
-            "'300 Mbps (Mount Dora page, archived 2026-05-18)'." if ctx.archived_pages else ""),
+            "year' with no later price leaves post_promo_price null. Price each competitor that has an archived page from "
+            "that page, citing it in the row's prices; a national deals page or a third-party site does not replace "
+            "it. Put the snapshot date in plan_name, e.g. '300 Mbps (Mount Dora page, archived 2026-05-18)'."
+            if ctx.archived_pages else ""),
         "segment_instructions": (
             f" Customer segments from the brief: define exactly one ICP per segment, and start each ICP name with "
             f"its segment name ({', '.join(repr(n) for n, _ in ctx.customer_segments)}). "

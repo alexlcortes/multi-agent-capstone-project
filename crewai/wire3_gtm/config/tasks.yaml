@@ -42,17 +42,17 @@ analyze_evidence:
   agent: analyst
   description: >
     Input: an EvidenceSet as JSON, {{ run_id, evidence: EvidenceRecord[] }}, built
-    in code from the Research Agent's raw tool output. Each record has
-    evidence_id, research_question_id, claim, source_title, source_url,
-    source_type, publication_date, retrieval_timestamp, excerpt, validation_status.
+    in code from the Research Agent's raw tool output. Each record is one search
+    result and has evidence_id, research_question_ids (every research question the
+    result was returned for), claim, source_title, source_url, source_type,
+    publication_date, retrieval_timestamp, excerpt, validation_status.
 
-    EvidenceSet, listed in research-question order (RQ1's records first, then RQ2's, and so on):
+    EvidenceSet, listed in research-question order (by each record's first research question):
     {evidence_set}
 
     Research-question checklist. Your artifact is REJECTED, at the cost of a full re-run, unless it
     cites at least one search result returned for EVERY question below that has 5 or more records.
-    The same page often appears under several evidence_ids, one per question its search served, and
-    citing any one of them counts for all of those questions. Plan for this while you write, not at
+    A record counts for every question in its research_question_ids. Plan for this while you write, not at
     the end: for each question pick records that fit a table cell,
     theme, SWOT item or 7P entry, and cite them there. A question with records must be used, not
     parked under unknowns. Before you answer, tick each question off against the ids you cited.
@@ -97,7 +97,9 @@ analyze_evidence:
     is either cited from evidence (basis "evidence") or null when unknown; never
     fill it with an inferred number and never copy the promo price into it. A promo
     of 12 or more months does not need a post-promo price (it does not affect the
-    12-month blend). A promo shorter than 12 months, or a plan with no promo, does
+    12-month blend). A promo length must be cited too: with an inferred
+    promo_duration_months the promo is left out of the blend, which becomes the
+    cited post-promo price for all 12 months. A promo shorter than 12 months, or a plan with no promo, does
     need an evidence-cited price: find one in the evidence or omit that plan.[[archive_note]]
 
     (7) promo_status is "has_promo", "no_promo_found" or "not_researched".
@@ -114,13 +116,13 @@ analyze_evidence:
     the current competitive market only, never a recommendation for Wire3.
 
     (11) Use unknowns for any research question the evidence cannot resolve, and
-    conflicts when two records for the same research_question_id disagree
+    conflicts when two records for the same research question disagree
     (reference both evidence_ids, discard neither).
 
     (12) IDs: THEME-n, SWOT-(S|W|O|T)n, ASM-n, UNK-n, CONF-n.
 
-    (13) A theme's related_research_question_ids must be the research_question_id
-    values of the evidence in its supporting_evidence_ids, not RQs you merely
+    (13) A theme's related_research_question_ids must be the research_question_ids
+    of the evidence in its supporting_evidence_ids, not RQs you merely
     consider relevant.
 
     (14) Every research question with 5 or more records in the EvidenceSet must

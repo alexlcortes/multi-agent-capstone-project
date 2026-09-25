@@ -89,6 +89,7 @@ domains:
   highspeedinternet.com: {tier: weak, why: "affiliate comparison site"}
   allconnect.com: {tier: weak, why: "affiliate comparison site"}
   compareinternet.com: {tier: weak, why: "affiliate comparison site"}
+  attsavings.com: {tier: weak, why: "authorized AT&T reseller's marketing site, not AT&T's own"}
   broadbandnow.com: {tier: weak, why: "affiliate comparison site (in the brief's preferred list, but its pages are marketing summaries, not the FCC data they draw on)"}
   ispreports.org: {tier: weak, why: "affiliate comparison site"}
   internetproviders.ai: {tier: weak, why: "AI-generated comparison site"}
@@ -159,6 +160,7 @@ domains:
   upoharbd.com: {tier: weak, why: "content farm"}
   amworldgroup.com: {tier: weak, why: "agency marketing blog"}
   btgrp.com: {tier: weak, why: "vendor marketing blog"}
+  datawiresolutions.com: {tier: weak, why: "vendor marketing blog"}
   netsuite.com: {tier: weak, why: "vendor marketing blog"}
   a10networks.com: {tier: weak, why: "vendor marketing blog"}
   iqgeo.com: {tier: weak, why: "vendor marketing blog"}

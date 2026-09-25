@@ -73,6 +73,7 @@ BLENDED_FORMULA = (
     "((promo_price * promo_duration_months) + "
     "(post_promo_price * (12 - promo_duration_months))) / 12"
 )
+UNSOURCED_PROMO_FORMULA = "post_promo_price (promo length not sourced, so the promo is left out of the blend)"
 
 
 class _CitedRules(BaseModel):
@@ -163,7 +164,17 @@ class PricingMatrixRow(BaseModel):
         # code so both implementations get identical numbers from identical
         # inputs, instead of trusting the LLM's arithmetic. Duration is capped at
         # 12 because this is a 12-month figure.
-        if status == "has_promo":
+        formula = BLENDED_FORMULA
+        if status == "has_promo" and self.promo_duration_months.basis == "inference":
+            # A guessed promo length would set the blend's weights (live run: Quantum Fiber's "1 month").
+            # Only a sourced length counts; otherwise the blend is the post-promo price for all 12 months.
+            if post is None:
+                raise ValueError(
+                    "promo_duration_months is inferred, so the 12-month blended price needs an evidence-cited "
+                    "post-promo price; cite the promo length or that price from the evidence, or omit this plan"
+                )
+            promo, months, formula = post, 0, UNSOURCED_PROMO_FORMULA
+        elif status == "has_promo":
             promo, months = self.promo_price_usd_per_month.value, min(self.promo_duration_months.value, 12)
             if months < 12 and post is None:
                 raise ValueError(
@@ -178,7 +189,7 @@ class PricingMatrixRow(BaseModel):
         self.blended_12mo_effective_price_usd.value = round(
             (promo * months + (post or 0.0) * (12 - months)) / 12, 2
         )
-        self.blended_12mo_effective_price_usd.formula = BLENDED_FORMULA
+        self.blended_12mo_effective_price_usd.formula = formula
         return self
 
 

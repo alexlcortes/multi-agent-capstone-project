@@ -13,8 +13,8 @@ from crewai import Crew, Process
 
 from wire3_gtm.agents import build_agents
 from wire3_gtm.analyst_checks import (
-    coverage_errors, drop_invented_ids, make_analyst_guardrail, order_by_rq, repair_pricing, repair_theme_rqs,
-    rq_checklist, rq_source_depth, source_quality, theme_rq_errors, unsupported_number_flags,
+    analyst_evidence, archived_price_errors, coverage_errors, drop_invented_ids, make_analyst_guardrail, repair_pricing,
+    repair_theme_rqs, rq_checklist, rq_source_depth, source_quality, theme_rq_errors, unsupported_number_flags,
 )
 from wire3_gtm.analyst_models import AnalystArtifact, check_grounding, dump_contract
 from wire3_gtm.strategy_checks import (
@@ -128,9 +128,9 @@ class AnalystResult:
 
 def run_analyst(plan: ResearchPlan, evidence: list[EvidenceRecord], store: RunStore | None = None,
                 monitor: RunMonitor | None = None) -> AnalystResult:
-    """Analyst step. The evidence goes in as an EvidenceSet JSON document and
-    comes out as a validated AnalystArtifact; no free text in between."""
-    evidence_set = EvidenceSet(run_id=plan.run_id, evidence=order_by_rq(evidence))
+    """Analyst step. The evidence goes in as an EvidenceSet JSON document (one record per search
+    result, see analyst_evidence) and comes out as a validated AnalystArtifact; no free text in between."""
+    evidence_set = {"run_id": plan.run_id, "evidence": analyst_evidence(evidence)}
     agents = build_agents(max_completion_tokens=_token_cap(monitor))
     dropped_log: list[dict] = []
     gaps_log: list[str] = []
@@ -138,11 +138,12 @@ def run_analyst(plan: ResearchPlan, evidence: list[EvidenceRecord], store: RunSt
     degrade = (lambda: not monitor.can_afford_retry("Analyst Agent")) if monitor is not None else None
     tasks = build_tasks(agents, guardrails={
         "analyze_evidence": _recording_guardrail(
-            store, "03_analyst", make_analyst_guardrail(evidence, dropped_log, degrade, gaps_log, pricing_log),
+            store, "03_analyst", make_analyst_guardrail(evidence, dropped_log, degrade, gaps_log, pricing_log,
+                                                    brief_context.active().archived_page_of),
             monitor, "Analyst Agent")})
     task = tasks["analyze_evidence"]
     Crew(agents=[agents["analyst"]], tasks=[task], process=Process.sequential).kickoff(
-        inputs={"evidence_set": evidence_set.model_dump_json(),
+        inputs={"evidence_set": json.dumps(evidence_set),
                 "rq_checklist": json.dumps(rq_checklist(plan, evidence), indent=1)}
     )
     artifact = task.output.pydantic
@@ -156,7 +157,8 @@ def run_analyst(plan: ResearchPlan, evidence: list[EvidenceRecord], store: RunSt
     theme_rq_repairs = repair_theme_rqs(artifact, evidence)
     coverage_gaps = list(gaps_log)  # accepted on purpose because time ran out; anything else must still be clean
     errors = check_grounding(artifact, valid_ids) + theme_rq_errors(artifact, evidence) + (
-        [] if coverage_gaps else coverage_errors(artifact, evidence))
+        [] if coverage_gaps else coverage_errors(artifact, evidence)
+        + archived_price_errors(artifact, evidence, brief_context.active().archived_page_of))
     if errors:
         raise RuntimeError(f"Analyst artifact failed hard checks after retries: {errors[:5]}")
     return AnalystResult(

@@ -188,3 +188,15 @@ def test_a_plan_with_no_promo_and_no_known_price_is_rejected(valid):
     )
     with pytest.raises(ValidationError, match="cannot be priced"):
         AnalystArtifact.model_validate(valid)
+
+
+def test_a_guessed_promo_length_is_left_out_of_the_blend(valid):
+    # Live Lake run: Quantum Fiber's $50 promo was given an inferred "1 month" before an $80 price.
+    row = valid["pricing_matrix"][0]
+    row.update(promo_price_usd_per_month=cited(50.0), promo_duration_months=cited(1, "inference"),
+               post_promo_price_usd_per_month=cited(80.0))
+    blended = AnalystArtifact.model_validate(valid).pricing_matrix[0].blended_12mo_effective_price_usd
+    assert blended.value == 80.0 and "not sourced" in blended.formula
+    row["post_promo_price_usd_per_month"] = cited(None, "inference")
+    with pytest.raises(ValidationError, match="promo_duration_months is inferred"):
+        AnalystArtifact.model_validate(valid)

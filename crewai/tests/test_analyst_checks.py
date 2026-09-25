@@ -114,3 +114,20 @@ def test_clean_artifact_is_returned_unchanged(valid):
     a = art(valid)
     fixed, changes = drop_invented_ids(a, set(EV))
     assert fixed is a and changes == []
+
+
+def test_the_analyst_sees_one_record_per_search_result_with_all_its_questions(valid):
+    from wire3_gtm.analyst_checks import analyst_evidence
+
+    def copy(eid, rq, url="https://x.example/page"):
+        return rec(eid, rq).model_copy(update={"source_url": url})
+
+    evidence = [copy("EV-cccccccc", "RQ3"), copy(EV[0], "RQ1"), copy("EV-dddddddd", "RQ3", "https://x.example/other")]
+    shown = analyst_evidence(evidence)
+    assert [(r["evidence_id"], r["research_question_ids"]) for r in shown] == [
+        (EV[0], ["RQ1", "RQ3"]), ("EV-dddddddd", ["RQ3"])]
+    assert all("research_question_id" not in r for r in shown)
+    artifact = art(valid)  # themes cite EV-aaaaaaaa: its result also served RQ3
+    repair_theme_rqs(artifact, evidence)
+    assert artifact.market_themes[0].related_research_question_ids == ["RQ1", "RQ3"]
+    assert theme_rq_errors(artifact, evidence) == []

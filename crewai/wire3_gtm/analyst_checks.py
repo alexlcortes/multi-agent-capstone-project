@@ -3,6 +3,8 @@
 Hard (guardrail; a failure re-prompts the Analyst):
   - every cited evidence id exists                       (analyst_models.check_grounding)
   - every RQ that has evidence is cited somewhere or listed in unknowns
+  - a competitor with an archived local page (brief.json archived_pages) has a pricing row whose
+    prices cite that page
 Repaired in code (reported): a theme's related RQs are set from the evidence it cites.
 Soft (reported, never blocks):
   - a number marked basis 'evidence' that does not appear in the cited text
@@ -28,11 +30,37 @@ def _rq_by_id(evidence: list[EvidenceRecord]) -> dict[str, str | None]:
     return {e.evidence_id: e.research_question_id for e in evidence}
 
 
+def _rqs_by_id(evidence: list[EvidenceRecord]) -> dict[str, set[str]]:
+    """Every research question an evidence id's search result served, under any of its copies. The
+    Analyst sees one copy per result (analyst_evidence), so a cited id stands for all of them."""
+    rqs_of: dict[tuple[str, str], set[str]] = {}
+    for e in evidence:
+        if e.research_question_id:
+            rqs_of.setdefault(_result_key(e), set()).add(e.research_question_id)
+    return {e.evidence_id: rqs_of.get(_result_key(e), set()) for e in evidence}
+
+
+def analyst_evidence(evidence: list[EvidenceRecord]) -> list[dict]:
+    """The evidence as the Analyst sees it: one record per search result instead of one copy per
+    research question it served, with research_question_ids listing them all, in RQ order. Live run:
+    900 records were 263 distinct results, and the copies pushed the Analyst's input past the model's
+    272k-token limit. The kept id is the result's copy under its lowest RQ; the checks accept any copy."""
+    kept: dict[tuple[str, str], dict] = {}
+    for e in order_by_rq(evidence):
+        rec = kept.get(_result_key(e))
+        if rec is None:
+            rec = kept[_result_key(e)] = {"evidence_id": e.evidence_id, "research_question_ids": [],
+                                          **e.model_dump(exclude={"evidence_id", "research_question_id"})}
+        if e.research_question_id and e.research_question_id not in rec["research_question_ids"]:
+            rec["research_question_ids"].append(e.research_question_id)
+    return list(kept.values())
+
+
 def theme_rq_errors(artifact: AnalystArtifact, evidence: list[EvidenceRecord]) -> list[str]:
-    rq_of = _rq_by_id(evidence)
+    rqs_of = _rqs_by_id(evidence)
     errors = []
     for t in artifact.market_themes:
-        cited_rqs = {rq_of.get(i) for i in t.supporting_evidence_ids}
+        cited_rqs = {rq for i in t.supporting_evidence_ids for rq in rqs_of.get(i, ())}
         off = sorted(set(t.related_research_question_ids) - cited_rqs)
         if off:
             errors.append(
@@ -67,8 +95,7 @@ def rq_checklist(plan, evidence: list[EvidenceRecord]) -> list[dict]:
     counts = Counter(e.research_question_id for e in evidence)
     return [
         {"research_question_id": q.id, "question": q.question, "evidence_records": counts.get(q.id, 0),
-         "requirement": ("cite at least one search result returned for it (the same page appears under several "
-                         "evidence_ids, one per question it serves; citing any of them counts for all)"
+         "requirement": ("cite at least one record whose research_question_ids include it"
                          if counts.get(q.id, 0) >= MIN_RECORDS_MUST_CITE
                          else "few records: cite them if they fit, otherwise list it under unknowns")}
         for q in plan.research_questions
@@ -80,10 +107,10 @@ def repair_theme_rqs(artifact: AnalystArtifact, evidence: list[EvidenceRecord]) 
     set them from that evidence in code instead of asking the LLM to hand-copy
     them (live run: retries fixed the flagged themes and broke others until the
     guardrail gave up). Returns every change made so it stays visible."""
-    rq_of = _rq_by_id(evidence)
+    rqs_of = _rqs_by_id(evidence)
     repairs = []
     for t in artifact.market_themes:
-        derived = sorted({rq_of[i] for i in t.supporting_evidence_ids if rq_of.get(i)})
+        derived = sorted({rq for i in t.supporting_evidence_ids for rq in rqs_of.get(i, ())})
         if derived and derived != sorted(t.related_research_question_ids):
             repairs.append({"theme_id": t.theme_id, "before": t.related_research_question_ids, "after": derived})
             t.related_research_question_ids = derived
@@ -187,6 +214,42 @@ def coverage_errors(artifact: AnalystArtifact, evidence: list[EvidenceRecord]) -
     return errors
 
 
+_ARCHIVE_PREFIX = re.compile(r"^https?://web\.archive\.org/web/\d+[a-z_]*/", re.I)
+
+
+def _page_key(url: str) -> str:
+    """A page's URL without the Wayback prefix, scheme, www. or trailing slash."""
+    url = _ARCHIVE_PREFIX.sub("", url.strip())
+    return re.sub(r"^https?://(www\.)?", "", url, flags=re.I).rstrip("/").lower()
+
+
+def archived_price_errors(artifact: AnalystArtifact, evidence: list[EvidenceRecord],
+                          page_of: dict[str, str]) -> list[str]:
+    """Each competitor whose archived local page is in the evidence must be priced from it: at least one
+    of its pricing rows cites a record from that page in its promo or post-promo price. Live run: the
+    Analyst priced Xfinity from a national deals page and Verizon from a third-party Fios listing, and
+    cited 3 of the 16 archived price records. A page that returned nothing is not required."""
+    records_of: dict[str, list[str]] = {}
+    for e in evidence:
+        if _ARCHIVE_PREFIX.match(e.source_url):
+            records_of.setdefault(_page_key(e.source_url), []).append(e.evidence_id)
+    errors = []
+    for name, url in page_of.items():
+        ids = records_of.get(_page_key(url))
+        if not ids:
+            continue
+        cited = {i for r in artifact.pricing_matrix if r.competitor_name == name
+                 for f in (r.promo_price_usd_per_month, r.post_promo_price_usd_per_month) for i in f.evidence_ids}
+        if not cited & set(ids):
+            errors.append(
+                f"{name}'s pricing row must be priced from its archived local page {url} (evidence ids "
+                f"{', '.join(ids)}): cite those records in promo_price_usd_per_month and/or "
+                f"post_promo_price_usd_per_month, using the page's plans and prices; an everyday price shown "
+                f"beside a special offer is the post-promo price"
+            )
+    return errors
+
+
 def drop_invented_ids(artifact: AnalystArtifact, valid_ids: set[str]) -> tuple[AnalystArtifact, list[dict]]:
     """Remove evidence ids that are not in the evidence set; never remap them.
 
@@ -260,13 +323,17 @@ def invalid_reason(model, raw: str) -> str:
 
 
 def make_analyst_guardrail(evidence: list[EvidenceRecord], dropped_log: list | None = None,
-                           degrade=None, gaps_log: list | None = None, pricing_log: list | None = None):
+                           degrade=None, gaps_log: list | None = None, pricing_log: list | None = None,
+                           archived_page_of: dict[str, str] | None = None):
     """dropped_log receives the ids dropped from the most recent attempt.
 
     degrade: optional callable, True when there is no time left for another attempt. If the ONLY
-    remaining problem is uncovered research questions, the draft is then accepted instead of
-    re-prompted (or the run stopped), and the gaps go to gaps_log so the run is reported degraded
-    and the document says so. Any other problem is never accepted."""
+    remaining problems are uncovered research questions or unused archived pricing pages, the draft
+    is then accepted instead of re-prompted (or the run stopped), and the gaps go to gaps_log so the
+    run is reported degraded and the document says so. Any other problem is never accepted.
+
+    archived_page_of: competitor -> archived local page (brief_context.archived_page_of); see
+    archived_price_errors. None or empty (Ocala) checks nothing."""
     valid_ids = set(_rq_by_id(evidence))
 
     def guardrail(output):
@@ -294,7 +361,8 @@ def make_analyst_guardrail(evidence: list[EvidenceRecord], dropped_log: list | N
             output.pydantic = artifact
         if dropped_log is not None:
             dropped_log[:] = dropped
-        grounding, coverage = check_grounding(artifact, valid_ids), coverage_errors(artifact, evidence)
+        grounding = check_grounding(artifact, valid_ids)
+        coverage = coverage_errors(artifact, evidence) + archived_price_errors(artifact, evidence, archived_page_of or {})
         if gaps_log is not None:
             gaps_log.clear()
         if coverage and not grounding and degrade is not None and degrade():

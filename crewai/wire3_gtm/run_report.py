@@ -36,8 +36,8 @@ def build_run_complete(monitor: RunMonitor, store: RunStore, *, plan=None, evide
     if link_report and link_report.get("invalid_url_count"):
         issues.append(f"{link_report['invalid_url_count']} malformed source URL(s)"); degraded = True
     if analyst_report and analyst_report.get("coverage_gaps"):
-        issues.append(f"the Analyst was accepted with {len(analyst_report['coverage_gaps'])} research question(s) "
-                      "uncited because the time budget left no room for another attempt"); degraded = True
+        issues.append(f"the Analyst was accepted with {len(analyst_report['coverage_gaps'])} coverage gap(s) "
+                      "(uncited research questions or unused archived pricing pages) because the time budget left no room for another attempt"); degraded = True
     if analyst_report:
         q = analyst_report.get("source_quality") or {}
         if q and q.get("top_tier_share", 1) < KPI_TOP_TIER:

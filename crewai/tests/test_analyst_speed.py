@@ -162,7 +162,7 @@ def test_a_run_accepted_with_a_coverage_gap_is_degraded_and_says_so(tmp_path, va
     run_pipeline({"b": 1}, store=store, steps=steps, monitor=monitor)
     rc = json.loads(store.load_text("06_run_complete.json"))
     assert rc["status"] == "degraded"
-    assert any("uncited because the time budget" in i for i in rc["issues"])
+    assert any("because the time budget" in i for i in rc["issues"])
     assert json.loads(store.load_text("03_analyst_report.json"))["coverage_gaps"] == ["RQ8 has 5 evidence records but nothing cites any"]
 
 
