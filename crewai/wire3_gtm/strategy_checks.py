@@ -12,6 +12,7 @@ from collections import Counter
 
 from wire3_gtm.analyst_models import AnalystArtifact, dump_contract
 from wire3_gtm.strategy_models import StrategyArtifact
+from wire3_gtm.wording_checks import internal_terms, wording_feedback
 
 
 def analyst_ids(analyst: AnalystArtifact) -> dict[str, set[str]]:
@@ -90,6 +91,8 @@ def shared_channel_icps(strategy: StrategyArtifact) -> list[str]:
 
 
 def make_strategy_guardrail(analyst: AnalystArtifact):
+    wording_sent = [False]  # pipeline wording is sent back once, then only reported (wording_checks)
+
     def guardrail(output):
         from wire3_gtm.wire_models import strict_or_feedback
 
@@ -98,6 +101,10 @@ def make_strategy_guardrail(analyst: AnalystArtifact):
             return False, feedback
         output.pydantic = strategy
         errors = grounding_errors(strategy, analyst) + unknown_coverage_errors(strategy, analyst) + segment_errors(strategy)
+        wording = [] if wording_sent[0] else internal_terms(dump_contract(strategy))
+        if wording:
+            errors.insert(0, wording_feedback(wording))  # first: never cut by [:15]
+            wording_sent[0] = True
         if errors:
             return False, (
                 "Fix these problems and return the full corrected artifact. supporting_ids must be "
@@ -123,7 +130,8 @@ def report(strategy: StrategyArtifact) -> dict:
             ("low_brand_recognition_response", vp.low_brand_recognition_response),
         ) if f.basis == "evidence"
     ]
-    out = {"cited_fields": len(fields), "basis_mix": dict(mix), "wire3_response_claims_evidence": suspect}
+    out = {"cited_fields": len(fields), "basis_mix": dict(mix), "wire3_response_claims_evidence": suspect,
+           "internal_wording": internal_terms(dump_contract(strategy))}
     from wire3_gtm.brief_context import active
 
     if active().framing_rules:  # briefs with an equity requirement (not Ocala, whose report is unchanged)

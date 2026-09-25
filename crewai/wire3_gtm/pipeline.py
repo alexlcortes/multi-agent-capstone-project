@@ -21,6 +21,7 @@ from wire3_gtm.strategy_checks import (
     grounding_errors, make_strategy_guardrail, report as strategy_report, segment_errors, unknown_coverage_errors,
 )
 from wire3_gtm.strategy_models import StrategyArtifact
+from wire3_gtm.wording_checks import internal_terms
 from wire3_gtm.evidence import EvidenceCollector, EvidenceRecord, EvidenceSet
 from wire3_gtm.models import ResearchPlan
 from wire3_gtm.evidence import EvidenceCollector as _EC  # noqa: F401
@@ -290,6 +291,7 @@ def step_analyst(ctx: RunContext, plan: ResearchPlan, evidence: list[EvidenceRec
             "coverage_gaps": result.coverage_gaps,
             "rq_source_depth": rq_source_depth(analyst, evidence),
             "pricing_repairs": result.pricing_repairs,
+            "internal_wording": internal_terms(dump_contract(analyst)),  # left after one send-back (wording_checks)
         })
         monitor.event("validation_gate", node="Analyst Agent", gate="analyst_grounding", status="ok",
                       dropped_id_count=len(result.dropped_ids), theme_rq_repairs=len(result.theme_rq_repairs),

@@ -134,6 +134,13 @@ analyze_evidence:
     excerpt or claim. If it does not, use basis "inference" or list it in
     unknowns; do not attach a citation that does not contain the figure.
 
+    (16) Your text fields are printed in the final plan for business readers.
+    Refer to your input as "the research" or name the source, never "the
+    EvidenceSet" or "the evidence set"; call the brief "the project brief"; and
+    write no field names, basis values or other snake_case names (write "the
+    project brief states Wire3 has no mobile bundle", not "has_mobile_bundle is
+    brief_stated false").
+
     Set brief_id to the EvidenceSet's run_id.
   expected_output: >
     A single AnalystArtifact JSON object (schemas/analyst_artifact.schema.json):
@@ -206,6 +213,11 @@ build_strategy:
 
     (11) IDs: ICP-n, PAIN-n, PILLAR-n, CHANNEL-n, PHASE-n, METRIC-n, RISK-n,
     FRQ-n. related_icp_ids and target_icp_ids must name ICPs you defined.
+
+    (12) Your text fields are printed in the final plan for business readers:
+    call the Analyst artifact "the analysis" and its sources "the research",
+    call the brief "the project brief", and write no field names, basis values
+    or other snake_case names.
 
     This is an academic, hypothetical strategy exercise: frame recommendations
     as illustrative, and do not state Wire3 internal facts that are not in the

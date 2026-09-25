@@ -5,6 +5,7 @@ Hard (guardrail; a failure re-prompts the Analyst):
   - every RQ that has evidence is cited somewhere or listed in unknowns
   - a competitor with an archived local page (brief.json archived_pages) has a pricing row whose
     prices cite that page
+Sent back once, then reported (wording_checks): pipeline vocabulary in text fields.
 Repaired in code (reported): a theme's related RQs are set from the evidence it cites.
 Soft (reported, never blocks):
   - a number marked basis 'evidence' that does not appear in the cited text
@@ -18,6 +19,7 @@ from collections import Counter
 
 from wire3_gtm.analyst_models import AnalystArtifact, check_grounding, cited_evidence_ids, dump_contract
 from wire3_gtm.evidence import EvidenceRecord
+from wire3_gtm.wording_checks import internal_terms, wording_feedback
 
 # Brief KPI: >=80% primary/top-tier sources. Defined here as primary + company
 # (provider's own pages) + analyst (J.D. Power, Parks, ...). news and community
@@ -328,13 +330,17 @@ def make_analyst_guardrail(evidence: list[EvidenceRecord], dropped_log: list | N
     """dropped_log receives the ids dropped from the most recent attempt.
 
     degrade: optional callable, True when there is no time left for another attempt. If the ONLY
-    remaining problems are uncovered research questions or unused archived pricing pages, the draft
-    is then accepted instead of re-prompted (or the run stopped), and the gaps go to gaps_log so the
-    run is reported degraded and the document says so. Any other problem is never accepted.
+    remaining problems are uncovered research questions, unused archived pricing pages or pipeline
+    wording, the draft is then accepted instead of re-prompted (or the run stopped), and the gaps go
+    to gaps_log so the run is reported degraded and the document says so. Any other problem is never
+    accepted.
+
+    Pipeline wording (wording_checks) is sent back once; after that it no longer blocks.
 
     archived_page_of: competitor -> archived local page (brief_context.archived_page_of); see
     archived_price_errors. None or empty (Ocala) checks nothing."""
     valid_ids = set(_rq_by_id(evidence))
+    wording_sent = [False]
 
     def guardrail(output):
         from wire3_gtm.wire_models import strict_or_feedback
@@ -363,14 +369,16 @@ def make_analyst_guardrail(evidence: list[EvidenceRecord], dropped_log: list | N
             dropped_log[:] = dropped
         grounding = check_grounding(artifact, valid_ids)
         coverage = coverage_errors(artifact, evidence) + archived_price_errors(artifact, evidence, archived_page_of or {})
+        wording = [] if wording_sent[0] else internal_terms(dump_contract(artifact))
         if gaps_log is not None:
             gaps_log.clear()
-        if coverage and not grounding and degrade is not None and degrade():
+        if (coverage or wording) and not grounding and degrade is not None and degrade():
             if gaps_log is not None:
                 gaps_log.extend(coverage)
             return True, output  # a valid, grounded artifact with uncovered questions, and no time to redo it
-        errors = grounding + coverage
+        errors = ([wording_feedback(wording)] if wording else []) + grounding + coverage  # first: never cut by [:15]
         if errors:
+            wording_sent[0] = wording_sent[0] or bool(wording)
             return False, (
                 "Fix these problems and return the full corrected artifact. Copy evidence ids only "
                 "from the evidence set, character for character (or use basis 'inference' with empty "
